@@ -1,4 +1,5 @@
 import type {
+  ClientContentPreview,
   DocumentAcknowledgement,
   SourceDocument,
   SourceDocumentDetail,
@@ -107,6 +108,15 @@ export function getDocumentationWorkspace(projectId: string) {
 export function getPublicClientSections(projectId: string) {
   return apiFetch<PublicClientSection[]>(
     `/projects/${projectId}/documentation/public-sections`,
+  );
+}
+
+// Step 4's frame (specs/022): the current release as the client reads it —
+// sections plus publishedAt — and the pending one when a newer version is
+// approved but not yet live. Contributor-only server-side.
+export function getClientContentPreview(projectId: string) {
+  return apiFetch<ClientContentPreview>(
+    `/projects/${projectId}/documentation/client-content`,
   );
 }
 

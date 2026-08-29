@@ -80,6 +80,13 @@ const DYNAMIC_KEYS = [
   // roadmap-editor.tsx maps over ROADMAP_PHASE_IDS from roadmap-phases.ts,
   // building the name of each phase it offers on the rail.
   /^Projects\.Documentation\.Sections\.Roadmap\.phase_\w+$/,
+  // The setup blocks each derive `state_<tone>` from their own connection
+  // state, for the line saying what they feed (specs/021+022, SetupBlock).
+  /^Projects\.BoardConnectionCard\.state_\w+$/,
+  /^Projects\.NotionConnectionCard\.state_\w+$/,
+  // documentation-rail.tsx builds `name_${key}` over STEP_KEYS; the state
+  // line ids come from step-states.ts as data (specs/022).
+  /^Projects\.Documentation\.Rail\.name_\w+$/,
 ];
 
 function escapeRegExp(value) {

@@ -160,7 +160,7 @@ export function AddDocumentDialog({
                 {t("notionUnavailable")}
               </p>
               <Button asChild variant="outline" className="w-fit">
-                <Link href={`/projects/${projectId}#project-tools`}>{t("configureNotion")}</Link>
+                <Link href={`/projects/${projectId}#connections`}>{t("configureNotion")}</Link>
               </Button>
             </div>
           )}
