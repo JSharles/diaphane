@@ -1,18 +1,14 @@
 "use client";
 
 import {
-  AlertCircle,
   AlertTriangle,
-  ArrowLeft,
   CheckCircle2,
   FilePlus2,
   FileWarning,
   LoaderCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect } from "react";
-import { useProject } from "@/features/projects/hooks";
-import { Link, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useDocumentationWorkspace, useReferenceSummary } from "../hooks";
@@ -90,56 +86,24 @@ function StateBanner({ projectId }: { projectId: string }) {
   );
 }
 
+// specs/022: the contributor gate, the back link and the page title moved to
+// the documentation layout — this is now step 3's panel, nothing more.
 export function ClientContentPage({ projectId }: { projectId: string }) {
   const t = useTranslations("Projects.Documentation.Client");
-  const project = useProject(projectId);
   const summary = useReferenceSummary(projectId);
-  const router = useRouter();
-  const isClient = project.data?.role === "client";
-
-  useEffect(() => {
-    if (isClient) router.replace(`/projects/${projectId}`);
-  }, [isClient, projectId, router]);
-
-  if (project.isPending || isClient) return <Skeleton className="h-48 w-full" />;
-  if (project.isError || !project.data) {
-    return (
-      <div className="flex flex-col items-center gap-3 py-16 text-center">
-        <AlertCircle className="size-8 text-destructive" />
-        <p className="text-sm text-muted-foreground">{t("loadError")}</p>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => project.refetch()}
-        >
-          {t("retry")}
-        </Button>
-      </div>
-    );
-  }
 
   const header = (
-    <div className="space-y-5">
-      <Link
-        href={`/projects/${projectId}`}
-        className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" />
-        {t("back")}
-      </Link>
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          {t("description")}
-        </p>
-      </div>
+    <div>
+      <h2 className="text-lg font-semibold tracking-tight">{t("title")}</h2>
+      <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted-foreground">
+        {t("description")}
+      </p>
     </div>
   );
 
   if (summary.isPending) {
     return (
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+      <main className="flex flex-col gap-6">
         {header}
         <Skeleton className="h-40 w-full rounded-xl" />
       </main>
@@ -153,7 +117,7 @@ export function ClientContentPage({ projectId }: { projectId: string }) {
   const referenceReady = summary.data?.document?.status === "ready";
   if (!referenceReady) {
     return (
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+      <main className="flex flex-col gap-6">
         {header}
         <div className="rounded-xl border border-dashed border-border p-8">
           <p className="font-medium">{t("startTitle")}</p>
@@ -174,7 +138,7 @@ export function ClientContentPage({ projectId }: { projectId: string }) {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+    <main className="flex flex-col gap-6">
       {header}
       <StateBanner projectId={projectId} />
       <SectionWorkspace projectId={projectId} />

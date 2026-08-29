@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import { SettingsRow } from "@/shared/components/settings-row";
+import { SetupBlock, type SetupTone } from "@/shared/components/setup-block";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ApiError } from "@/shared/lib/api-client";
@@ -49,10 +49,16 @@ export function NotionConnectionCard({ projectId }: { projectId: string }) {
   }
 
 
+  // specs/022: the documents left the setup screen for the documentation's
+  // own step 1, so this connection stands alone again — the pipe, not what
+  // pours through it. Its consequence line names the step it feeds.
+  const feedsTone: SetupTone = connection?.connected ? "live" : "waiting";
+
   return (
     <>
-      <SettingsRow
+      <SetupBlock
         title={t("title")}
+        feeds={{ label: t("feeds"), state: t(`state_${feedsTone}`), tone: feedsTone }}
         description={
           isPending ? (
             <Skeleton className="h-4 w-32" />
@@ -91,7 +97,7 @@ export function NotionConnectionCard({ projectId }: { projectId: string }) {
             {t("connect")}
           </Button>
         )}
-      </SettingsRow>
+      </SetupBlock>
 
       <ConnectNotionDialog projectId={projectId} open={open} onOpenChange={setOpen} />
 

@@ -37,6 +37,7 @@ import {
   listNotes,
   removeNote,
   getDocumentationWorkspace,
+  getClientContentPreview,
   confirmDocumentRemoval,
   previewDocumentRemoval,
 } from "./api";
@@ -196,6 +197,13 @@ export function usePublicClientSections(projectId: string) {
   return useQuery({
     queryKey: publicClientSectionsKey(projectId),
     queryFn: () => getPublicClientSections(projectId),
+  });
+}
+
+export function useClientContentPreview(projectId: string) {
+  return useQuery({
+    queryKey: [...documentationKey(projectId), "client-content"] as const,
+    queryFn: () => getClientContentPreview(projectId),
   });
 }
 

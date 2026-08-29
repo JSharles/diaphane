@@ -50,7 +50,10 @@ describe("NotionConnectionCard", () => {
     expect(screen.queryByText("notConnected")).not.toBeInTheDocument();
   });
 
-  it("shows the not-connected state with a way to start connecting", () => {
+  // specs/022: the documents left the setup screen, so this connection stands
+  // alone again — a titled block whose consequence line names the step it
+  // feeds ("vos fichiers et pages Notion"), waiting until it is connected.
+  it("shows the not-connected state, the way to connect, and what it feeds", () => {
     mockedUseNotionConnection.mockReturnValue({
       data: { connected: false, workspaceName: null },
       isPending: false,
@@ -58,8 +61,21 @@ describe("NotionConnectionCard", () => {
 
     render(<NotionConnectionCard projectId="project-1" />);
 
-    expect(screen.getByText("notConnected")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "connect" })).toBeInTheDocument();
+    expect(screen.getByText("notConnected")).toBeInTheDocument();
+    expect(screen.getByText("feeds")).toBeInTheDocument();
+    expect(screen.getByText("state_waiting")).toBeInTheDocument();
+  });
+
+  it("reads as live once connected", () => {
+    mockedUseNotionConnection.mockReturnValue({
+      data: { connected: true, workspaceName: "Atelier" },
+      isPending: false,
+    } as unknown as ReturnType<typeof useNotionConnection>);
+
+    render(<NotionConnectionCard projectId="project-1" />);
+
+    expect(screen.getByText("state_live")).toBeInTheDocument();
   });
 
   it("opens the connect dialog when the connect button is clicked", async () => {

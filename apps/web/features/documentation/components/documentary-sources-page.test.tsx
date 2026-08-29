@@ -64,14 +64,15 @@ describe("DocumentarySourcesPage", () => {
     withSummary({ documentCount: 1, document: { status: "ready" } });
   });
 
-  // The documents and the document written from them are one job: a document is
-  // added so that the reference changes, and adding one starts the write.
-  it("puts the documents and the document written from them on one screen", () => {
+  // specs/022: the reference document has its own step now. This page is the
+  // document list and add/remove, nothing else — the mocked ReferenceDocumentView
+  // above stays declared as a tripwire: if it is imported here again, its
+  // marker text renders and the absence assertion fails loudly.
+  it("holds the document list, and no longer the document written from it", () => {
     render(<DocumentarySourcesPage projectId="project-1" />);
 
-    expect(screen.getByRole("heading", { name: "title" })).toBeVisible();
     expect(screen.getByText("Cahier des charges")).toBeVisible();
-    expect(screen.getByText("reference-document")).toBeVisible();
+    expect(screen.queryByText("reference-document")).not.toBeInTheDocument();
   });
 
   it("opens addition and removal from the same page", () => {
@@ -96,19 +97,9 @@ describe("DocumentarySourcesPage", () => {
     expect(screen.getByText("emptyTitle")).toBeVisible();
   });
 
-  // Finishing the reference is exactly when the developer is ready for the job
-  // this page serves, so the way back is offered here.
-  it("points back at the documentation once the document is written", () => {
-    render(<DocumentarySourcesPage projectId="project-1" />);
-
-    expect(
-      screen.getByRole("link", { name: /toClientContent/ }),
-    ).toHaveAttribute("href", "/projects/project-1/documentation");
-  });
-
-  it("does not point there while nothing has been written", () => {
-    withSummary({ documentCount: 1, document: null });
-
+  // The rail carries the way onward now; a footer link here would be a second
+  // navigation for the same move (specs/022).
+  it("carries no navigation of its own", () => {
     render(<DocumentarySourcesPage projectId="project-1" />);
 
     expect(
@@ -130,16 +121,6 @@ describe("DocumentarySourcesPage", () => {
     expect(screen.queryByText("emptyTitle")).not.toBeInTheDocument();
   });
 
-  it("redirects a client without exposing contributor documents", () => {
-    vi.mocked(useProject).mockReturnValue({
-      data: { role: "client" },
-      isPending: false,
-      isError: false,
-    } as never);
-
-    render(<DocumentarySourcesPage projectId="project-1" />);
-
-    expect(replace).toHaveBeenCalledWith("/projects/project-1");
-    expect(screen.queryByText("Cahier des charges")).not.toBeInTheDocument();
-  });
+  // The contributor gate moved to the documentation layout (specs/022) —
+  // covered in layout.test.tsx; the API refuses independently either way.
 });

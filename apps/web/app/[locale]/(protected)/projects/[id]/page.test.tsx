@@ -13,6 +13,18 @@ vi.mock("@/features/projects/hooks", () => ({
   useProject: vi.fn(),
 }));
 
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({
+    href,
+    children,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 vi.mock("@/features/projects/components/team-summary-card", () => ({
   TeamSummaryCard: ({ projectId }: { projectId: string }) => (
     <div>team-summary-card:{projectId}</div>
@@ -84,20 +96,49 @@ function mockProject(role: "contributor" | "client", isAdmin: boolean) {
 }
 
 describe("ProjectPage", () => {
-  it("shows the documentation card and project settings to a contributor admin", () => {
+  it("shows a contributor admin what the client receives, plus access", () => {
     mockProject("contributor", true);
 
     renderPage();
 
     expect(screen.getByText("Site vitrine client X")).toBeInTheDocument();
-    expect(screen.getByText("team-summary-card:project-1")).toBeInTheDocument();
     expect(screen.getByText("documentation-summary:project-1")).toBeInTheDocument();
-    expect(screen.getByText("board-connection-card:project-1")).toBeInTheDocument();
-    expect(screen.getByText("notion-connection-card:project-1")).toBeInTheDocument();
-    expect(screen.getByText("meeting-link-card:project-1")).toBeInTheDocument();
-    expect(screen.getByText("project-preferences:project-1")).toBeInTheDocument();
+    expect(screen.getByText("team-summary-card:project-1")).toBeInTheDocument();
     expect(screen.queryByText("client-main-tabs:project-1")).not.toBeInTheDocument();
   });
+
+  // 2026-08-29, after specs/022: the documents live in the documentation and
+  // the remaining connections came back to the foot of this page — the setup
+  // route was more address than content. The documentary-source mock is a
+  // tripwire: that component is deleted, and if a documents block is ever
+  // reintroduced here its marker renders and this fails loudly.
+  it("holds the connections at the foot, and no documents block", () => {
+    mockProject("contributor", true);
+
+    renderPage();
+
+    expect(screen.getByText("notion-connection-card:project-1")).toBeInTheDocument();
+    expect(screen.getByText("board-connection-card:project-1")).toBeInTheDocument();
+    expect(screen.getByText("meeting-link-card:project-1")).toBeInTheDocument();
+    expect(screen.getByText("project-preferences:project-1")).toBeInTheDocument();
+    expect(screen.queryByText("documentary-source:project-1")).not.toBeInTheDocument();
+  });
+
+  // The only orientation on arrival used to be the title itself: no crumb, no
+  // way back to the list the project was opened from.
+  it.each(["contributor", "client"] as const)(
+    "offers a %s the way back to their project list",
+    (role) => {
+      mockProject(role, false);
+
+      renderPage();
+
+      expect(screen.getByRole("link", { name: "backToProjects" })).toHaveAttribute(
+        "href",
+        "/home",
+      );
+    },
+  );
 
   it("shows no join-meeting shortcut when the project has no meeting link", () => {
     mockProject("contributor", true);
@@ -144,20 +185,18 @@ describe("ProjectPage", () => {
     expect(screen.queryByRole("link", { name: "joinMeeting" })).not.toBeInTheDocument();
   });
 
-  it("shows the same full set of sections for a non-admin contributor", () => {
+  it("shows the same sections to a non-admin contributor", () => {
     mockProject("contributor", false);
 
     renderPage();
 
-    expect(screen.getByText("team-summary-card:project-1")).toBeInTheDocument();
     expect(screen.getByText("documentation-summary:project-1")).toBeInTheDocument();
+    expect(screen.getByText("team-summary-card:project-1")).toBeInTheDocument();
     expect(screen.getByText("board-connection-card:project-1")).toBeInTheDocument();
-    expect(screen.getByText("notion-connection-card:project-1")).toBeInTheDocument();
-    expect(screen.getByText("meeting-link-card:project-1")).toBeInTheDocument();
-    expect(screen.getByText("project-preferences:project-1")).toBeInTheDocument();
   });
 
-  it("orders contributor sections by usage frequency, with Board and Notion grouped under a Tools heading and Timezone/Date format/Language under Preferences", () => {
+  // The order is the hierarchy: the work, then access, then the wiring.
+  it("puts the work first and the wiring at the foot", () => {
     mockProject("contributor", true);
 
     renderPage();
@@ -165,9 +204,9 @@ describe("ProjectPage", () => {
     const labels = [
       "documentation-summary:project-1",
       "team-summary-card:project-1",
-      "tools",
-      "board-connection-card:project-1",
+      "connections",
       "notion-connection-card:project-1",
+      "board-connection-card:project-1",
       "meeting-link-card:project-1",
       "preferences",
       "project-preferences:project-1",

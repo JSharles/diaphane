@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
-import { SettingsRow } from "@/shared/components/settings-row";
+import { SetupBlock, type SetupTone } from "@/shared/components/setup-block";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ApiError } from "@/shared/lib/api-client";
@@ -54,10 +54,21 @@ export function BoardConnectionCard({ projectId }: { projectId: string }) {
     disconnect.mutate(undefined, { onSuccess: () => setConfirmDisconnectOpen(false) });
   }
 
+  // specs/021: the board is the project's other input, and it states what it
+  // feeds. A revoked authorization is neither waiting nor live — the board is
+  // still named but no longer read — so it reads as unknown rather than
+  // claiming a service that has quietly stopped.
+  const feedsTone: SetupTone = connection?.needsReconnect
+    ? "unknown"
+    : connection
+      ? "live"
+      : "waiting";
+
   return (
     <>
-      <SettingsRow
+      <SetupBlock
         title={t("title")}
+        feeds={{ label: t("feeds"), state: t(`state_${feedsTone}`), tone: feedsTone }}
         description={
           isPending ? (
             <Skeleton className="h-4 w-32" />
@@ -107,7 +118,7 @@ export function BoardConnectionCard({ projectId }: { projectId: string }) {
             {t("connect")}
           </Button>
         )}
-      </SettingsRow>
+      </SetupBlock>
 
       <ConnectBoardDialog projectId={projectId} open={open} onOpenChange={setOpen} />
 

@@ -190,13 +190,13 @@
       "submitPending": "Création…"
     },
     "ProjectPage": {
+      "backToProjects": "Vos projets",
       "inviteClient": "Inviter un client",
       "loadErrorTitle": "Impossible de charger ce projet",
       "loadErrorRetry": "Réessayer",
-      "tools": "Outils",
-      "preferences": "Préférences",
       "joinMeeting": "Rejoindre la réunion",
-      "sources": "Sources"
+      "connections": "Branchements",
+      "preferences": "Préférences"
     },
     "Documentation": {
       "AddDocument": {
@@ -400,11 +400,6 @@
         "notWrittenYet": "Vos {count, plural, one {# document n’a} other {# documents n’ont}} pas encore donné de document de référence. Lancez la rédaction."
       },
       "Base": {
-        "back": "Retour à la documentation",
-        "title": "Mes documents",
-        "description": "Ce que Diaphane lit pour écrire la documentation de votre client. Ajoutez, retirez : le document de référence est réécrit à chaque fois.",
-        "loadError": "Impossible de charger ce projet.",
-        "retry": "Réessayer",
         "documentsTitle": "Vos documents",
         "documentsDescription": "Cahier des charges, comptes rendus, pages Notion : tout ce qui décrit le projet. Chaque ajout ou retrait relance la rédaction.",
         "add": "Ajouter un document",
@@ -413,17 +408,11 @@
         "emptyDescription": "Ajoutez-en un et Diaphane écrit votre document de référence dans la foulée.",
         "documentsLoadError": "Impossible de charger vos documents.",
         "loadMore": "Afficher plus",
-        "loadingMore": "Chargement…",
-        "referenceTitle": "Document de référence",
-        "referenceDescription": "Ce que disent vos documents, réuni en un seul texte structuré. Répondez aux points à clarifier et corrigez les passages faux directement dedans.",
-        "toClientContent": "Revenir à la documentation client"
+        "loadingMore": "Chargement…"
       },
       "Client": {
-        "back": "Retour au projet",
         "title": "Documentation client",
         "description": "Ce que votre client lira. Vous décidez des rubriques, Diaphane les rédige à partir de vos documents, et rien n’est publié sans votre accord.",
-        "loadError": "Impossible de charger ce projet.",
-        "retry": "Réessayer",
         "priority_needs_action": "Une rubrique attend votre relecture",
         "priority_processing": "Rédaction en cours",
         "priority_published": "Votre client lit la version à jour",
@@ -454,17 +443,47 @@
         "priority_no_sections": "Créez votre première rubrique",
         "priority_needs_attention": "Une rédaction n’a pas abouti"
       },
-      "SourceRow": {
-        "title": "Documents du projet",
-        "noDocuments": "Aucun document — Diaphane ne peut encore rien écrire",
-        "writing": "Lecture de vos documents en cours",
-        "failed": "La lecture de vos documents n’a pas abouti",
-        "notWritten": "{count, plural, one {# document} other {# documents}} — pas encore lus",
-        "owed": "{count, plural, one {# document} other {# documents}} — document de référence à mettre à jour",
-        "ready": "{count, plural, one {# document lu} other {# documents lus}}",
-        "readyWithPoints": "{count, plural, one {# document lu} other {# documents lus}} · {points, plural, one {# point à clarifier} other {# points à clarifier}}",
-        "manage": "Gérer",
-        "start": "Ajouter"
+      "Rail": {
+        "label": "Les quatre temps de la documentation",
+        "name_sources": "Vos fichiers et pages Notion",
+        "name_reference": "Ce que Diaphane en a compris",
+        "name_sections": "Vos rubriques",
+        "name_client": "Ce que lit votre client",
+        "lead_reference": "Écrit à partir de vos documents, réécrit à chaque ajout ou retrait. Corrigez ce qui est faux et répondez aux passages surlignés : vos réponses sont rejouées à chaque réécriture.",
+        "stateUnknown": "État inconnu",
+        "sourcesEmpty": "Rien pour l'instant",
+        "sourcesCount": "{count, plural, one {# document} other {# documents}}",
+        "referenceWaiting": "En attente d'un premier fichier",
+        "referenceNotWritten": "Pas encore écrit",
+        "referenceWriting": "Rédaction en cours",
+        "referenceFailed": "La rédaction n'a pas abouti",
+        "referenceOwed": "À mettre à jour",
+        "referencePoints": "{points, plural, one {# point à clarifier} other {# points à clarifier}}",
+        "referenceReady": "À jour",
+        "sectionsWaiting": "En attente de l'étape 2",
+        "sectionsNone": "Aucune rubrique",
+        "sectionsFailed": "{count, plural, one {# rédaction échouée} other {# rédactions échouées}}",
+        "sectionsReview": "{count, plural, one {# à relire} other {# à relire}}",
+        "sectionsProcessing": "Rédaction en cours",
+        "sectionsUpToDate": "À jour",
+        "clientNothing": "Rien n'est publié",
+        "clientPrevious": "Version précédente visible",
+        "clientCurrent": "À jour"
+      },
+      "Hub": {
+        "title": "Documentation",
+        "back": "Retour au projet",
+        "loadError": "Impossible de charger ce projet.",
+        "retry": "Réessayer"
+      },
+      "Mirror": {
+        "title": "Ce que lit votre client",
+        "liveSince": "En ligne depuis le {date}",
+        "live": "En ligne",
+        "nothing": "Rien n'est publié — votre client ne voit encore aucune rubrique.",
+        "pendingNotice": "Une nouvelle version se prépare : {ready, plural, one {# rubrique prête} other {# rubriques prêtes}} sur {expected}. Votre client garde la version actuelle en attendant.",
+        "throughTheirEyes": "Son écran, exactement",
+        "emptyBody": "Dès qu'une rubrique sera relue et approuvée, elle apparaîtra ici — et chez votre client."
       }
     },
     "TeamSummaryCard": {
@@ -511,7 +530,7 @@
       "removeConfirmAction": "Retirer"
     },
     "BoardConnectionCard": {
-      "title": "Board",
+      "title": "Votre board",
       "notConnected": "Aucun board connecté pour le moment",
       "connect": "Connecter un board",
       "connectedTo": "Connecté à {title}",
@@ -522,7 +541,11 @@
       "disconnectConfirmTitle": "Déconnecter ce board ?",
       "disconnectConfirmDescription": "Le client ne verra plus l’avancement des tâches de ce board tant qu’il n’est pas reconnecté.",
       "disconnectConfirmCancel": "Annuler",
-      "disconnectConfirmAction": "Déconnecter"
+      "disconnectConfirmAction": "Déconnecter",
+      "feeds": "Alimente l’avancement affiché au client",
+      "state_waiting": "En attente",
+      "state_live": "En service",
+      "state_unknown": "État inconnu"
     },
     "ConnectBoardDialog": {
       "title": "Connecter un board GitHub Projects",
@@ -536,18 +559,21 @@
       "estimateUnitHours": "Heures"
     },
     "NotionConnectionCard": {
-      "title": "Notion",
-      "notConnected": "Aucune intégration Notion connectée pour le moment",
       "connected": "Connectée",
       "connectedTo": "Connectée à {name}",
-      "connect": "Connecter",
+      "connect": "Connecter Notion",
       "reconnect": "Reconnecter",
       "disconnect": "Déconnecter",
       "disconnecting": "Déconnexion…",
       "disconnectConfirmTitle": "Déconnecter cette intégration Notion ?",
       "disconnectConfirmDescription": "Il ne sera plus possible d’ajouter de nouvelles ressources Notion tant qu’elle n’est pas reconnectée. Les ressources déjà ajoutées depuis Notion ne sont pas affectées.",
       "disconnectConfirmCancel": "Annuler",
-      "disconnectConfirmAction": "Déconnecter"
+      "disconnectConfirmAction": "Déconnecter",
+      "title": "Notion",
+      "feeds": "Alimente vos fichiers et pages Notion",
+      "state_waiting": "En attente",
+      "state_live": "En service",
+      "notConnected": "Aucune intégration connectée pour le moment"
     },
     "ConnectNotionDialog": {
       "title": "Connecter une intégration Notion",

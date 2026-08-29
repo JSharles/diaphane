@@ -170,16 +170,6 @@ describe("ClientContentPage", () => {
     );
   });
 
-  it("redirects a client away from the contributor surface", () => {
-    vi.mocked(useProject).mockReturnValue({
-      data: { role: "client" },
-      isPending: false,
-      isError: false,
-    } as never);
-
-    render(<ClientContentPage projectId="project-1" />);
-
-    expect(replace).toHaveBeenCalledWith("/projects/project-1");
-    expect(screen.queryByText("section-workspace")).not.toBeInTheDocument();
-  });
+  // The contributor gate moved to the documentation layout (specs/022) —
+  // covered in layout.test.tsx; the API refuses independently either way.
 });

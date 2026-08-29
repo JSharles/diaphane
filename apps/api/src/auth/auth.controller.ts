@@ -169,10 +169,11 @@ export class AuthController {
   ): Promise<void> {
     const webOrigin = process.env.WEB_ORIGIN;
     const { locale, projectId } = oauthFlow;
-    // 2026-08-09: the dedicated Settings route was folded back into the
-    // main project page (BoardConnectionCard now renders there directly,
-    // as one of several linear sections) — the callback must land back on
-    // the screen that actually renders it.
+    // The callback lands on whichever screen renders BoardConnectionCard.
+    // That has moved twice — onto the project page (2026-08-09), out to a
+    // setup route (specs/021), and back (2026-08-29, once specs/022 moved the
+    // documents into the documentation and left setup more address than
+    // content). The connections now live at the foot of the project page.
     const projectUrl = `${webOrigin}/${locale}/projects/${projectId}`;
 
     let accessToken: string;

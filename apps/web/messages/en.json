@@ -190,13 +190,13 @@
       "submitPending": "Creating…"
     },
     "ProjectPage": {
+      "backToProjects": "Your projects",
       "inviteClient": "Invite a client",
       "loadErrorTitle": "Couldn't load this project",
       "loadErrorRetry": "Retry",
-      "tools": "Tools",
-      "preferences": "Preferences",
       "joinMeeting": "Join meeting",
-      "sources": "Sources"
+      "connections": "Connections",
+      "preferences": "Preferences"
     },
     "Documentation": {
       "AddDocument": {
@@ -400,11 +400,6 @@
         "notWrittenYet": "Your {count, plural, one {# document has} other {# documents have}} not produced a reference document yet. Start it."
       },
       "Base": {
-        "back": "Back to the documentation",
-        "title": "My documents",
-        "description": "What Diaphane reads to write your client's documentation. Add or remove: the reference document is written again every time.",
-        "loadError": "Could not load this project.",
-        "retry": "Try again",
         "documentsTitle": "Your documents",
         "documentsDescription": "Statements of work, meeting notes, Notion pages: anything that describes the project. Every document added or removed starts the writing again.",
         "add": "Add a document",
@@ -413,17 +408,11 @@
         "emptyDescription": "Add one and Diaphane writes your reference document straight away.",
         "documentsLoadError": "Could not load your documents.",
         "loadMore": "Show more",
-        "loadingMore": "Loading…",
-        "referenceTitle": "Reference document",
-        "referenceDescription": "What your documents say, brought together as one structured text. Answer the open points and correct anything wrong right inside it.",
-        "toClientContent": "Back to the client documentation"
+        "loadingMore": "Loading…"
       },
       "Client": {
-        "back": "Back to the project",
         "title": "Client documentation",
         "description": "What your client will read. You decide the topics, Diaphane writes them from your documents, and nothing is published without your approval.",
-        "loadError": "Could not load this project.",
-        "retry": "Try again",
         "priority_needs_action": "A topic is waiting for your review",
         "priority_processing": "Writing in progress",
         "priority_published": "Your client is reading the current version",
@@ -454,17 +443,47 @@
         "priority_no_sections": "Create your first topic",
         "priority_needs_attention": "A write did not finish"
       },
-      "SourceRow": {
-        "title": "Project documents",
-        "noDocuments": "No documents — Diaphane cannot write anything yet",
-        "writing": "Reading your documents",
-        "failed": "Reading your documents did not finish",
-        "notWritten": "{count, plural, one {# document} other {# documents}} — not read yet",
-        "owed": "{count, plural, one {# document} other {# documents}} — reference document to update",
-        "ready": "{count, plural, one {# document read} other {# documents read}}",
-        "readyWithPoints": "{count, plural, one {# document read} other {# documents read}} · {points, plural, one {# point to clarify} other {# points to clarify}}",
-        "manage": "Manage",
-        "start": "Add"
+      "Rail": {
+        "label": "The four moments of the documentation",
+        "name_sources": "Your files and Notion pages",
+        "name_reference": "What Diaphane understood",
+        "name_sections": "Your topics",
+        "name_client": "What your client reads",
+        "lead_reference": "Written from your documents, rewritten on every add or removal. Fix what is wrong and answer the highlighted passages: your answers are replayed on every rewrite.",
+        "stateUnknown": "State unknown",
+        "sourcesEmpty": "Nothing yet",
+        "sourcesCount": "{count, plural, one {# document} other {# documents}}",
+        "referenceWaiting": "Waiting for a first file",
+        "referenceNotWritten": "Not written yet",
+        "referenceWriting": "Being written",
+        "referenceFailed": "The write did not go through",
+        "referenceOwed": "Needs updating",
+        "referencePoints": "{points, plural, one {# point to clarify} other {# points to clarify}}",
+        "referenceReady": "Up to date",
+        "sectionsWaiting": "Waiting on step 2",
+        "sectionsNone": "No topic yet",
+        "sectionsFailed": "{count, plural, one {# failed write} other {# failed writes}}",
+        "sectionsReview": "{count, plural, one {# to review} other {# to review}}",
+        "sectionsProcessing": "Being written",
+        "sectionsUpToDate": "Up to date",
+        "clientNothing": "Nothing is published",
+        "clientPrevious": "Previous version still visible",
+        "clientCurrent": "Up to date"
+      },
+      "Hub": {
+        "title": "Documentation",
+        "back": "Back to the project",
+        "loadError": "This project could not be loaded.",
+        "retry": "Try again"
+      },
+      "Mirror": {
+        "title": "What your client reads",
+        "liveSince": "Live since {date}",
+        "live": "Live",
+        "nothing": "Nothing is published — your client sees no topic yet.",
+        "pendingNotice": "A new version is on its way: {ready, plural, one {# topic ready} other {# topics ready}} of {expected}. Your client keeps the current version until it is complete.",
+        "throughTheirEyes": "Their screen, exactly",
+        "emptyBody": "As soon as a topic is reviewed and approved it appears here — and on your client's page."
       }
     },
     "TeamSummaryCard": {
@@ -511,7 +530,7 @@
       "removeConfirmAction": "Remove"
     },
     "BoardConnectionCard": {
-      "title": "Board",
+      "title": "Your board",
       "notConnected": "No board connected yet",
       "connect": "Connect a board",
       "connectedTo": "Connected to {title}",
@@ -522,7 +541,11 @@
       "disconnectConfirmTitle": "Disconnect this board?",
       "disconnectConfirmDescription": "The client will stop seeing task progress from this board until it's reconnected.",
       "disconnectConfirmCancel": "Cancel",
-      "disconnectConfirmAction": "Disconnect"
+      "disconnectConfirmAction": "Disconnect",
+      "feeds": "Feeds the progress your client sees",
+      "state_waiting": "Waiting",
+      "state_live": "Live",
+      "state_unknown": "Unknown"
     },
     "ConnectBoardDialog": {
       "title": "Connect a GitHub Projects board",
@@ -536,18 +559,21 @@
       "estimateUnitHours": "Hours"
     },
     "NotionConnectionCard": {
-      "title": "Notion",
-      "notConnected": "No Notion integration connected yet",
       "connected": "Connected",
       "connectedTo": "Connected to {name}",
-      "connect": "Connect",
+      "connect": "Connect Notion",
       "reconnect": "Reconnect",
       "disconnect": "Disconnect",
       "disconnecting": "Disconnecting…",
       "disconnectConfirmTitle": "Disconnect this Notion integration?",
       "disconnectConfirmDescription": "New Notion resources won't be addable until it's reconnected. Existing resources already added from Notion are unaffected.",
       "disconnectConfirmCancel": "Cancel",
-      "disconnectConfirmAction": "Disconnect"
+      "disconnectConfirmAction": "Disconnect",
+      "title": "Notion",
+      "feeds": "Feeds your files and Notion pages",
+      "state_waiting": "Waiting",
+      "state_live": "Live",
+      "notConnected": "No integration connected yet"
     },
     "ConnectNotionDialog": {
       "title": "Connect a Notion integration",
