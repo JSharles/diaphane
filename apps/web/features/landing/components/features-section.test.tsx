@@ -8,7 +8,7 @@ describe("FeaturesSection", () => {
 
     expect(screen.getByText("eyebrow")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "title" }),
+      screen.getByRole("heading", { level: 2, name: "titletitleAccent" }),
     ).toBeInTheDocument();
     expect(screen.getByText("badge")).toBeInTheDocument();
     expect(screen.getByText("documentBadge")).toBeInTheDocument();

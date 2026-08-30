@@ -23,7 +23,7 @@ export function DocumentPreview() {
     <div className="relative mt-6 overflow-hidden rounded-3xl border border-border bg-card p-5 sm:p-8 lg:p-10">
       <div className="pointer-events-none absolute -bottom-32 left-0 size-80 rounded-full bg-glow/10 blur-3xl" />
       <div className="relative">
-        <span className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold tracking-[0.16em] text-primary uppercase">
+        <span className="inline-flex w-fit items-center gap-1.5 text-xs font-mono font-semibold tracking-[0.16em] text-primary uppercase">
           <FileText className="size-3.5" />
           {t("documentBadge")}
         </span>

@@ -42,14 +42,17 @@ Today (MVP), this fetch/translate layer does not exist: tasks are entered direct
 
 Product name: **Diaphane**. Tagline (from app metadata): "Track your project's progress with total transparency."
 
-**Visual identity — confirmed binding at the product-truth level** (2026-08-07): a single dark theme built from four signature colors, no light mode.
+**Visual identity — confirmed binding at the product-truth level** (2026-08-30 "Optical memory", superseding the same-day Phosphor pass): a contemporary, editorial, single-dark-theme brand carrying the faint memory of a very good screen. The CRT reference is a **texture, not a theme** — no scanlines, no screen frame, no retro devices. The brand language is **BLACK + WHITE + LIGHT**: near-black grounds with felt-not-seen depth, cold-white text, and one signature light appearing rarely.
 
-| Color             | Role                                                                                      | Value                                                                                               |
-| ----------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| **Black**         | The void — page background, the ground everything else sits on                            | `#000000`                                                                                           |
-| **Midnight Blue** | Atmosphere — a soft glow in the fixed background mesh, never a flat fill                  | `#1c2245` (the brand's periwinkle-blue glow token, `#5c71e7`, blended into the black ground)        |
-| **Pale Mauve**    | The one interactive/emphasis color — buttons, links, focus rings, the logo's own wordmark | `#dae1ff` (documented in the design system as "Periwinkle" — same color, read as a pale mauve-blue) |
-| **White**         | Body text and bright surfaces — a barely-tinted off-white, not pure white                 | `#eff0f6`                                                                                           |
+| Family | Values |
+| --- | --- |
+| **Blacks** | Background `#080A0B`, Elevated `#0E1113` (cards), Soft `#14181A` (controls) — cold hairline borders `rgba(220,240,248,.10)` |
+| **Whites** | Primary Text `#F1F5F6`, Secondary `#949DA1`, Pure White `#FFFFFF` (peaks) |
+| **The signature light** | **Optical Light `#C8EBFD`** with halo falloff toward `#577DB8` — both *sampled from the brand moodboard's film-credit frame*. Lives in: emphasized words in titles, eyebrows and small icons, focus rings, the hero title's film-credit halo, and the light effects (SideRays beam, glass nav) — never as fills or long text runs |
+
+Emphasis works by light: titles break into a matte first phrase and a signature-lit second one (the hero pattern echoed down the page). Matte by default — the rarity of the light is the sophistication. Effects are decorative by contract: the page is complete with all of them disabled (`prefers-reduced-motion`, no-WebGL fallbacks).
+
+**Known remnant, deliberately out of scope:** the logo assets (`logo-square.png`, `brand-logo.png`) still carry the old periwinkle mark baked into the image — regenerating them is a separate manual asset task.
 
 Full token-level detail (elevation, borders, semantic/status colors, component treatments) lives in `apps/web/DESIGN.md` — this table is the confirmed brand-truth summary; DESIGN.md is where it's implemented.
 

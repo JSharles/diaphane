@@ -8,7 +8,7 @@ export function AiPreview() {
     <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-5 sm:p-8 lg:p-10">
       <div className="pointer-events-none absolute -top-32 right-0 size-80 rounded-full bg-glow/15 blur-3xl" />
       <div className="relative flex flex-col gap-8">
-        <span className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold tracking-[0.16em] text-primary uppercase">
+        <span className="inline-flex w-fit items-center gap-1.5 text-xs font-mono font-semibold tracking-[0.16em] text-primary uppercase">
           <Sparkles className="size-3.5" />
           {t("badge")}
         </span>

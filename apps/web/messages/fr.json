@@ -25,7 +25,7 @@
     },
     "features": {
       "eyebrow": "La complexité, traduite",
-      "title": "La tech reste précise. Elle devient accessible.",
+      "title": "La tech reste précise. ",
       "subhead": "Diaphane retire le jargon et l’opacité, pas la substance. Chaque information reste fidèle au travail réel et devient compréhensible pour votre client.",
       "preview": {
         "badge": "Exemple de transformation",
@@ -71,7 +71,8 @@
         "sectionText": "Le client retrouve l’avancement, les décisions et le contexte utile dans une vue organisée, sans parcourir les documents de travail.",
         "controlLabel": "Avant publication :",
         "controlText": "vous validez, refusez ou reclassez chaque section proposée."
-      }
+      },
+      "titleAccent": "Elle devient accessible."
     },
     "howItWorks": {
       "eyebrow": "Mise en place",
@@ -87,25 +88,27 @@
     },
     "developers": {
       "eyebrow": "Pour le développeur",
-      "title": "Moins de reporting. Plus de contexte fiable.",
+      "title": "Moins de reporting. ",
       "subhead": "Vous rendez le projet lisible sans construire et maintenir un compte-rendu parallèle.",
       "card1Title": "Réduisez les demandes de statut",
       "card1Description": "Votre client peut consulter la tâche en cours, sa raison et son état sans attendre votre prochain message.",
       "card2Title": "Continuez dans votre outil de suivi",
       "card2Description": "Votre board reste votre espace de travail. Diaphane en produit une lecture adaptée au client.",
       "card3Title": "Transformez la documentation existante",
-      "card3Description": "Diaphane classe, structure et vulgarise son contenu ; vous validez chaque section avant de la publier."
+      "card3Description": "Diaphane classe, structure et vulgarise son contenu ; vous validez chaque section avant de la publier.",
+      "titleAccent": "Plus de contexte fiable."
     },
     "clients": {
       "eyebrow": "Pour le client",
-      "title": "Une vue claire, sans apprendre vos outils.",
+      "title": "Une vue claire, ",
       "subhead": "Le client accède au contexte qui l’aide à comprendre et à participer, pas à la complexité de votre environnement technique.",
       "card1Title": "Comprendre ce qui se passe maintenant",
       "card1Description": "La tâche en cours est présentée avec sa raison, son impact et son état en langage clair.",
       "card2Title": "Explorer une documentation structurée",
       "card2Description": "Les informations approuvées sont rangées par sujet et reformulées clairement, avec le document d’origine toujours accessible.",
       "card3Title": "Identifier les bonnes personnes",
-      "card3Description": "L’équipe, les coordonnées utiles et le lien de réunion restent réunis dans le même espace."
+      "card3Description": "L’équipe, les coordonnées utiles et le lien de réunion restent réunis dans le même espace.",
+      "titleAccent": "sans apprendre vos outils."
     },
     "faq": {
       "eyebrow": "Questions fréquentes",
@@ -129,9 +132,10 @@
     },
     "closing": {
       "eyebrow": "Prêt à lever le voile ?",
-      "title": "Montrez ce qui se passe vraiment. Gagnez leur confiance.",
+      "title": "Montrez ce qui se passe vraiment. ",
       "subhead": "Rendez votre travail compréhensible sans changer votre façon de travailler.",
-      "cta": "Créer un espace pour mon client"
+      "cta": "Créer un espace pour mon client",
+      "titleAccent": "Gagnez leur confiance."
     },
     "footer": {
       "statement": "La complexité technique, rendue compréhensible pour vos clients.",

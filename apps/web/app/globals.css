@@ -3,88 +3,80 @@
 
 :root {
   --radius: 0.625rem;
-  /* 2026-08-07 dark rebrand: the new brand-logo asset is a lockup baked
-     onto a pure-black chip, its wordmark set in the brand's own periwinkle
-     (#dae1ff) — sampled directly from the asset, not eyeballed. That pairing
-     (black ground, periwinkle ink) replaces the prior "single light theme,
-     no dark mode" commitment (docs/PRODUCT.md, DESIGN.md) as the one and
-     only theme — this is still a single committed theme, not a toggle.
-     Polarity inverts but the structure survives: periwinkle was purely
-     atmospheric before (backgrounds/secondary surfaces) and is now promoted
-     to the one interactive color (buttons, links, focus rings) — the same
-     single-accent discipline the old "ink" role had, just carried by
-     periwinkle instead, because near-black ink has no contrast left to give
-     once it *is* the page. Every neutral tone below (card/muted/accent/
-     border/input) is the same periwinkle hue (~278°) recomputed at low
-     lightness via OKLCH so elevation still reads as "the same family,
-     lighter," never a flat gray. destructive is a lightness bump over the
-     light-theme value (oklch L 0.577→0.65) — the original measured 4.4:1 on
-     pure black, under the 4.5:1 body-text floor; success/iris-* are
-     unchanged, already well clear of it.
+  /* 2026-08-31 "Optical memory" revision of the phosphor direction —
+     BRAND DESIGN FIRST, CRT second. The CRT reference is a *texture*, not
+     a theme: what survives of it is a slightly cold white, real depth in
+     the blacks, and a faint optical diffusion around the few elements that
+     are allowed to emit. Everything identifiable — scanlines, screen
+     frames, outline type, glowing borders — is out.
 
-     2026-08-07, later same day: iris-* turned out NOT fine — caught live
-     against a real Current Task card. Those three were the light theme's
-     pastel wash (L 0.83–0.9), tuned to glow softly under a *white* frosted
-     panel; on the new black ground they read as three loud, unrelated
-     primary-ish blobs (hot pink / yellow-green / sky blue) instead of a
-     subtle iridescent sheen — a direct clash with the periwinkle-only
-     brand palette. Recomputed as three analogous hues drawn from the same
-     ~272–275° periwinkle family (a rose-violet, the periwinkle itself, a
-     cooler blue-violet), at mid lightness (L 0.58–0.62) so they glow
-     against black instead of washing out a light surface. */
-  --gradient-from: #000000;
-  --gradient-via: #000002;
-  --gradient-to: #010206;
-  --gradient-glow: #5c71e7;
-  --background: #000000;
-  --foreground: #eff0f6;
-  --card: #0c0d17;
-  --card-foreground: #eff0f6;
-  --popover: #0c0d17;
-  --popover-foreground: #eff0f6;
-  --primary: #dae1ff;
-  --primary-foreground: #090a0f;
-  --secondary: #181a25;
-  --secondary-foreground: #eff0f6;
-  --muted: #04050a;
-  --muted-foreground: #898b99;
-  --accent: #141622;
-  --accent-foreground: #eff0f6;
+     The brand language is BLACK + WHITE + LIGHT, not black + blue: blue
+     is (almost) never a text color or a fill; it exists inside the light
+     around white, i.e. only within the glow tokens below.
+
+     Matte by default. 5–10% of elements may seem to emit — that rarity is
+     the sophistication. Test for every effect: remove it, and the design
+     must still stand.
+
+     Contrast: Primary text on Background ≈ 17:1; Secondary ≈ 7:1. */
+  --gradient-from: #080a0b;
+  --gradient-via: #090c0d;
+  --gradient-to: #080b0c;
+  --gradient-glow: #8fb0dd;
+  --background: #080a0b;
+  --foreground: #f1f5f6;
+  --card: #0e1113;
+  --card-foreground: #f1f5f6;
+  --popover: #0e1113;
+  --popover-foreground: #f1f5f6;
+  --primary: #f1f5f6;
+  --primary-foreground: #080a0b;
+  --secondary: #14181a;
+  --secondary-foreground: #f1f5f6;
+  --muted: #0b0d0f;
+  --muted-foreground: #949da1;
+  --accent: #14181a;
+  --accent-foreground: #f1f5f6;
   --destructive: oklch(0.65 0.22 27.325);
   /* Semantic status color, not a second brand accent (see DESIGN.md "No
      Second Accent Rule") — reserved for a small "this is live/active right
-     now" indicator (e.g. the Current Task card), never a button, link, or
-     any other decorative/emphasis use. */
+     now" indicator, never a button, link, or emphasis. */
   --success: #16a34a;
   --success-foreground: #ffffff;
-  /* Iridescent glass wash — Signature Card only (see DESIGN.md "Signature
-     Card"). Purely decorative background texture behind a frosted panel;
-     never used for text, icons, borders, or anything meaning emphasis. Not
-     a general-purpose accent — introducing it elsewhere is a rule break. */
-  --iris-pink: oklch(0.55 0.1 300);
-  /* Despite the name (kept to avoid renaming the Tailwind class already
-     used at every call site) this is no longer yellow — a low-chroma warm
-     hue read as muddy brown against black, not a shimmer. Replaced with a
-     third cool tone from the same periwinkle family as pink/blue, so all
-     three glow spans stay analogous instead of one clashing outlier. */
-  --iris-yellow: oklch(0.58 0.1 290);
-  --iris-blue: oklch(0.55 0.13 272);
-  --border: #20222d;
-  --input: #2d2f3e;
-  --ring: #dae1ff;
+  /* Iridescent glass wash — Signature Card only (see DESIGN.md). Purely
+     decorative texture behind a frosted panel; a cold near-monochrome trio
+     so the one multi-tone moment reads as shimmer on glass, not color. */
+  --iris-pink: oklch(0.68 0.04 240);
+  --iris-yellow: oklch(0.74 0.03 220);
+  --iris-blue: oklch(0.62 0.05 232);
+  --border: rgba(220, 240, 248, 0.1);
+  --input: rgba(220, 240, 248, 0.16);
+  --ring: #c8ebfd;
+  /* The two lights. Optical Light may tint a luminous detail; Cold Halo
+     exists ONLY inside the glow tokens — never as text, never as a fill. */
+  --optical-light: #c8ebfd;
+  --cold-halo: rgba(135, 175, 235, 0.2);
+  /* The glow scale — deliberately small. `subtle` is the house order of
+     magnitude (a 1px warm core + a barely-there cold field); `medium` is a
+     hover bloom, never permanent; `strong` is the single sanctioned
+     highlight moment of a page. If an effect is identifiable at a glance,
+     it is too strong. */
+  --glow-subtle: 0 0 1px rgba(255, 255, 255, 0.35), 0 0 12px rgba(150, 185, 235, 0.09);
+  --glow-medium: 0 0 1px rgba(255, 255, 255, 0.4), 0 0 14px rgba(135, 175, 235, 0.2);
+  --glow-strong: 0 0 1px rgba(255, 255, 255, 0.45), 0 0 18px rgba(135, 175, 235, 0.26);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: #0c0d17;
-  --sidebar-foreground: #eff0f6;
-  --sidebar-primary: #dae1ff;
-  --sidebar-primary-foreground: #090a0f;
-  --sidebar-accent: #141622;
-  --sidebar-accent-foreground: #eff0f6;
-  --sidebar-border: #20222d;
-  --sidebar-ring: #dae1ff;
+  --sidebar: #0e1113;
+  --sidebar-foreground: #f1f5f6;
+  --sidebar-primary: #f1f5f6;
+  --sidebar-primary-foreground: #080a0b;
+  --sidebar-accent: #14181a;
+  --sidebar-accent-foreground: #f1f5f6;
+  --sidebar-border: rgba(220, 240, 248, 0.1);
+  --sidebar-ring: #c8ebfd;
 }
 
 @theme inline {
@@ -116,6 +108,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-optical-light: var(--optical-light);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -133,34 +126,70 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* The only sanctioned ways to emit light. Localized, rare, mostly on
+   hover — never a permanent halo on a container, never on body text. */
+@utility glow-subtle {
+  box-shadow: var(--glow-subtle);
+}
+@utility glow-medium {
+  box-shadow: var(--glow-medium);
+}
+@utility text-glow-subtle {
+  text-shadow: var(--glow-subtle);
+}
+@utility text-glow-medium {
+  text-shadow: var(--glow-medium);
+}
+@utility text-glow-strong {
+  text-shadow: var(--glow-strong);
+}
+/* The film-title halo (AAFAA reference): text-shadow follows the glyph
+   contours, so the light HUGS each letter — a bright core bleed, then a
+   fast falloff. Strong near, gone far: the opposite of a soft cloud.
+   Reserved for the hero display title. */
+@utility text-halo-title {
+  text-shadow:
+    0 0 3px rgba(230, 243, 254, 0.95),
+    0 0 10px rgba(200, 230, 253, 0.6),
+    0 0 26px rgba(140, 175, 225, 0.38),
+    0 0 60px rgba(87, 125, 184, 0.2);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply text-foreground;
+    /* bg-background propagates to the canvas and sits behind the fixed
+       ::before wash — without it, overscroll shows the UA's white canvas. */
+    @apply bg-background text-foreground;
     position: relative;
   }
-  /* Fixed to the viewport (not the document) so it never scrolls, tiles, or
-     stretches oddly on tall pages — a plain background-image on body sizes
-     itself against body's own box, which can repeat visibly once content
-     grows taller than one viewport. A dedicated fixed layer behind
-     everything sidesteps that entirely. Layered radial "glow" pools plus the
-     diagonal wash read closer to a designed gradient-mesh image than a flat
-     two-stop linear-gradient, without needing an actual image asset. The
-     top-left pool has a transparent core (0%→18%, not 0%→0%) so the corner
-     itself — where the brand-logo's own pure-black chip sits, in every nav —
-     stays true void black; without it the glow visibly washed out the chip's
-     contrast against the page right where the logo lives. */
+  /* Depth in the blacks: a cold diffusion so faint it cannot be named a
+     gradient, plus barely-stepped wash stops. Felt, not seen. */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: -1;
     background:
-      radial-gradient(at 8% 8%, transparent 0%, color-mix(in oklab, var(--gradient-glow) 30%, transparent) 18%, transparent 46%),
-      radial-gradient(at 100% 100%, color-mix(in oklab, var(--gradient-glow) 14%, transparent) 0%, transparent 55%),
-      linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-via) 45%, var(--gradient-to) 100%);
+      radial-gradient(ellipse 90% 55% at 50% 8%, color-mix(in oklab, var(--gradient-glow) 3%, transparent) 0%, transparent 60%),
+      radial-gradient(at 100% 100%, color-mix(in oklab, var(--gradient-glow) 2%, transparent) 0%, transparent 55%),
+      linear-gradient(160deg, var(--gradient-from) 0%, var(--gradient-via) 50%, var(--gradient-to) 100%);
+  }
+  /* Analog memory, almost invisible: static grain at ~1.5% and a soft edge
+     vignette. No scanlines — the 2026-08-31 revision removed every
+     screen-identifiable device. The viewer should sense a texture, never
+     name a filter. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 130% 110% at 50% 45%, transparent 68%, rgba(0, 0, 0, 0.18) 100%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
   }
   html {
     scroll-behavior: smooth;

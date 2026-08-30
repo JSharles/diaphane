@@ -1,138 +1,123 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-07T13:00:00.000Z",
+  "generatedAt": "2026-08-31T12:00:00Z",
   "title": "Design System: Diaphane",
   "extensions": {
     "colorMeta": {
-      "ink": {
+      "background-black": {
+        "role": "neutral",
+        "displayName": "Background Black",
+        "canonical": "#080A0B",
+        "tonalRamp": [
+          "#080A0B",
+          "#0B0D0F",
+          "#0E1113",
+          "#14181A",
+          "#2A3237",
+          "#5A666C",
+          "#949DA1",
+          "#F1F5F6"
+        ]
+      },
+      "elevated-surface": {
+        "role": "neutral",
+        "displayName": "Elevated Surface",
+        "canonical": "#0E1113",
+        "tonalRamp": [
+          "#080A0B",
+          "#0B0D0F",
+          "#0E1113",
+          "#14181A",
+          "#2A3237",
+          "#5A666C",
+          "#949DA1",
+          "#F1F5F6"
+        ]
+      },
+      "soft-surface": {
+        "role": "neutral",
+        "displayName": "Soft Surface",
+        "canonical": "#14181A",
+        "tonalRamp": [
+          "#080A0B",
+          "#0B0D0F",
+          "#0E1113",
+          "#14181A",
+          "#2A3237",
+          "#5A666C",
+          "#949DA1",
+          "#F1F5F6"
+        ]
+      },
+      "primary-text": {
         "role": "primary",
-        "displayName": "Periwinkle",
-        "canonical": "oklch(0.91 0.042 275.1)",
-        "tonalRamp": ["oklch(0.13 0.042 275.1)", "oklch(0.20 0.042 275.1)", "oklch(0.28 0.042 275.1)", "oklch(0.38 0.042 275.1)", "oklch(0.50 0.042 275.1)", "oklch(0.64 0.042 275.1)", "oklch(0.80 0.037 275.1)", "oklch(0.91 0.027 275.1)"]
+        "displayName": "Primary Text",
+        "canonical": "#F1F5F6",
+        "tonalRamp": [
+          "#2A3237",
+          "#48545A",
+          "#6A787F",
+          "#949DA1",
+          "#C2CBCE",
+          "#DDE6E8",
+          "#F1F5F6",
+          "#FFFFFF"
+        ]
       },
-      "white": {
+      "secondary-text": {
         "role": "neutral",
-        "displayName": "Card",
-        "canonical": "oklch(0.16 0.021 279.4)",
-        "tonalRamp": ["oklch(0.13 0.021 279.4)", "oklch(0.20 0.021 279.4)", "oklch(0.28 0.021 279.4)", "oklch(0.38 0.021 279.4)", "oklch(0.50 0.021 279.4)", "oklch(0.64 0.021 279.4)", "oklch(0.80 0.019 279.4)", "oklch(0.90 0.014 279.4)"]
+        "displayName": "Secondary Text",
+        "canonical": "#949DA1",
+        "tonalRamp": [
+          "#171B1D",
+          "#2A3237",
+          "#48545A",
+          "#6A787F",
+          "#949DA1",
+          "#B4BFC4",
+          "#D5DDE0",
+          "#EEF3F4"
+        ]
       },
-      "soft-lavender": {
+      "optical-light": {
+        "role": "primary",
+        "displayName": "Optical Light — the signature light",
+        "canonical": "#DDF5FF",
+        "tonalRamp": [
+          "#1A2E38",
+          "#2E4E5E",
+          "#4A7488",
+          "#6FA0B5",
+          "#9BD8F0",
+          "#C4E9F9",
+          "#DDF5FF",
+          "#FFFFFF"
+        ]
+      },
+      "subtle-border": {
         "role": "neutral",
-        "displayName": "Secondary Surface",
-        "canonical": "oklch(0.22 0.022 276.5)",
-        "tonalRamp": ["oklch(0.13 0.022 276.5)", "oklch(0.20 0.022 276.5)", "oklch(0.28 0.022 276.5)", "oklch(0.38 0.022 276.5)", "oklch(0.50 0.022 276.5)", "oklch(0.64 0.022 276.5)", "oklch(0.80 0.019 276.5)", "oklch(0.90 0.015 276.5)"]
-      },
-      "lavender-accent": {
-        "role": "neutral",
-        "displayName": "Accent Surface",
-        "canonical": "oklch(0.20 0.024 276.7)",
-        "tonalRamp": ["oklch(0.13 0.024 276.7)", "oklch(0.20 0.024 276.7)", "oklch(0.28 0.024 276.7)", "oklch(0.38 0.024 276.7)", "oklch(0.50 0.024 276.7)", "oklch(0.64 0.024 276.7)", "oklch(0.80 0.021 276.7)", "oklch(0.90 0.016 276.7)"]
-      },
-      "paper": {
-        "role": "neutral",
-        "displayName": "Void",
-        "canonical": "oklch(0 0 0)",
-        "tonalRamp": ["oklch(0.13 0 0)", "oklch(0.20 0 0)", "oklch(0.28 0 0)", "oklch(0.38 0 0)", "oklch(0.50 0 0)", "oklch(0.64 0 0)", "oklch(0.80 0 0)", "oklch(0.90 0 0)"]
-      },
-      "border": {
-        "role": "neutral",
-        "displayName": "Border",
-        "canonical": "oklch(0.25 0.021 276.8)",
-        "tonalRamp": ["oklch(0.13 0.021 276.8)", "oklch(0.20 0.021 276.8)", "oklch(0.28 0.021 276.8)", "oklch(0.38 0.021 276.8)", "oklch(0.50 0.021 276.8)", "oklch(0.64 0.021 276.8)", "oklch(0.80 0.019 276.8)", "oklch(0.90 0.014 276.8)"]
-      },
-      "input-border": {
-        "role": "neutral",
-        "displayName": "Input Border",
-        "canonical": "oklch(0.31 0.027 278.8)",
-        "tonalRamp": ["oklch(0.13 0.027 278.8)", "oklch(0.20 0.027 278.8)", "oklch(0.28 0.027 278.8)", "oklch(0.38 0.027 278.8)", "oklch(0.50 0.027 278.8)", "oklch(0.64 0.027 278.8)", "oklch(0.80 0.024 278.8)", "oklch(0.90 0.018 278.8)"]
-      },
-      "violet-glow": {
-        "role": "tertiary",
-        "displayName": "Periwinkle Glow",
-        "canonical": "oklch(0.59 0.179 272.2)",
-        "tonalRamp": ["oklch(0.13 0.179 272.2)", "oklch(0.20 0.179 272.2)", "oklch(0.28 0.179 272.2)", "oklch(0.38 0.179 272.2)", "oklch(0.50 0.179 272.2)", "oklch(0.64 0.179 272.2)", "oklch(0.80 0.159 272.2)", "oklch(0.90 0.12 272.2)"]
-      },
-      "gradient-from": {
-        "role": "tertiary",
-        "displayName": "Gradient From",
-        "canonical": "oklch(0 0 0)",
-        "tonalRamp": ["oklch(0.13 0 0)", "oklch(0.20 0 0)", "oklch(0.28 0 0)", "oklch(0.38 0 0)", "oklch(0.50 0 0)", "oklch(0.64 0 0)", "oklch(0.80 0 0)", "oklch(0.90 0 0)"]
-      },
-      "gradient-via": {
-        "role": "tertiary",
-        "displayName": "Gradient Via",
-        "canonical": "oklch(0.04 0.027 264.1)",
-        "tonalRamp": ["oklch(0.13 0.027 264.1)", "oklch(0.20 0.027 264.1)", "oklch(0.28 0.027 264.1)", "oklch(0.38 0.027 264.1)", "oklch(0.50 0.027 264.1)", "oklch(0.64 0.027 264.1)", "oklch(0.80 0.024 264.1)", "oklch(0.90 0.018 264.1)"]
-      },
-      "gradient-to": {
-        "role": "tertiary",
-        "displayName": "Gradient To",
-        "canonical": "oklch(0.09 0.019 265.1)",
-        "tonalRamp": ["oklch(0.13 0.019 265.1)", "oklch(0.20 0.019 265.1)", "oklch(0.28 0.019 265.1)", "oklch(0.38 0.019 265.1)", "oklch(0.50 0.019 265.1)", "oklch(0.64 0.019 265.1)", "oklch(0.80 0.017 265.1)", "oklch(0.90 0.012 265.1)"]
-      },
-      "muted-surface": {
-        "role": "neutral",
-        "displayName": "Muted Surface",
-        "canonical": "oklch(0.12 0.014 272.6)",
-        "tonalRamp": ["oklch(0.13 0.014 272.6)", "oklch(0.20 0.014 272.6)", "oklch(0.28 0.014 272.6)", "oklch(0.38 0.014 272.6)", "oklch(0.50 0.014 272.6)", "oklch(0.64 0.014 272.6)", "oklch(0.80 0.013 272.6)", "oklch(0.90 0.009 272.6)"]
-      },
-      "muted-ink": {
-        "role": "neutral",
-        "displayName": "Muted Foreground",
-        "canonical": "oklch(0.64 0.021 279.3)",
-        "tonalRamp": ["oklch(0.13 0.021 279.3)", "oklch(0.20 0.021 279.3)", "oklch(0.28 0.021 279.3)", "oklch(0.38 0.021 279.3)", "oklch(0.50 0.021 279.3)", "oklch(0.64 0.021 279.3)", "oklch(0.80 0.019 279.3)", "oklch(0.90 0.014 279.3)"]
-      },
-      "destructive": {
-        "role": "destructive",
-        "displayName": "Destructive",
-        "canonical": "oklch(0.65 0.22 27.325)",
-        "tonalRamp": ["oklch(0.22 0.14 27)", "oklch(0.32 0.18 27)", "oklch(0.42 0.21 27)", "oklch(0.5 0.22 27)", "oklch(0.65 0.22 27.325)", "oklch(0.74 0.19 27)", "oklch(0.84 0.13 27)", "oklch(0.93 0.06 27)"]
-      },
-      "success": {
-        "role": "success",
-        "displayName": "Success",
-        "canonical": "oklch(0.627 0.194 149.214)",
-        "tonalRamp": ["oklch(0.22 0.12 149)", "oklch(0.32 0.15 149)", "oklch(0.42 0.17 149)", "oklch(0.5 0.19 149)", "oklch(0.627 0.194 149.214)", "oklch(0.72 0.17 149)", "oklch(0.82 0.12 149)", "oklch(0.92 0.06 149)"]
-      },
-      "iris-pink": {
-        "role": "tertiary",
-        "displayName": "Iris Pink",
-        "canonical": "oklch(0.86 0.06 350)",
-        "tonalRamp": ["oklch(0.3 0.05 350)", "oklch(0.42 0.07 350)", "oklch(0.55 0.08 350)", "oklch(0.68 0.07 350)", "oklch(0.86 0.06 350)", "oklch(0.9 0.045 350)", "oklch(0.94 0.03 350)", "oklch(0.97 0.015 350)"]
-      },
-      "iris-yellow": {
-        "role": "tertiary",
-        "displayName": "Iris Yellow",
-        "canonical": "oklch(0.9 0.07 95)",
-        "tonalRamp": ["oklch(0.35 0.06 95)", "oklch(0.48 0.08 95)", "oklch(0.6 0.09 95)", "oklch(0.75 0.08 95)", "oklch(0.9 0.07 95)", "oklch(0.93 0.05 95)", "oklch(0.96 0.03 95)", "oklch(0.98 0.015 95)"]
-      },
-      "iris-blue": {
-        "role": "tertiary",
-        "displayName": "Iris Blue",
-        "canonical": "oklch(0.83 0.06 245)",
-        "tonalRamp": ["oklch(0.3 0.06 245)", "oklch(0.42 0.08 245)", "oklch(0.55 0.09 245)", "oklch(0.68 0.08 245)", "oklch(0.83 0.06 245)", "oklch(0.88 0.045 245)", "oklch(0.93 0.03 245)", "oklch(0.97 0.015 245)"]
-      },
-      "off-white": {
-        "role": "neutral",
-        "displayName": "Off-White",
-        "canonical": "oklch(0.96 0.008 278.6)",
-        "tonalRamp": ["oklch(0.13 0.008 278.6)", "oklch(0.20 0.008 278.6)", "oklch(0.28 0.008 278.6)", "oklch(0.38 0.008 278.6)", "oklch(0.50 0.008 278.6)", "oklch(0.64 0.008 278.6)", "oklch(0.80 0.007 278.6)", "oklch(0.96 0.004 278.6)"]
-      },
-      "midnight-blue": {
-        "role": "tertiary",
-        "displayName": "Midnight Blue",
-        "canonical": "oklch(0.27 0.065 273.8)",
-        "tonalRamp": ["oklch(0.13 0.065 273.8)", "oklch(0.20 0.065 273.8)", "oklch(0.28 0.065 273.8)", "oklch(0.38 0.065 273.8)", "oklch(0.50 0.065 273.8)", "oklch(0.64 0.065 273.8)", "oklch(0.80 0.058 273.8)", "oklch(0.90 0.044 273.8)"]
+        "displayName": "Subtle Border",
+        "canonical": "rgba(220, 240, 248, 0.10)",
+        "tonalRamp": [
+          "rgba(220,240,248,0.04)",
+          "rgba(220,240,248,0.07)",
+          "rgba(220,240,248,0.10)",
+          "rgba(220,240,248,0.16)",
+          "rgba(220,240,248,0.24)",
+          "rgba(220,240,248,0.36)",
+          "rgba(220,240,248,0.55)",
+          "rgba(220,240,248,0.8)"
+        ]
       }
     },
     "typographyMeta": {
       "display": {
         "displayName": "Display",
-        "purpose": "Landing hero headline only \u2014 the single loud typographic moment in the system."
+        "purpose": "The landing hero only — 900 weight, the one massive moment."
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Page-level titles, e.g. \"Your projects\"."
+        "purpose": "Page titles."
       },
       "title": {
         "displayName": "Title",
@@ -140,122 +125,144 @@
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Forms, descriptions, and list content \u2014 the default text."
+        "purpose": "Everything read."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Uppercase eyebrow text introducing a section."
-      },
-      "caption": {
-        "displayName": "Caption",
-        "purpose": "Small pill badges and tags \u2014 status chips, \"coming soon\" markers."
+        "purpose": "Uppercase eyebrows — labels, never headings."
       }
     },
     "shadows": [
       {
-        "name": "resting",
-        "value": "none",
-        "purpose": "Default state for every surface \u2014 flat by default."
+        "name": "glow-subtle",
+        "value": "0 0 10px rgba(120, 195, 255, 0.16)",
+        "purpose": "Wordmark, resting CTA — a sensation of emission, not an effect."
       },
       {
-        "name": "card-input",
-        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        "purpose": "The one ambient shadow the system uses, at rest on cards and inputs (Tailwind shadow-sm)."
+        "name": "glow-medium",
+        "value": "0 0 6px rgba(140, 205, 255, 0.35), 0 0 22px rgba(120, 195, 255, 0.22)",
+        "purpose": "CTA hover, hero highlight words — the object the user should act on."
       },
       {
-        "name": "card-hover",
-        "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-        "purpose": "Interactive project cards only, paired with a -2px translateY lift on hover (Tailwind shadow-md)."
+        "name": "glow-strong",
+        "value": "0 0 8px rgba(160, 215, 255, 0.45), 0 0 36px rgba(120, 195, 255, 0.3)",
+        "purpose": "At most one element per page (today: the closing band headline)."
       }
     ],
     "motion": [
       {
-        "name": "transition-standard",
-        "value": "all 150ms cubic-bezier(0.4, 0, 0.2, 1)",
-        "purpose": "Default hover/focus transition (Tailwind transition-all / transition-colors)."
+        "name": "phosphor-breathe",
+        "value": "phosphor-breathe 8s ease-in-out infinite",
+        "purpose": "The slow luminous breathing — one element per page, motion-safe only."
       }
-    ],
-    "breakpoints": [
-      {
-        "name": "sm",
-        "value": "640px"
-      },
-      {
-        "name": "lg",
-        "value": "1024px"
-      }
-    ],
-    "overview": "Diaphane exists to make a client's project legible without dressing it up \u2014 the product principle is that nothing shown is ever generated or invented, only real, existing content, reworded plainly. The visual system follows the same discipline: quiet, high-contrast, and unornamented. Pale periwinkle text and interface elements sit on a near-void black field; nothing fights for attention, because the point is that the client can see through to what's actually happening, not be impressed by the interface doing it.\n\nThere is exactly one interactive color (periwinkle) and one void ground (black). This is a deliberate reversal of the system's own prior single-light-theme commitment, driven by a new brand-logo asset baked onto a pure-black chip with its wordmark set in the brand's own periwinkle \u2014 not a toggle, still one committed theme, just inverted."
+    ]
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The main call-to-action button used across the app.",
-      "html": "<button class=\"ds-btn-primary\">Create project</button>",
-      "css": ".ds-btn-primary { background: #dae1ff; color: #090a0f; height: 2.25rem; padding: 0 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 500; font-family: Urbanist, system-ui, sans-serif; transition: background 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: rgba(218,225,255,0.9); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(218,225,255,0.5); }"
+      "description": "The luminous action: phosphor fill on near-black, hover raises luminosity to pure white with a stronger halo.",
+      "html": "<button class=\"ds-btn-primary\">Créer un espace</button>",
+      "css": ".ds-btn-primary { background: var(--primary, #EAF8FF); color: var(--primary-foreground, #050607); height: 2.25rem; padding: 0 1rem; border: none; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; box-shadow: 0 0 10px rgba(120,195,255,0.16); transition: all 0.2s; } .ds-btn-primary:hover { background: #FFFFFF; box-shadow: 0 0 6px rgba(140,205,255,0.35), 0 0 22px rgba(120,195,255,0.22); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(155,216,255,0.5); }"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "A supporting action placed next to a primary button.",
-      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
-      "css": ".ds-btn-secondary { background: #181a25; color: #eff0f6; height: 2.25rem; padding: 0 1rem; border-radius: 0.5rem; border: none; font-size: 0.875rem; font-weight: 500; font-family: Urbanist, system-ui, sans-serif; transition: background 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-secondary:hover { background: rgba(24,26,37,0.8); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(218,225,255,0.5); }"
+      "description": "Matte support action on Soft Black — no light of its own.",
+      "html": "<button class=\"ds-btn-secondary\">Annuler</button>",
+      "css": ".ds-btn-secondary { background: var(--secondary, #101416); color: var(--secondary-foreground, #EAF8FF); height: 2.25rem; padding: 0 1rem; border: none; border-radius: 0.5rem; font-weight: 500; font-size: 0.875rem; transition: background 0.2s; } .ds-btn-secondary:hover { background: rgba(16,20,22,0.8); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(155,216,255,0.5); }"
     },
     {
       "name": "Card",
       "kind": "card",
       "refersTo": "card",
-      "description": "The default content container \u2014 the brighter surface against the void page background.",
-      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Website redesign</div><div class=\"ds-card-body\">Created Jan 12, 2026</div></div>",
-      "css": ".ds-card { background: #0c0d17; color: #eff0f6; border: 1px solid #20222d; border-radius: 0.875rem; padding: 1.5rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); font-family: Urbanist, system-ui, sans-serif; transition: box-shadow 150ms, transform 150ms; } .ds-card:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); transform: translateY(-2px); } .ds-card-title { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; } .ds-card-body { font-size: 0.875rem; color: #898b99; }"
+      "description": "Elevated Black surface with a cold hairline; hover on clickable cards brightens the border, never the fill.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Documentation client</h3><p class=\"ds-card-body\">Ce que votre client lira — rien n'est publié sans votre accord.</p></div>",
+      "css": ".ds-card { background: var(--card, #0A0D0F); color: var(--card-foreground, #EAF8FF); border: 1px solid rgba(190,230,255,0.12); border-radius: 0.875rem; padding: 1.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.3); transition: border-color 0.2s; } .ds-card:hover { border-color: rgba(190,230,255,0.2); } .ds-card-title { font-size: 1.125rem; font-weight: 600; line-height: 1.2; margin: 0 0 0.5rem; } .ds-card-body { font-size: 0.875rem; line-height: 1.5; color: var(--muted-foreground, #8C999F); margin: 0; }"
     },
     {
-      "name": "Text Input",
+      "name": "Input",
       "kind": "input",
       "refersTo": "input",
-      "description": "Standard form field \u2014 a visible fill and border against the void ground, same reasoning as the light theme's original fill/border decision.",
-      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Email\" />",
-      "css": ".ds-input { background: #0c0d17; color: #eff0f6; border: 1px solid #2d2f3e; border-radius: 0.5rem; height: 2.25rem; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-family: Urbanist, system-ui, sans-serif; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); transition: border-color 150ms, box-shadow 150ms; } .ds-input::placeholder { color: #898b99; } .ds-input:focus-visible { outline: none; border-color: #dae1ff; box-shadow: 0 0 0 3px rgba(218,225,255,0.5); }"
+      "description": "Elevated fill with a visible cold stroke; focus shifts the border toward Cold Glow.",
+      "html": "<input class=\"ds-input\" placeholder=\"nom@exemple.fr\" />",
+      "css": ".ds-input { background: var(--card, #0A0D0F); color: var(--foreground, #EAF8FF); border: 1px solid rgba(190,230,255,0.18); border-radius: 0.5rem; height: 2.25rem; padding: 0.25rem 0.75rem; font-size: 0.875rem; box-shadow: 0 1px 2px rgba(0,0,0,0.3); transition: border-color 0.2s, box-shadow 0.2s; } .ds-input::placeholder { color: var(--muted-foreground, #8C999F); } .ds-input:focus-visible { outline: none; border-color: rgba(155,216,255,0.6); box-shadow: 0 0 0 3px rgba(155,216,255,0.35); }"
     },
     {
-      "name": "Top Navigation",
+      "name": "Nav Wordmark",
       "kind": "nav",
-      "refersTo": "navigation",
-      "description": "Transparent header that lets the fixed background gradient show through \u2014 the icon-only brand-logo.png chip blends seamlessly into the void page background; the wordmark is a separate periwinkle text label (the full lockup PNG's own black chip proved too visible/too small at nav scale, so the square emblem + real CSS text replaced it).",
-      "html": "<header class=\"ds-topnav\"><img class=\"ds-topnav-logo\" src=\"/images/logo-square.png\" alt=\"\" /><span class=\"ds-topnav-brand\">Diaphane</span><div class=\"ds-topnav-avatar\">JC</div></header>",
-      "css": ".ds-topnav { display: flex; align-items: center; justify-content: space-between; height: 3.5rem; padding: 0 1.5rem; background: transparent; font-family: Urbanist, system-ui, sans-serif; } .ds-topnav-logo { height: 1.5rem; width: 1.5rem; } .ds-topnav-brand { font-size: 0.875rem; font-weight: 600; color: #dae1ff; margin-left: 0.5rem; } .ds-topnav-avatar { width: 2rem; height: 2rem; border-radius: 9999px; background: #181a25; color: #eff0f6; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; }"
+      "refersTo": "button-primary",
+      "description": "The slightly phosphorescent wordmark — plain readable text first, halo as decoration on top.",
+      "html": "<span class=\"ds-wordmark\">Diaphane</span>",
+      "css": ".ds-wordmark { color: var(--primary, #EAF8FF); font-weight: 900; font-size: 1.25rem; letter-spacing: -0.02em; text-shadow: 0 0 10px rgba(120,195,255,0.16); }"
+    },
+    {
+      "name": "Eyebrow Label",
+      "kind": "chip",
+      "refersTo": "card",
+      "description": "Uppercase letter-spaced label — matte muted text, never a heading, never lit.",
+      "html": "<span class=\"ds-eyebrow\">Mise en place</span>",
+      "css": ".ds-eyebrow { color: var(--muted-foreground, #8C999F); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; }"
+    },
+    {
+      "name": "Highlight (Hero)",
+      "kind": "custom",
+      "refersTo": "button-primary",
+      "description": "Highlight-By-Light: emphasized words are pure white with a halo — a brightness step, never a hue change.",
+      "html": "<h2 class=\"ds-hl-line\">comprennent <span class=\"ds-hl\">enfin</span></h2>",
+      "css": ".ds-hl-line { color: var(--foreground, #EAF8FF); font-weight: 900; font-size: 2rem; margin: 0; text-shadow: 0 0 10px rgba(120,195,255,0.16); } .ds-hl { color: #FFFFFF; text-shadow: 0 0 6px rgba(140,205,255,0.35), 0 0 22px rgba(120,195,255,0.22); }"
     }
   ],
   "narrative": {
-    "northStar": "The Glass Report",
-    "overview": "Diaphane exists to make a client's project legible without dressing it up \u2014 the product principle is that nothing shown is ever generated or invented, only real, existing content, reworded plainly. The visual system follows the same discipline: quiet, high-contrast, and unornamented. Pale periwinkle text and interface elements sit on a near-void black field; nothing fights for attention, because the point is that the client can see through to what's actually happening, not be impressed by the interface doing it.\n\nThere is exactly one interactive color (periwinkle) and one void ground (black). This is a deliberate reversal of the system's own prior single-light-theme commitment, driven by a new brand-logo asset baked onto a pure-black chip with its wordmark set in the brand's own periwinkle \u2014 not a toggle, still one committed theme, just inverted.",
-    "keyCharacteristics": ["Single dark theme, no light mode \u2014 the calm, legible surface is still the whole point, now read against black instead of paper.", "One interactive color (periwinkle), one void ground (black) \u2014 never both fighting for emphasis.", "Flat surfaces with a fixed, non-scrolling gradient mesh behind everything; elevation reads as a soft periwinkle glow rather than a shadow.", "Urbanist throughout, leaning on weight contrast (400 body vs. 900 display) rather than multiple families."],
+    "northStar": "Optical memory",
+    "overview": "A contemporary, premium, editorial brand — with the faint memory of a very good screen. The CRT reference is a texture, not a theme: a slightly cold white, real depth in the blacks, and a barely-there optical diffusion around the few elements allowed to emit. BRAND DESIGN FIRST, optical effects second — roughly 90% contemporary editorial design, 10% optical memory. Matte by default; 5–10% of elements may seem to emit. The signature light is Optical Light #DDF5FF: emphasized words, focus rings, the specular rim of the CTAs (React Bits SpecularButton, dark glass, autoAnimate). The nav is a GlassSurface strip; the hero carries the SideRays diffuse light with grain living inside the halo.",
+    "keyCharacteristics": [
+      "Single dark theme; ground #080A0B with felt-not-seen depth (cold diffusion, soft vignette, ~1.5% grain). No scanlines, no screen frame.",
+      "BLACK + WHITE + LIGHT: blue-green lives inside the light (halos, focus, specular rims) and as the emphasis words — never as fills or long text runs.",
+      "Matte by default; hierarchy by size, weight, rhythm, composition. No outline type, no tracked-out titles.",
+      "Urbanist for everything read; Geist Mono, sparingly, for editorial-scientific labels (tracking ≤0.08em).",
+      "Every composition must stand with all effects disabled (Effect-Removal Test)."
+    ],
     "rules": [
       {
-        "name": "The One Voice Rule",
-        "body": "Periwinkle is the only color allowed to mean \"act on this\" or \"this is emphasized.\" Everything else is void, near-void surface, or off-white body text.",
+        "name": "The Localized-Light Rule",
+        "body": "Optical effects are never global: diffusion around the logo, a hover bloom, one diffuse light behind a section, texture inside a media panel. Never page-wide devices, permanent container halos, or glow on body text.",
         "section": "colors"
       },
       {
-        "name": "The No Second Accent Rule",
-        "body": "Honey/ochre and raspberry were both explicitly tried (in the original light system) as a second accent color and rejected. Don't reintroduce a warm or saturated color to compete with periwinkle.",
+        "name": "The Effect-Removal Test",
+        "body": "Remove any effect: the design must still be strong. If not, redesign the composition.",
         "section": "colors"
       },
       {
-        "name": "The Eyebrow Rule",
-        "body": "Any uppercase, letter-spaced label is a label, never a heading \u2014 it introduces the headline that follows, it doesn't replace one.",
+        "name": "The Emphasis-By-Light Rule",
+        "body": "An emphasized run inside a headline is Optical Light #DDF5FF in full letterforms — the one place the hue carries words. Reserved for the few words where the sentence turns.",
         "section": "typography"
       },
       {
-        "name": "The Flat-By-Default Rule",
-        "body": "Surfaces are flat at rest. A shadow only ever appears as a fixed, low-intensity marker (cards, inputs) or as a direct response to hover \u2014 never as a multi-level elevation system.",
-        "section": "elevation"
+        "name": "The Eyebrow Rule",
+        "body": "Any uppercase label is a label, never a heading — tracking ≤0.08em.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Second Accent Rule",
+        "body": "No hue accent as fills. Status colors are functional semantics only.",
+        "section": "colors"
       }
     ],
-    "dos": ["Do keep Periwinkle (#dae1ff) as the only color for anything actionable \u2014 buttons, links, focus rings, active states.", "Do let the fixed background gradient mesh show through wherever a surface isn't explicitly a card \u2014 it also lets the logo's black chip disappear into the page.", "Do use shadow-sm + hover lift as the only elevation vocabulary, even though the Card/Void lightness step now carries most of the visual weight.", "Do give form inputs a visible fill and border."],
-    "donts": ["Don't reintroduce a light theme \u2014 this reverses the system's own prior commitment, deliberately, per the 2026-08-07 dark rebrand.", "Don't add a second accent color (honey/ochre and raspberry were both tried and rejected in the original light system).", "Don't give the top nav a background fill or border.", "Don't carry the landing hero's rounded-full pill button into product UI.", "Don't set the wordmark in any color but Periwinkle (text-primary) \u2014 it mirrors the color baked into the logo mark itself, the one deliberate non-interactive use of the accent."]
+    "dos": [
+      "Do design matte-first, then at most 2–3 subtle optical details per viewport.",
+      "Do keep the signature light rare: emphasis words, focus, specular rims.",
+      "Do keep borders as quiet hairlines that rise only slightly on hover.",
+      "Do keep mono labels sparse and lightly tracked."
+    ],
+    "donts": [
+      "Don't reintroduce screen-identifiable devices: scanlines, viewport frames, terminal grids, glitch, neon.",
+      "Don't use outline type, tracked-out titles, or permanent glows on containers or body text.",
+      "Don't use nameable gradients — depth, not decor.",
+      "Don't apply the Signature Card treatment to ordinary cards."
+    ]
   }
 }

@@ -14,7 +14,7 @@ export function FaqSection() {
       id="faq"
       className="mx-auto flex max-w-3xl scroll-mt-24 flex-col gap-10 px-6 py-20"
     >
-      <h2 className="text-sm font-semibold tracking-[0.2em] text-primary uppercase">
+      <h2 className="text-sm font-mono font-semibold tracking-[0.2em] text-optical-light uppercase">
         {t("eyebrow")}
       </h2>
       {GROUPS.map((group) => (
@@ -31,7 +31,7 @@ export function FaqSection() {
                 <details key={questionKey} className="group py-5">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold marker:content-none">
                     {t(questionKey)}
-                    <ChevronDown className="size-5 shrink-0 text-primary transition-transform group-open:rotate-180" />
+                    <ChevronDown className="size-5 shrink-0 text-optical-light transition-transform group-open:rotate-180" />
                   </summary>
                   <p className="pt-3 text-sm leading-relaxed text-muted-foreground">
                     {t(answerKey)}

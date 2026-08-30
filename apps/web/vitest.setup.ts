@@ -98,3 +98,10 @@ vi.mock("next-intl/server", () => ({
   getTranslations: async () => (key: string) => key,
   setRequestLocale: () => {},
 }));
+
+// jsdom doesn't implement CSS.supports — needed by the vendored
+// GlassSurface (React Bits) to probe backdrop-filter support. Returning
+// false makes it render its no-filter fallback, which is fine for tests.
+if (typeof window !== "undefined" && typeof CSS !== "undefined" && !CSS.supports) {
+  CSS.supports = () => false;
+}
