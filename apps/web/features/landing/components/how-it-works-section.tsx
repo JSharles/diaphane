@@ -17,7 +17,7 @@ export function HowItWorksSection() {
     >
       <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div>
-          <p className="text-sm font-semibold tracking-[0.18em] text-primary uppercase">
+          <p className="text-sm font-mono font-semibold tracking-[0.18em] text-primary uppercase">
             {t("eyebrow")}
           </p>
           <h2 className="mt-4 text-balance text-3xl font-black tracking-[-0.025em] sm:text-5xl">
@@ -34,7 +34,7 @@ export function HowItWorksSection() {
               key={key}
               className="grid grid-cols-[auto_1fr] gap-5 border-b border-border py-7 last:border-b-0"
             >
-              <div className="flex size-11 items-center justify-center rounded-lg bg-card text-primary">
+              <div className="flex size-11 items-center justify-center rounded-lg bg-card text-optical-light">
                 <Icon className="size-5" strokeWidth={1.75} />
               </div>
               <div>

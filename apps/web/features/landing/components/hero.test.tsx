@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Hero } from "./hero";
@@ -24,7 +24,7 @@ describe("Hero", () => {
 
     const heading = screen.getByRole("heading", { level: 1 });
     expect(heading.textContent).toBe("titleBeforetitleHighlighttitleAfter");
-    expect(screen.getByText("titleHighlight")).toBeInTheDocument();
+    expect(within(heading).getByText("titleHighlight")).toBeInTheDocument();
     expect(screen.getByText("eyebrow")).toBeInTheDocument();
     expect(screen.getByText("subhead")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "primaryCta" })).toHaveAttribute(

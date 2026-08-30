@@ -18,11 +18,12 @@ export function FeaturesSection() {
       className="mx-auto flex max-w-5xl scroll-mt-24 flex-col px-6 py-16 sm:py-24"
     >
       <div className="mb-10 max-w-2xl">
-        <p className="text-sm font-semibold tracking-[0.18em] text-primary uppercase">
+        <p className="text-sm font-mono font-semibold tracking-[0.18em] text-primary uppercase">
           {t("eyebrow")}
         </p>
         <h2 className="mt-4 text-balance text-3xl font-black tracking-[-0.025em] sm:text-5xl">
           {t("title")}
+          <span className="text-optical-light">{t("titleAccent")}</span>
         </h2>
         <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
           {t("subhead")}
@@ -37,7 +38,7 @@ export function FeaturesSection() {
             className="flex gap-4 py-6 lg:px-6 lg:first:pl-0 lg:last:pr-0"
           >
             <Icon
-              className="mt-0.5 size-5 shrink-0 text-primary"
+              className="mt-0.5 size-5 shrink-0 text-optical-light"
               strokeWidth={1.75}
             />
             <div>

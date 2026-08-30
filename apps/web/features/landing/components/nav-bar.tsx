@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { GlassBar } from "@/features/landing/components/glass-bar";
 import { Menu } from "lucide-react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
@@ -16,8 +17,12 @@ export function NavBar() {
   const t = useTranslations("Landing");
 
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+    // The bar is a glass surface (React Bits GlassSurface behind GlassBar,
+    // which owns the hydration-safe mount): a floating glass strip instead
+    // of plain transparency. The radius matches the xl token (14px).
+    <header className="sticky top-0 z-40 w-full px-3 pt-3">
+      <GlassBar>
+        <div className="flex w-full items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/images/logo-square.png"
@@ -27,7 +32,9 @@ export function NavBar() {
             priority
             className="size-10"
           />
-          <span className="text-xl font-black tracking-tight text-primary">
+          {/* Slightly phosphorescent: plain readable text first, the halo is
+             decoration on top (DESIGN.md Navigation). */}
+          <span className="text-glow-subtle text-xl font-black tracking-tight text-primary">
             Diaphane
           </span>
         </Link>
@@ -65,7 +72,7 @@ export function NavBar() {
           </Link>
           <Link
             href="/signup"
-            className="hidden rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 md:inline-flex"
+            className="hidden rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-white hover:glow-subtle md:inline-flex"
           >
             {t("signUp")}
           </Link>
@@ -127,7 +134,7 @@ export function NavBar() {
                 <SheetClose asChild>
                   <Link
                     href="/signup"
-                    className="rounded-full bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                    className="rounded-lg border bg-card/70 px-5 py-2.5 text-center text-sm font-semibold text-foreground transition-colors hover:bg-accent"
                   >
                     {t("signUp")}
                   </Link>
@@ -136,7 +143,8 @@ export function NavBar() {
             </SheetContent>
           </Sheet>
         </div>
-      </div>
+        </div>
+      </GlassBar>
     </header>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { NavBar } from "@/features/landing/components/nav-bar";
+import { HeroRays } from "@/features/landing/components/hero-rays";
 import { Hero } from "@/features/landing/components/hero";
 import { BenefitsSection } from "@/features/landing/components/benefits-section";
 import { FeaturesSection } from "@/features/landing/components/features-section";
@@ -40,7 +41,8 @@ export default async function LandingPage({
   setRequestLocale(locale);
 
   return (
-    <main className="text-foreground">
+    <main className="relative isolate text-foreground">
+      <HeroRays />
       <NavBar />
       <Hero />
       <FeaturesSection />

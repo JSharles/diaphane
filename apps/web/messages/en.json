@@ -25,7 +25,7 @@
     },
     "features": {
       "eyebrow": "Complexity, translated",
-      "title": "The technology stays precise. It becomes accessible.",
+      "title": "The technology stays precise. ",
       "subhead": "Diaphane removes jargon and opacity, not substance. Every piece of information stays true to the real work and becomes understandable to your client.",
       "preview": {
         "badge": "Transformation example",
@@ -71,7 +71,8 @@
         "sectionText": "Clients find progress, decisions, and useful context in an organized view without digging through working documents.",
         "controlLabel": "Before publishing:",
         "controlText": "approve, reject, or refile every proposed section."
-      }
+      },
+      "titleAccent": "It becomes accessible."
     },
     "howItWorks": {
       "eyebrow": "Set up",
@@ -87,25 +88,27 @@
     },
     "developers": {
       "eyebrow": "For developers",
-      "title": "Less reporting. More reliable context.",
+      "title": "Less reporting. ",
       "subhead": "Make the project understandable without building and maintaining a parallel status report.",
       "card1Title": "Reduce status requests",
       "card1Description": "Clients can check the current task, why it matters, and its state without waiting for your next message.",
       "card2Title": "Keep working in your project tracker",
       "card2Description": "Your board remains your workspace. Diaphane creates a client-friendly view from it.",
       "card3Title": "Transform existing documentation",
-      "card3Description": "Diaphane classifies, structures, and explains the content; you approve every section before publishing."
+      "card3Description": "Diaphane classifies, structures, and explains the content; you approve every section before publishing.",
+      "titleAccent": "More reliable context."
     },
     "clients": {
       "eyebrow": "For clients",
-      "title": "A clear view, without learning your tools.",
+      "title": "A clear view, ",
       "subhead": "Clients get the context they need to understand and participate, without the complexity of your technical environment.",
       "card1Title": "Understand what is happening now",
       "card1Description": "The current task is presented with its purpose, impact, and state in plain language.",
       "card2Title": "Explore structured documentation",
       "card2Description": "Approved information is organized by topic and clearly rewritten, with the original document still accessible.",
       "card3Title": "Know who to contact",
-      "card3Description": "The team, useful contact details, and meeting link live in the same workspace."
+      "card3Description": "The team, useful contact details, and meeting link live in the same workspace.",
+      "titleAccent": "without learning your tools."
     },
     "faq": {
       "eyebrow": "Frequently asked questions",
@@ -129,9 +132,10 @@
     },
     "closing": {
       "eyebrow": "Ready to lift the veil?",
-      "title": "Show what is really happening. Earn their trust.",
+      "title": "Show what is really happening. ",
       "subhead": "Make your work understandable without changing the way you work.",
-      "cta": "Create a workspace for my client"
+      "cta": "Create a workspace for my client",
+      "titleAccent": "Earn their trust."
     },
     "footer": {
       "statement": "Technical complexity, made understandable for your clients.",
