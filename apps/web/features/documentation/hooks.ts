@@ -15,8 +15,9 @@ import type {
   UpdateSectionRequest,
 } from "schemas";
 import {
-  addNotionDocument,
+  addNotionRoot,
   CursorPage,
+  listNotionPages,
   getDocument,
   listDocuments,
   uploadDocument,
@@ -153,18 +154,33 @@ export function useUploadDocument(projectId: string) {
   });
 }
 
-export function useAddNotionDocument(projectId: string) {
+export const notionPagesKey = (projectId: string) =>
+  [...documentationKey(projectId), "notion-pages"] as const;
+
+// Read only while the picker is open: Notion's search is paged and rate
+// limited, and the list is only ever looked at from there.
+export function useNotionPages(projectId: string, options: { enabled: boolean }) {
+  return useQuery({
+    queryKey: notionPagesKey(projectId),
+    queryFn: () => listNotionPages(projectId),
+    enabled: options.enabled,
+  });
+}
+
+// Adding a racine adds a document, so the list is merged the way an upload
+// is, and the candidates are re-read so the page shows as taken.
+export function useAddNotionRoot(projectId: string) {
   const t = useTranslations("Projects.DocumentationNew.Toasts");
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { pageUrl: string }) =>
-      addNotionDocument(projectId, data),
+    mutationFn: (pageId: string) => addNotionRoot(projectId, { pageId }),
     meta: { skipGlobalErrorToast: true, successMessage: t("documentAdded") },
     onSuccess: ({ document }) => {
       queryClient.setQueryData<InfiniteData<CursorPage<SourceDocument>>>(
         documentsKey(projectId),
         (current) => mergeAcknowledgement(current, document),
       );
+      queryClient.invalidateQueries({ queryKey: notionPagesKey(projectId) });
     },
   });
 }

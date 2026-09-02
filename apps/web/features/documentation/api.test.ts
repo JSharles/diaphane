@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiFetch } from "@/shared/lib/api-client";
 import {
-  addNotionDocument,
+  addNotionRoot,
+  listNotionPages,
   addNote,
   confirmDocumentRemoval,
   getDocument,
@@ -54,16 +55,18 @@ describe("documentation api", () => {
     );
   });
 
-  it("posts a Notion page", async () => {
+  it("lists the pages ticked in Notion and adds one as a racine", async () => {
     mockedApiFetch.mockResolvedValue({});
 
-    await addNotionDocument("project-1", {
-      pageUrl: "https://notion.so/page",
-    });
+    await listNotionPages("project-1");
+    await addNotionRoot("project-1", { pageId: "page-1" });
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
+      "/projects/project-1/documentation/documents/notion/pages",
+    );
+    expect(mockedApiFetch).toHaveBeenCalledWith(
       "/projects/project-1/documentation/documents/notion",
-      { method: "POST", body: { pageUrl: "https://notion.so/page" } },
+      { method: "POST", body: { pageId: "page-1" } },
     );
   });
 

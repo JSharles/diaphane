@@ -53,6 +53,15 @@ export interface SourceDocumentAcknowledgement {
   document: SourceDocumentSummary;
 }
 
+// A page the developer ticked in Notion, and the document it already is for
+// this project when it is one of its racines.
+export interface NotionRootCandidate {
+  id: string;
+  title: string;
+  url: string;
+  rootDocumentId: string | null;
+}
+
 @Injectable()
 export class SourceDocumentService {
   constructor(
@@ -124,31 +133,76 @@ export class SourceDocumentService {
     }
   }
 
-  async addNotion(
+  // The pages the developer ticked in Notion — the racines this project may
+  // choose — with, for each, the document it already is here.
+  async listNotionPages(
     userId: string,
     projectId: string,
-    pageUrl: string,
+  ): Promise<{ pages: NotionRootCandidate[] }> {
+    await this.access.requireDeveloper(userId, projectId);
+    const shared = await this.readFromNotion(
+      userId,
+      (token) => this.notionClient.listSharedPages(token),
+      'Unable to list your Notion pages with your Notion connection.',
+    );
+    const roots = await this.prisma.sourceDocument.findMany({
+      where: { projectId, kind: 'notion', status: { not: 'removed' } },
+      select: { id: true, notionPageId: true },
+    });
+    const documentByPage = new Map(
+      roots.map((root) => [root.notionPageId, root.id]),
+    );
+    // A racine reads its whole subtree, so a page beneath one is already read
+    // by that document: offering it again would put the same content twice
+    // in the reference document.
+    const parentOf = new Map(
+      shared.map((page) => [page.id, page.parentPageId]),
+    );
+    const readBy = (pageId: string): string | null => {
+      let current: string | null | undefined = pageId;
+      const seen = new Set<string>();
+      while (current && !seen.has(current)) {
+        const document = documentByPage.get(current);
+        if (document) return document;
+        seen.add(current);
+        current = parentOf.get(current);
+      }
+      return null;
+    };
+    return {
+      pages: shared.map(({ parentPageId: _parent, ...page }) => ({
+        ...page,
+        rootDocumentId: readBy(page.id),
+      })),
+    };
+  }
+
+  // A racine Notion: the page and its whole subtree, flattened into one
+  // document source, stored as it was read. Taking it back out is the
+  // ordinary document removal.
+  async addNotionRoot(
+    userId: string,
+    projectId: string,
+    pageId: string,
     locale: string | null = null,
   ): Promise<SourceDocumentAcknowledgement> {
     await this.access.requireDeveloper(userId, projectId);
-    const pageId = parseNotionPageId(pageUrl);
-    if (!pageId) {
-      throw new BadRequestException('Invalid Notion page URL.');
+    const existing = await this.prisma.sourceDocument.findFirst({
+      where: { projectId, notionPageId: pageId, status: { not: 'removed' } },
+      select: { id: true },
+    });
+    if (existing) {
+      throw new ConflictException({
+        code: 'NOTION_ROOT_EXISTS',
+        message: 'This page is already a root of this project.',
+      });
     }
-    // Read with the developer's own Notion connection, refreshed on use.
-    let page: { title: string; content: string };
-    try {
-      page = await this.notionConnection.withToken(userId, (token) =>
-        this.notionClient.fetchPage(token, pageId),
-      );
-    } catch (error) {
-      if (error instanceof NotionAccessError) {
-        throw new BadRequestException(
-          'Unable to access this Notion page with your Notion connection.',
-        );
-      }
-      throw error;
-    }
+
+    const page = await this.readFromNotion(
+      userId,
+      (token) => this.notionClient.fetchPage(token, pageId),
+      'Unable to read this Notion page with your Notion connection.',
+    );
 
     const documentId = randomUUID();
     const snapshot = Buffer.from(
@@ -156,7 +210,7 @@ export class SourceDocumentService {
         version: 1,
         capturedAt: new Date().toISOString(),
         pageId,
-        pageUrl,
+        pageUrl: page.url,
         title: page.title,
         content: page.content,
       }),
@@ -177,7 +231,8 @@ export class SourceDocumentService {
           originalMimeType: 'application/json',
           originalSizeBytes: snapshot.length,
           storedObjectKey: objectKey,
-          externalUrl: pageUrl,
+          externalUrl: page.url,
+          notionPageId: pageId,
           contentSha256: sha256(snapshot),
           addedByUserId: userId,
         },
@@ -246,6 +301,25 @@ export class SourceDocumentService {
       originalDownloadUrl,
       externalUrl: document.externalUrl,
     };
+  }
+
+  // Every Notion read goes through the developer's own connection, refreshed
+  // on use. A refusal from Notion (a page no longer shared, a rate limit)
+  // reaches the developer as a named 400; a missing or revoked connection is
+  // already one, raised by withToken.
+  private async readFromNotion<T>(
+    userId: string,
+    read: (token: string) => Promise<T>,
+    refusalMessage: string,
+  ): Promise<T> {
+    try {
+      return await this.notionConnection.withToken(userId, read);
+    } catch (error) {
+      if (error instanceof NotionAccessError) {
+        throw new BadRequestException(refusalMessage);
+      }
+      throw error;
+    }
   }
 
   private validateUpload(file: Express.Multer.File): void {
@@ -344,23 +418,4 @@ function sha256(bytes: Buffer): string {
 function stripExtension(fileName: string): string {
   const stripped = fileName.replace(/\.[^.]+$/u, '').trim();
   return stripped || 'Untitled document';
-}
-
-export function parseNotionPageId(pageUrl: string): string | null {
-  try {
-    const url = new URL(pageUrl);
-    if (url.protocol !== 'https:' || !isOfficialNotionHostname(url.hostname)) {
-      return null;
-    }
-    const compact = url.pathname.replaceAll('-', '');
-    return compact.match(/([0-9a-f]{32})\/?$/iu)?.[1] ?? null;
-  } catch {
-    return null;
-  }
-}
-
-function isOfficialNotionHostname(hostname: string): boolean {
-  return ['notion.so', 'notion.com'].some(
-    (domain) => hostname === domain || hostname.endsWith(`.${domain}`),
-  );
 }

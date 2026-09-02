@@ -71,3 +71,9 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   }
   return JSON.parse(text) as T;
 }
+
+// What a failed call says on screen: the API's own message when it sent one,
+// the caller's fallback otherwise.
+export function apiErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof ApiError ? error.message : fallback;
+}

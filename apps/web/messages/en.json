@@ -204,20 +204,12 @@
     },
     "Documentation": {
       "AddDocument": {
-        "title": "Enrich the source",
-        "description": "Add a working document. Diaphane extracts useful information, reconciles it with the existing source, and preserves its origin.",
-        "uploadTab": "Upload a file",
-        "notionTab": "Notion page",
+        "title": "Add a document",
+        "description": "Add a working file. Diaphane reads it once and keeps it as it is; the reference document is rewritten from all your documents.",
         "fileLabel": "Document",
         "fileHint": "PDF, Word (.docx), PNG, or JPEG — up to 25 MB. The original will remain available.",
         "uploadSubmit": "Add to the source",
-        "uploadPending": "Uploading…",
-        "notionChecking": "Checking the Notion connection…",
-        "notionPageUrlLabel": "Notion page address",
-        "notionSubmit": "Add to the source",
-        "notionPending": "Adding…",
-        "notionUnavailable": "Connect Notion first, then come back to add the page you want.",
-        "connectNotion": "Connect Notion"
+        "uploadPending": "Uploading…"
       },
       "Documents": {
         "statusIncorporated": "Taken into account",
@@ -488,6 +480,31 @@
         "pendingNotice": "A new version is on its way: {ready, plural, one {# topic ready} other {# topics ready}} of {expected}. Your client keeps the current version until it is complete.",
         "throughTheirEyes": "Their screen, exactly",
         "emptyBody": "As soon as a topic is reviewed and approved it appears here — and on your client's page."
+      },
+      "NotionRoots": {
+        "title": "Notion",
+        "feeds": "Feeds the documentation with the pages this project reads",
+        "state_waiting": "Waiting",
+        "state_live": "Live",
+        "state_unknown": "Revoked",
+        "notConnected": "Connect Notion to choose the pages this project reads",
+        "needsReconnect": "Notion no longer accepts this connection — connect it again.",
+        "connected": "Connected",
+        "connectedTo": "Connected to {name}",
+        "noRoots": "No page chosen yet",
+        "connect": "Connect Notion",
+        "reconnect": "Reconnect",
+        "chooseRoots": "Choose pages",
+        "tickMorePages": "Tick other pages in Notion",
+        "removeRoot": "Remove {title}",
+        "pickerTitle": "Pages this project reads",
+        "pickerDescription": "Each page you add is read with everything beneath it and becomes one source document.",
+        "pickerEmpty": "No page is shared with Diaphane yet. Tick pages in Notion, then refresh.",
+        "pickerRefresh": "Refresh",
+        "pickerLoadError": "Notion could not list your pages. Try again.",
+        "add": "Add",
+        "adding": "Adding…",
+        "added": "Added"
       }
     },
     "TeamSummaryCard": {
@@ -562,20 +579,6 @@
       "loading": "Loading your boards…",
       "githubNotConnected": "GitHub isn't connected on your account, so there are no boards to pick from.",
       "goToProfile": "Open your profile"
-    },
-    "NotionConnectionCard": {
-      "title": "Notion",
-      "feeds": "Feeds the pages this project reads",
-      "state_waiting": "Waiting",
-      "state_live": "Live",
-      "state_unknown": "Revoked",
-      "notConnected": "Connect Notion to choose the pages this project reads",
-      "connected": "Connected",
-      "connectedTo": "Connected to {name}",
-      "needsReconnect": "Notion no longer accepts this connection — connect it again.",
-      "connect": "Connect Notion",
-      "reconnect": "Reconnect",
-      "choosePages": "Choose pages in Notion"
     },
     "MeetingLinkCard": {
       "title": "Meetings",

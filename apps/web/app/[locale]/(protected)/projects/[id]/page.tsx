@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { use } from "react";
 import { BoardConnectionCard } from "@/features/board-connections/components/board-connection-card";
 import { DocumentationSummaryCard } from "@/features/documentation/components/documentation-summary-card";
-import { NotionConnectionCard } from "@/features/notion-connection/components/notion-connection-card";
+import { NotionRootsCard } from "@/features/documentation/components/notion-roots-card";
 import { MeetingCard } from "@/features/projects/components/meeting-card";
 import { MeetingLinkCard } from "@/features/projects/components/meeting-link-card";
 import { ProjectPreferences } from "@/features/projects/components/project-preferences";
@@ -107,7 +107,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <TeamSummaryCard projectId={id} isAdmin={project.isAdmin} />
 
           <SettingsSectionHeading>{t("connections")}</SettingsSectionHeading>
-          <NotionConnectionCard projectId={id} />
+          <NotionRootsCard projectId={id} />
           <BoardConnectionCard projectId={id} />
 
           <MeetingLinkCard projectId={id} />

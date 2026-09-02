@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  CreateNotionSourceDocumentRequestSchema,
+  CreateNotionRootRequestSchema,
+  NotionRootCandidateListSchema,
   DocumentAcknowledgementSchema,
   SourceDocumentDetailSchema,
   SourceDocumentPageSchema,
@@ -73,11 +74,36 @@ describe("documentation source contracts", () => {
     ).toBe(1);
   });
 
-  it("refuses a Notion page that is not a URL", () => {
+  it("reads the pages the developer ticked, each with the document it already is here", () => {
+    const parsed = NotionRootCandidateListSchema.safeParse({
+      pages: [
+        {
+          id: "0123456789abcdef0123456789abcdef",
+          title: "Cadrage",
+          url: "https://notion.so/Cadrage",
+          rootDocumentId: "6f1a1c3e-2b5d-4e7f-9a0b-1c2d3e4f5a6b",
+        },
+        {
+          id: "fedcba9876543210fedcba9876543210",
+          title: "Roadmap",
+          url: "https://notion.so/Roadmap",
+          rootDocumentId: null,
+        },
+      ],
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("refuses a racine request without a Notion page id", () => {
+    expect(CreateNotionRootRequestSchema.safeParse({ pageId: "short" }).success).toBe(false);
     expect(
-      CreateNotionSourceDocumentRequestSchema.safeParse({
-        pageUrl: "notion.so/page",
-      }).success,
+      CreateNotionRootRequestSchema.safeParse({ pageId: "zz".repeat(16) }).success,
     ).toBe(false);
+    expect(
+      CreateNotionRootRequestSchema.safeParse({
+        pageId: "0123456789abcdef0123456789abcdef",
+      }).success,
+    ).toBe(true);
   });
 });

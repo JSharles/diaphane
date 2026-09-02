@@ -18,10 +18,7 @@ import {
 import { DocumentInputNormalizerService } from './document-input-normalizer.service';
 import { ReferenceDocumentService } from '../reference/reference-document.service';
 import { DocumentStorageClient } from './document-storage.client';
-import {
-  parseNotionPageId,
-  SourceDocumentService,
-} from './source-document.service';
+import { SourceDocumentService } from './source-document.service';
 
 const projectId = '00000000-0000-4000-8000-000000000001';
 const userId = '00000000-0000-4000-8000-000000000002';
@@ -42,6 +39,7 @@ function sourceDocument(
     originalSizeBytes: 13,
     storedObjectKey: `documentation/${projectId}/${documentId}/architecture.pdf`,
     externalUrl: null,
+    notionPageId: null,
     contentSha256: 'a'.repeat(64),
     addedByUserId: userId,
     failureCode: null,
@@ -60,7 +58,9 @@ describe('SourceDocumentService', () => {
     Pick<DocumentInputNormalizerService, 'normalizeUpload'>
   >;
   let access: jest.Mocked<Pick<ProjectAccessService, 'requireDeveloper'>>;
-  let notionClient: jest.Mocked<Pick<NotionClient, 'fetchPage'>>;
+  let notionClient: jest.Mocked<
+    Pick<NotionClient, 'fetchPage' | 'listSharedPages'>
+  >;
   let notionConnection: jest.Mocked<Pick<NotionConnectionService, 'withToken'>>;
   let reference: jest.Mocked<Pick<ReferenceDocumentService, 'write'>>;
   let service: SourceDocumentService;
@@ -76,7 +76,7 @@ describe('SourceDocumentService', () => {
       normalizeUpload: jest.fn().mockResolvedValue({ parts: [] }),
     };
     access = { requireDeveloper: jest.fn().mockResolvedValue({}) };
-    notionClient = { fetchPage: jest.fn() };
+    notionClient = { fetchPage: jest.fn(), listSharedPages: jest.fn() };
     notionConnection = {
       // Runs the call with a token, the way the real service does.
       withToken: jest.fn(
@@ -250,9 +250,11 @@ describe('SourceDocumentService', () => {
     expect(storage.delete).toHaveBeenCalled();
   });
 
-  it('stores an immutable Notion snapshot instead of a live page reference only', async () => {
+  it('adds a racine Notion: the page and its subtree, stored as read, remembered by page id', async () => {
+    prisma.sourceDocument.findFirst.mockResolvedValue(null);
     notionClient.fetchPage.mockResolvedValue({
       title: 'Cadrage',
+      url: 'https://notion.so/Cadrage-page1',
       content: 'Le lancement est en avril.',
     });
     prisma.sourceDocument.create.mockResolvedValue(
@@ -261,68 +263,148 @@ describe('SourceDocumentService', () => {
         title: 'Cadrage',
         originalFileName: null,
         originalMimeType: 'application/json',
-        externalUrl:
-          'https://notion.so/Cadrage-0123456789abcdef0123456789abcdef',
+        externalUrl: 'https://notion.so/Cadrage-page1',
       }),
     );
 
-    const result = await service.addNotion(
-      userId,
-      projectId,
-      'https://notion.so/Cadrage-0123456789abcdef0123456789abcdef',
-    );
+    const result = await service.addNotionRoot(userId, projectId, 'page-1');
 
+    expect(notionClient.fetchPage).toHaveBeenCalledWith(
+      'secret-token',
+      'page-1',
+    );
     expect(storage.put).toHaveBeenCalledWith(
       expect.stringContaining('/notion-snapshot.json'),
       expect.any(Buffer),
       'application/json',
     );
     const snapshot = JSON.parse(
-      (storage.put.mock.calls[0]?.[1]).toString('utf8'),
-    );
+      storage.put.mock.calls[0][1].toString('utf8'),
+    ) as Record<string, unknown>;
     expect(snapshot).toMatchObject({
-      pageId: '0123456789abcdef0123456789abcdef',
+      pageId: 'page-1',
+      pageUrl: 'https://notion.so/Cadrage-page1',
       title: 'Cadrage',
       content: 'Le lancement est en avril.',
     });
+    expect(prisma.sourceDocument.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        kind: 'notion',
+        notionPageId: 'page-1',
+        externalUrl: 'https://notion.so/Cadrage-page1',
+      }),
+    });
+    expect(reference.write).toHaveBeenCalled();
     expect(result.document.kind).toBe('notion');
   });
 
-  it('rejects invalid, disconnected, and inaccessible Notion pages', async () => {
+  it('refuses a page that is already a racine of this project', async () => {
+    prisma.sourceDocument.findFirst.mockResolvedValue({ id: 'doc-1' });
+
     await expect(
-      service.addNotion(userId, projectId, 'https://example.com/page'),
-    ).rejects.toBeInstanceOf(BadRequestException);
+      service.addNotionRoot(userId, projectId, 'page-1'),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(notionClient.fetchPage).not.toHaveBeenCalled();
+  });
+
+  it('rejects a disconnected developer and an inaccessible page, lets other faults through', async () => {
+    prisma.sourceDocument.findFirst.mockResolvedValue(null);
 
     notionConnection.withToken.mockRejectedValueOnce(
       new BadRequestException({ code: 'NOTION_NOT_CONNECTED' }),
     );
     await expect(
-      service.addNotion(
-        userId,
-        projectId,
-        'https://notion.so/Page-0123456789abcdef0123456789abcdef',
-      ),
+      service.addNotionRoot(userId, projectId, 'page-1'),
     ).rejects.toBeInstanceOf(BadRequestException);
 
     notionClient.fetchPage.mockRejectedValueOnce(
       new NotionAccessError('forbidden', 403),
     );
     await expect(
-      service.addNotion(
-        userId,
-        projectId,
-        'https://notion.so/Page-0123456789abcdef0123456789abcdef',
-      ),
+      service.addNotionRoot(userId, projectId, 'page-1'),
     ).rejects.toBeInstanceOf(BadRequestException);
 
     notionClient.fetchPage.mockRejectedValueOnce(new Error('network'));
     await expect(
-      service.addNotion(
-        userId,
-        projectId,
-        'https://notion.so/Page-0123456789abcdef0123456789abcdef',
-      ),
+      service.addNotionRoot(userId, projectId, 'page-1'),
     ).rejects.toThrow('network');
+  });
+
+  it('lists the pages the developer ticked, marking those already read by a racine here', async () => {
+    notionClient.listSharedPages.mockResolvedValue([
+      {
+        id: 'page-1',
+        title: 'Cadrage',
+        url: 'https://notion.so/p1',
+        parentPageId: null,
+      },
+      {
+        id: 'page-2',
+        title: 'Roadmap',
+        url: 'https://notion.so/p2',
+        parentPageId: null,
+      },
+      {
+        id: 'page-3',
+        title: 'Budget',
+        url: 'https://notion.so/p3',
+        parentPageId: 'page-1',
+      },
+      {
+        id: 'page-4',
+        title: 'Detail',
+        url: 'https://notion.so/p4',
+        parentPageId: 'page-3',
+      },
+    ]);
+    prisma.sourceDocument.findMany.mockResolvedValue([
+      { id: 'doc-1', notionPageId: 'page-1' },
+    ]);
+
+    await expect(service.listNotionPages(userId, projectId)).resolves.toEqual({
+      pages: [
+        {
+          id: 'page-1',
+          title: 'Cadrage',
+          url: 'https://notion.so/p1',
+          rootDocumentId: 'doc-1',
+        },
+        {
+          id: 'page-2',
+          title: 'Roadmap',
+          url: 'https://notion.so/p2',
+          rootDocumentId: null,
+        },
+        // Beneath Cadrage, so already read by its document — both the child
+        // and the grandchild.
+        {
+          id: 'page-3',
+          title: 'Budget',
+          url: 'https://notion.so/p3',
+          rootDocumentId: 'doc-1',
+        },
+        {
+          id: 'page-4',
+          title: 'Detail',
+          url: 'https://notion.so/p4',
+          rootDocumentId: 'doc-1',
+        },
+      ],
+    });
+    expect(prisma.sourceDocument.findMany).toHaveBeenCalledWith({
+      where: { projectId, kind: 'notion', status: { not: 'removed' } },
+      select: { id: true, notionPageId: true },
+    });
+  });
+
+  it('turns a Notion refusal on the page list into a 400', async () => {
+    notionClient.listSharedPages.mockRejectedValue(
+      new NotionAccessError('rate limited', 429),
+    );
+
+    await expect(
+      service.listNotionPages(userId, projectId),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('returns contributor-only list/detail state and a fresh short-lived original URL', async () => {
@@ -392,35 +474,5 @@ describe('SourceDocumentService', () => {
     await expect(service.detail(userId, projectId, documentId)).rejects.toEqual(
       new NotFoundException({ code: 'NOT_FOUND' }),
     );
-  });
-
-  it('extracts Notion identifiers only from valid Notion URLs', () => {
-    expect(
-      parseNotionPageId(
-        'https://www.notion.so/Workspace/Page-0123456789abcdef0123456789abcdef',
-      ),
-    ).toBe('0123456789abcdef0123456789abcdef');
-    expect(
-      parseNotionPageId(
-        'https://app.notion.com/p/Product-MD-0123456789abcdef0123456789abcdef?source=copy_link',
-      ),
-    ).toBe('0123456789abcdef0123456789abcdef');
-    expect(parseNotionPageId('not a URL')).toBeNull();
-    expect(parseNotionPageId('https://notion.so/no-id')).toBeNull();
-    expect(
-      parseNotionPageId(
-        'http://app.notion.com/p/0123456789abcdef0123456789abcdef',
-      ),
-    ).toBeNull();
-    expect(
-      parseNotionPageId(
-        'https://evil-notion.so/0123456789abcdef0123456789abcdef',
-      ),
-    ).toBeNull();
-    expect(
-      parseNotionPageId(
-        'https://notion.com.evil.example/0123456789abcdef0123456789abcdef',
-      ),
-    ).toBeNull();
   });
 });
