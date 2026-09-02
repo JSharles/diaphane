@@ -1,9 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProjectMember } from '@prisma/client';
-import {
-  decryptToken,
-  encryptToken,
-} from '../board-connections/token-encryption';
+import { decryptToken, encryptToken } from '../auth/token-encryption';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotionClient } from './notion.client';
 

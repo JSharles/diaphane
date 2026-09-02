@@ -1,10 +1,10 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 import type { AvailableBoard } from "schemas";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -14,7 +14,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Label } from "@/shared/components/ui/label";
 import { ApiError } from "@/shared/lib/api-client";
-import { useConnectBoard, usePreviewBoardConnection } from "../hooks";
+import { useAvailableBoards, useConnectBoard } from "../hooks";
 
 interface ConnectBoardDialogProps {
   projectId: string;
@@ -26,45 +26,25 @@ function errorMessage(error: unknown, generic: string): string {
   return error instanceof ApiError ? error.message : generic;
 }
 
-// specs/010-github-oauth-board-connection: no more manual PAT paste, here
-// or on a reconnect — a single "Continue with GitHub" action starts the
-// OAuth flow (auth/board-oauth-cookie.ts carries the resulting token back
-// server-side), landing back on this same dialog with `connectBoard=1` in
-// the URL, at which point it calls preview() with no token at all — the
-// cookie supplies it — and shows the board-picker step directly.
+// The picker opens straight on the boards the developer's GitHub connection
+// can see: the consent was given at login, there is no GitHub detour here.
+// A developer who cut that connection is sent to their profile to redo it.
 export function ConnectBoardDialog({ projectId, open, onOpenChange }: ConnectBoardDialogProps) {
   const t = useTranslations("Projects.ConnectBoardDialog");
   const tToasts = useTranslations("Toasts");
-  const locale = useLocale();
-  const searchParams = useSearchParams();
-  const [boards, setBoards] = useState<AvailableBoard[] | null>(null);
   const [selectedBoard, setSelectedBoard] = useState<AvailableBoard | null>(null);
-  // specs/008-current-task-progress FR-005b — how the board's numeric
-  // "Estimate" field converts to a duration when there's no "Target date"
-  // field to read directly. Defaults to "days", the common convention.
+  // How the board's numeric "Estimate" field converts to a duration when
+  // there's no "Target date" field to read directly. Defaults to "days".
   const [estimateUnit, setEstimateUnit] = useState<"days" | "hours">("days");
-  const preview = usePreviewBoardConnection(projectId);
+  const boards = useAvailableBoards(projectId, { enabled: open });
   const connect = useConnectBoard(projectId);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-  const authorizeHref = `${apiUrl}/projects/${projectId}/board-connection/github/authorize?locale=${locale}`;
-  const returningFromGithub = searchParams.get("connectBoard") === "1";
-
-  useEffect(() => {
-    if (open && boards === null && returningFromGithub && !preview.isPending) {
-      preview.mutate({}, { onSuccess: (result) => setBoards(result) });
-    }
-    // Only re-run when the dialog opens or the URL flag changes — not on
-    // every preview.isPending tick, which would re-fire this effect
-    // mid-request.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, boards, returningFromGithub]);
+  const githubNotConnected =
+    boards.error instanceof ApiError && boards.error.code === "GITHUB_NOT_CONNECTED";
 
   function reset() {
-    setBoards(null);
     setSelectedBoard(null);
     setEstimateUnit("days");
-    preview.reset();
     connect.reset();
   }
 
@@ -93,28 +73,26 @@ export function ConnectBoardDialog({ projectId, open, onOpenChange }: ConnectBoa
           <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
 
-        {boards === null ? (
+        {boards.isPending ? (
+          <p className="text-sm text-muted-foreground">{t("loading")}</p>
+        ) : boards.isError ? (
           <div className="flex flex-col gap-3">
-            {returningFromGithub && preview.isPending ? (
-              <p className="text-sm text-muted-foreground">{t("previewPending")}</p>
-            ) : (
-              <Button asChild>
-                <a href={authorizeHref}>{t("continueWithGithub")}</a>
-              </Button>
-            )}
-            {preview.isError && (
-              <p className="text-sm text-destructive">
-                {errorMessage(preview.error, tToasts("genericError"))}
-              </p>
-            )}
+            <p className="text-sm text-destructive">
+              {githubNotConnected
+                ? t("githubNotConnected")
+                : errorMessage(boards.error, tToasts("genericError"))}
+            </p>
+            <Button asChild variant="outline">
+              <Link href="/profile">{t("goToProfile")}</Link>
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {boards.length === 0 ? (
+            {boards.data.length === 0 ? (
               <p className="text-sm text-muted-foreground">{t("noBoards")}</p>
             ) : (
               <ul className="flex flex-col gap-2" role="radiogroup" aria-label={t("title")}>
-                {boards.map((board) => {
+                {boards.data.map((board) => {
                   const isSelected =
                     selectedBoard?.ownerLogin === board.ownerLogin &&
                     selectedBoard?.number === board.number;

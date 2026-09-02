@@ -12,7 +12,7 @@ import {
   InProgressItem,
   TaskCounts,
 } from '../board-connections/github-projects.client';
-import { decryptToken } from '../board-connections/token-encryption';
+import { decryptToken } from '../auth/token-encryption';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnthropicVulgarizationClient } from './anthropic-vulgarization.client';
 import { Locale, SUPPORTED_LOCALES } from './locale';
@@ -66,18 +66,39 @@ export class TaskVulgarizationService {
   // calls the LLM for this feature.
   @Cron(CronExpression.EVERY_5_MINUTES)
   async sweep(): Promise<void> {
-    const connections = await this.prisma.boardConnection.findMany();
+    // Each board is read with the GitHub connection of the developer who
+    // chose it (docs/PRODUCT.md « Connexions et choix »).
+    const connections = await this.prisma.boardConnection.findMany({
+      include: {
+        connectedBy: {
+          select: {
+            githubConnection: { select: { encryptedToken: true } },
+          },
+        },
+      },
+    });
 
     for (const connection of connections) {
       await this.processConnection(connection);
     }
   }
 
-  private async processConnection(connection: BoardConnection): Promise<void> {
+  private async processConnection(
+    connection: BoardConnection & {
+      connectedBy: { githubConnection: { encryptedToken: string } | null };
+    },
+  ): Promise<void> {
+    const github = connection.connectedBy.githubConnection;
+    if (!github) {
+      // The developer cut their GitHub connection: the board is named but
+      // not read. Nothing to flag, the profile already says so.
+      return;
+    }
+
     let items: InProgressItem[];
     let taskCounts: TaskCounts;
     try {
-      const token = decryptToken(connection.encryptedToken);
+      const token = decryptToken(github.encryptedToken);
       items = await this.githubClient.fetchInProgressItems(
         token,
         connection.boardOwnerLogin,
@@ -91,16 +112,14 @@ export class TaskVulgarizationService {
         connection.boardNumber,
       );
     } catch (error) {
-      // One broken connection must not abort the sweep for every other
-      // project (spec.md Edge Cases) — log and move on. A GithubAuthError
-      // specifically (401/403 — the token was revoked or is otherwise
-      // invalid) additionally flags the connection for FR-008's "reconnect"
-      // state; any other failure (network blip, GitHub outage) is
-      // transient and gets retried next sweep without touching the flag
-      // (specs/010-github-oauth-board-connection, research.md Decision 6).
+      // One broken board must not abort the sweep for every other project:
+      // log and move on. A GithubAuthError (401/403: the token was revoked)
+      // flags the developer's connection so the profile and every board
+      // they chose say "reconnect"; any other failure (network blip, GitHub
+      // outage) is transient and retried next sweep without touching it.
       if (error instanceof GithubAuthError) {
-        await this.prisma.boardConnection.update({
-          where: { id: connection.id },
+        await this.prisma.githubConnection.update({
+          where: { userId: connection.connectedById },
           data: { needsReconnect: true },
         });
       }

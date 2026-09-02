@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiFetch } from "@/shared/lib/api-client";
-import { connectBoard, disconnectBoard, getBoardConnection, previewBoardConnection } from "./api";
+import { connectBoard, disconnectBoard, getBoardConnection, listAvailableBoards } from "./api";
 
 vi.mock("@/shared/lib/api-client", () => ({
   apiFetch: vi.fn(),
@@ -30,26 +30,17 @@ describe("features/board-connections/api", () => {
     expect(result).toBeNull();
   });
 
-  it("previewBoardConnection posts to /projects/:id/board-connection/preview", async () => {
+  it("listAvailableBoards gets /projects/:id/board-connection/boards, with no token", async () => {
     mockedApiFetch.mockResolvedValue([]);
-    const data = { token: "a-token" };
 
-    await previewBoardConnection("project-1", data);
+    await listAvailableBoards("project-1");
 
-    expect(mockedApiFetch).toHaveBeenCalledWith(
-      "/projects/project-1/board-connection/preview",
-      { method: "POST", body: data },
-    );
+    expect(mockedApiFetch).toHaveBeenCalledWith("/projects/project-1/board-connection/boards");
   });
 
-  it("connectBoard posts to /projects/:id/board-connection", async () => {
+  it("connectBoard posts the board selection to /projects/:id/board-connection", async () => {
     mockedApiFetch.mockResolvedValue({ provider: "github" });
-    const data = {
-      token: "a-token",
-      ownerLogin: "acme",
-      ownerType: "Organization" as const,
-      number: 3,
-    };
+    const data = { ownerLogin: "acme", ownerType: "Organization" as const, number: 3 };
 
     await connectBoard("project-1", data);
 

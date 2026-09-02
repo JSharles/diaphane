@@ -13,20 +13,15 @@ import {
 import type { User } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import type { Request, Response } from 'express';
-import { encryptToken } from '../board-connections/token-encryption';
 import { AuthService } from './auth.service';
-import {
-  boardOAuthTokenCookieOptions,
-  BOARD_OAUTH_TOKEN_COOKIE_NAME,
-} from './board-oauth-cookie';
 import { CurrentUser } from './current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { GithubConnectionService } from './github-connection.service';
 import { GithubOauthClient, type GithubProfile } from './github-oauth.client';
 import { DEFAULT_LOCALE, resolveLocale } from './locale';
 import {
   OAUTH_FLOW_COOKIE_NAME,
-  type OAuthFlowCookiePayload,
   oauthFlowCookieOptions,
   parseOAuthFlowCookie,
   serializeOAuthFlowCookie,
@@ -40,6 +35,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly githubOauthClient: GithubOauthClient,
+    private readonly githubConnections: GithubConnectionService,
   ) {}
 
   @Post('login')
@@ -77,9 +73,9 @@ export class AuthController {
     return toPublicUser(updated);
   }
 
-  // specs/009-developer-github-oauth: the sole developer-facing entry point
-  // — one action serves both sign-up and login (FR-001). `locale` is passed
-  // by the frontend link itself (research.md Decision 9) and round-tripped
+  // The sole developer-facing entry point: one action serves sign-up, login
+  // and the GitHub connection (identity + read access to Projects, one
+  // consent). `locale` is passed by the frontend link and round-tripped
   // through the flow cookie so the callback knows where to send the
   // developer back.
   @Get('github')
@@ -92,11 +88,7 @@ export class AuthController {
 
     res.cookie(
       OAUTH_FLOW_COOKIE_NAME,
-      serializeOAuthFlowCookie({
-        state,
-        locale: resolvedLocale,
-        flow: 'login',
-      }),
+      serializeOAuthFlowCookie({ state, locale: resolvedLocale }),
       oauthFlowCookieOptions(),
     );
     res.redirect(this.githubOauthClient.buildAuthorizeUrl(state));
@@ -116,25 +108,16 @@ export class AuthController {
     res.clearCookie(OAUTH_FLOW_COOKIE_NAME, oauthFlowCookieOptions());
     const locale = oauthFlow?.locale ?? DEFAULT_LOCALE;
 
-    // research.md Decision 3: no flow cookie, or a state that doesn't match
-    // what we generated, means this callback is not trusted — no token
-    // exchange, no account, no session.
+    // No flow cookie, or a state that doesn't match what we generated, means
+    // this callback is not trusted: no token exchange, no account, no session.
     if (!oauthFlow || oauthFlow.state !== state) {
       return res.redirect(`${webOrigin}/${locale}/login?error=state_mismatch`);
     }
 
-    // specs/010-github-oauth-board-connection: this callback route is
-    // shared between the login flow and the board-connection flow (a
-    // GitHub OAuth App only supports one registered callback URL) —
-    // `oauthFlow.flow` says which one is in progress.
-    if (oauthFlow.flow === 'board-connection') {
-      return this.githubBoardConnectionCallback(code, oauthFlow, res);
-    }
-
+    let accessToken: string;
     let profile: GithubProfile;
     try {
-      const accessToken =
-        await this.githubOauthClient.exchangeCodeForToken(code);
+      accessToken = await this.githubOauthClient.exchangeCodeForToken(code);
       profile = await this.githubOauthClient.fetchProfile(accessToken);
     } catch {
       return res.redirect(
@@ -150,45 +133,12 @@ export class AuthController {
       );
     }
 
-    const { sessionId } =
+    const { user, sessionId } =
       await this.authService.findOrCreateFromGitHub(profile);
+    // The same consent that identified the developer is what reads their
+    // boards from now on: keep it on the account.
+    await this.githubConnections.saveFromLogin(user.id, accessToken);
     res.cookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions());
     return res.redirect(`${webOrigin}/${locale}/home`);
-  }
-
-  // specs/010-github-oauth-board-connection: the board-connection half of
-  // the shared callback (see the `flow` branch above). Exchanges the code,
-  // encrypts the resulting token into the short-lived board_oauth_token
-  // cookie (research.md Decision 5), and sends the developer back to the
-  // project's board-connection UI to pick a board — no account/session
-  // logic here, the developer is already logged in to have started this.
-  private async githubBoardConnectionCallback(
-    code: string,
-    oauthFlow: Extract<OAuthFlowCookiePayload, { flow: 'board-connection' }>,
-    res: Response,
-  ): Promise<void> {
-    const webOrigin = process.env.WEB_ORIGIN;
-    const { locale, projectId } = oauthFlow;
-    // The callback lands on whichever screen renders BoardConnectionCard.
-    // That has moved twice — onto the project page (2026-08-09), out to a
-    // setup route (specs/021), and back (2026-08-29, once specs/022 moved the
-    // documents into the documentation and left setup more address than
-    // content). The connections now live at the foot of the project page.
-    const projectUrl = `${webOrigin}/${locale}/projects/${projectId}`;
-
-    let accessToken: string;
-    try {
-      accessToken = await this.githubOauthClient.exchangeCodeForToken(code);
-    } catch {
-      res.redirect(`${projectUrl}?boardConnectError=github_auth_failed`);
-      return;
-    }
-
-    res.cookie(
-      BOARD_OAUTH_TOKEN_COOKIE_NAME,
-      encryptToken(accessToken),
-      boardOAuthTokenCookieOptions(),
-    );
-    res.redirect(`${projectUrl}?connectBoard=1`);
   }
 }

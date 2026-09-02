@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useSearchParams } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/shared/lib/api-client";
 import { useBoardConnection, useDisconnectBoard } from "../hooks";
@@ -17,19 +16,20 @@ vi.mock("./connect-board-dialog", () => ({
   )),
 }));
 
-vi.mock("next/navigation", () => ({
-  useSearchParams: vi.fn(),
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({
+    href,
+    children,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 const mockedUseBoardConnection = vi.mocked(useBoardConnection);
 const mockedUseDisconnectBoard = vi.mocked(useDisconnectBoard);
-const mockedUseSearchParams = vi.mocked(useSearchParams);
-
-function paramsWith(entries: Record<string, string> = {}) {
-  return {
-    get: (key: string) => entries[key] ?? null,
-  } as unknown as ReturnType<typeof useSearchParams>;
-}
 
 const fakeConnection = {
   provider: "github" as const,
@@ -57,7 +57,7 @@ function stubDisconnect(overrides: Record<string, unknown> = {}) {
 
 describe("BoardConnectionCard", () => {
   beforeEach(() => {
-    mockedUseSearchParams.mockReturnValue(paramsWith());
+    vi.clearAllMocks();
   });
 
   it("shows a skeleton while pending", () => {
@@ -116,35 +116,19 @@ describe("BoardConnectionCard", () => {
     expect(screen.queryByRole("button", { name: "connect" })).not.toBeInTheDocument();
   });
 
-  it("opens the connect dialog automatically when the URL has connectBoard=1", () => {
-    mockedUseSearchParams.mockReturnValue(paramsWith({ connectBoard: "1" }));
-    mockedUseBoardConnection.mockReturnValue({
-      data: null,
-      isPending: false,
-    } as unknown as ReturnType<typeof useBoardConnection>);
-    stubDisconnect();
-
-    render(<BoardConnectionCard projectId="project-1" />);
-
-    expect(screen.getByTestId("connect-board-dialog")).toHaveTextContent("open");
-  });
-
-  it("shows a reconnect prompt instead of the normal connected state when needsReconnect is true", async () => {
+  it("sends the developer to their profile instead of the dialog when the GitHub connection is cut or revoked", () => {
     mockedUseBoardConnection.mockReturnValue({
       data: { ...fakeConnection, needsReconnect: true },
       isPending: false,
     } as unknown as ReturnType<typeof useBoardConnection>);
     stubDisconnect();
-    const user = userEvent.setup();
 
     render(<BoardConnectionCard projectId="project-1" />);
 
     expect(screen.getByText("needsReconnect")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "openProfile" })).toHaveAttribute("href", "/profile");
+    expect(screen.queryByRole("button", { name: "connect" })).not.toBeInTheDocument();
     expect(screen.getByTestId("connect-board-dialog")).toHaveTextContent("closed");
-
-    await user.click(screen.getByRole("button", { name: "reconnect" }));
-
-    expect(screen.getByTestId("connect-board-dialog")).toHaveTextContent("open");
   });
 
   it("asks for confirmation before disconnecting, and does not disconnect on its own", async () => {

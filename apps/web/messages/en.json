@@ -540,8 +540,7 @@
       "connectedTo": "Connected to {title}",
       "disconnect": "Disconnect",
       "disconnecting": "Disconnecting…",
-      "needsReconnect": "Your GitHub authorization was revoked — reconnect to keep this board in sync.",
-      "reconnect": "Reconnect",
+      "needsReconnect": "Your GitHub connection is cut or was revoked — this board is no longer read.",
       "disconnectConfirmTitle": "Disconnect this board?",
       "disconnectConfirmDescription": "The client will stop seeing task progress from this board until it's reconnected.",
       "disconnectConfirmCancel": "Cancel",
@@ -549,18 +548,20 @@
       "feeds": "Feeds the progress your client sees",
       "state_waiting": "Waiting",
       "state_live": "Live",
-      "state_unknown": "Unknown"
+      "state_unknown": "Unknown",
+      "openProfile": "Open your profile"
     },
     "ConnectBoardDialog": {
       "title": "Connect a GitHub Projects board",
-      "continueWithGithub": "Continue with GitHub",
-      "previewPending": "Checking…",
       "noBoards": "Your GitHub account doesn't have access to any GitHub Projects board.",
       "connectSubmit": "Connect",
       "connectPending": "Connecting…",
       "estimateUnitLabel": "When a task has an \"Estimate\" number but no \"Target date\", treat it as:",
       "estimateUnitDays": "Days",
-      "estimateUnitHours": "Hours"
+      "estimateUnitHours": "Hours",
+      "loading": "Loading your boards…",
+      "githubNotConnected": "GitHub isn't connected on your account, so there are no boards to pick from.",
+      "goToProfile": "Open your profile"
     },
     "NotionConnectionCard": {
       "connected": "Connected",
@@ -715,6 +716,21 @@
     "malt": "Malt",
     "website": "Website",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "Connections": {
+      "title": "Connections",
+      "github": "GitHub",
+      "githubFeeds": "Reads the boards you choose on your projects",
+      "githubConnected": "Connected — every board you choose is read with it",
+      "githubNotConnected": "Not connected",
+      "githubNeedsReconnect": "GitHub revoked this authorization — log in again to renew it.",
+      "connect": "Connect GitHub",
+      "reconnect": "Reconnect",
+      "disconnect": "Disconnect",
+      "disconnecting": "Disconnecting…",
+      "state_waiting": "Not connected",
+      "state_live": "Live",
+      "state_unknown": "Revoked"
+    }
   }
 }

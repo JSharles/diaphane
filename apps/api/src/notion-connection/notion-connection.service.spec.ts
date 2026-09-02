@@ -4,7 +4,7 @@ import {
   createPrismaMock,
   PrismaMock,
 } from '../test/prisma-mock';
-import { decryptToken } from '../board-connections/token-encryption';
+import { decryptToken } from '../auth/token-encryption';
 import { NotionAccessError, NotionClient } from './notion.client';
 import { NotionConnectionService } from './notion-connection.service';
 
@@ -178,8 +178,8 @@ describe('NotionConnectionService', () => {
 
     it('returns the decrypted token when a connection exists', async () => {
       const { encryptToken } = jest.requireActual<
-        typeof import('../board-connections/token-encryption')
-      >('../board-connections/token-encryption');
+        typeof import('../auth/token-encryption')
+      >('../auth/token-encryption');
       prisma.notionConnection.findUnique.mockResolvedValue({
         id: 'conn-1',
         projectId: 'project-1',

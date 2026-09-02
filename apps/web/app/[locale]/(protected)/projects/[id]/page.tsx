@@ -2,7 +2,7 @@
 
 import { ArrowLeft, TriangleAlert, Video } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Suspense, use } from "react";
+import { use } from "react";
 import { BoardConnectionCard } from "@/features/board-connections/components/board-connection-card";
 import { DocumentationSummaryCard } from "@/features/documentation/components/documentation-summary-card";
 import { NotionConnectionCard } from "@/features/notion-connection/components/notion-connection-card";
@@ -112,12 +112,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             <SettingsSectionHeading>{t("connections")}</SettingsSectionHeading>
           </div>
           <NotionConnectionCard projectId={id} />
-          {/* Suspense: BoardConnectionCard reads useSearchParams (the
-              `connectBoard` param the GitHub OAuth callback redirects with),
-              which Next.js requires to be boundary-wrapped. */}
-          <Suspense fallback={<Skeleton className="h-14 w-full" />}>
-            <BoardConnectionCard projectId={id} />
-          </Suspense>
+          <BoardConnectionCard projectId={id} />
 
           <MeetingLinkCard projectId={id} />
 
