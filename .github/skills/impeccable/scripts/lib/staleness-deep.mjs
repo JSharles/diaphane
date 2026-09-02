@@ -117,6 +117,23 @@ export function checkDesignDrift({ designPath, projectRoot, threshold = 25 }) {
  * a section can be absent because it never applied, so this is reported as a
  * documentation gap for a human to judge, never as an error.
  */
+function hasCoverageValue(value) {
+  if (Array.isArray(value)) return value.some(hasCoverageValue);
+  if (value && typeof value === 'object') {
+    return Object.values(value).some(hasCoverageValue);
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed.length > 0 && !/^(?:\[\s*\]|\{\s*\})$/.test(trimmed);
+  }
+  return false;
+}
+
+const SEED_DESIGN_MARKERS = ['/', '$'].map((prefix) =>
+  '<!-- SEED: established with the user before implementation; '
+    + `re-run ${prefix}impeccable document once there's code to capture the actual tokens and components. -->`
+);
+
 export function checkDesignCoverage({ design, designPath, parseDesignMd }) {
   if (!design || typeof parseDesignMd !== 'function') return [];
   let model;
@@ -125,8 +142,12 @@ export function checkDesignCoverage({ design, designPath, parseDesignMd }) {
   } catch {
     return [];
   }
-  const missing = ['colors', 'typography', 'components']
-    .filter((section) => !model[section]);
+  const isSeed = SEED_DESIGN_MARKERS.some((marker) => design.includes(marker));
+  const requiredSections = isSeed
+    ? ['colors', 'typography']
+    : ['colors', 'typography', 'components'];
+  const missing = requiredSections
+    .filter((section) => !model[section] && !hasCoverageValue(model.frontmatter?.[section]));
   if (!missing.length) return [];
   return [finding({
     id: 'design-md-coverage',
@@ -215,12 +236,64 @@ function collectHookCommands(value, out = []) {
   return out;
 }
 
-// Pull the script path out of a hook command line. Commands look like
-// `node .claude/skills/impeccable/scripts/hook.mjs` and may be quoted or carry
-// trailing arguments.
-function hookScriptPathFrom(command) {
-  const match = String(command).match(/(\S*skills\/impeccable\/scripts\/hook(?:-before-edit)?\.mjs)/);
-  return match ? match[1].replace(/^['"]|['"]$/g, '') : null;
+const HOOK_MARKER = /skills\/impeccable\/scripts\/hook(?:-before-edit)?\.mjs/;
+
+// Pull the script-path token out of a hook command line, placeholders intact.
+// The forms our manifests ship:
+//   * bare:            node "${CLAUDE_PROJECT_DIR}/.../hook.mjs"
+//   * bundle-relative: node ".agents/.../hook.mjs"
+//   * legacy unquoted: node .claude/.../hook.mjs
+//   * guarded (#399):  [ ! -f "PATH" ] || node "PATH"   (PATH twice, identical)
+//   * absolute (#476): [ ! -f 'PATH' ] || node 'PATH'   (single-quoted since
+//                      the shell-injection fix; older installs double-quote)
+//   * github portable: node "$(git rev-parse --show-toplevel)/.../hook.mjs"
+// A quoted path wins; the guard's two occurrences are identical, so the first
+// quoted match is the path. Otherwise fall back to the whitespace/metachar-
+// delimited token that ends at the marker, so we don't absorb `node`, `[`, `!`
+// or `||`. Returns the token verbatim; resolution happens separately.
+function hookScriptTokenFrom(command) {
+  const str = String(command);
+  if (!HOOK_MARKER.test(str)) return null;
+  const quoted = str.match(/"([^"]*skills\/impeccable\/scripts\/hook(?:-before-edit)?\.mjs)"/);
+  if (quoted) return quoted[1];
+  // A path containing an apostrophe serializes as '\'' inside single quotes;
+  // no regex reassembles that, and the bare fallback would misread a fragment
+  // of it, so return null: the caller never asserts on a path it can't parse.
+  if (str.includes("'\\''")) return null;
+  const singleQuoted = str.match(/'([^']*skills\/impeccable\/scripts\/hook(?:-before-edit)?\.mjs)'/);
+  if (singleQuoted) return singleQuoted[1];
+  const bare = str.match(/([^\s"'|&;()]*skills\/impeccable\/scripts\/hook(?:-before-edit)?\.mjs)/);
+  return bare ? bare[1] : null;
+}
+
+// Resolve a script token to an absolute path the doctor can existsSync, or null
+// when the doctor cannot know where it points — in which case the caller must
+// NOT report it missing (a doctor never asserts a negative it cannot verify).
+//
+// Per-placeholder policy, mirroring what each runtime actually expands:
+//   ${CLAUDE_PROJECT_DIR}  → the project root being scanned. This is exactly the
+//                            runtime mapping (Claude Code sets it to the project
+//                            dir at hook time), so we EXPAND it against `root`.
+//                            Not doing so was the #402 bug: the literal
+//                            `${CLAUDE_PROJECT_DIR}/...` string never exists.
+//   ${CLAUDE_PLUGIN_ROOT}  → plugin-package install dir, set by the harness to
+//   ${PLUGIN_ROOT}           wherever the plugin/codex/grok bundle was unpacked
+//   ${GROK_PLUGIN_ROOT}      (grok aliases CLAUDE_PLUGIN_ROOT). The doctor has no
+//                            way to know that location → SKIP (return null).
+//   $(...) / backticks     → command substitution, e.g. GitHub's
+//                            `$(git rev-parse --show-toplevel)`. Not statically
+//                            resolvable → SKIP.
+//   any other ${VAR}/$VAR  → unknown to the doctor → SKIP.
+// A token with no placeholder is a literal path: absolute as-is, else relative
+// to `root`.
+function resolveHookScriptPath(token, root) {
+  if (!token) return null;
+  // Command substitution or backtick expansion we can't evaluate.
+  if (token.includes('$(') || token.includes('`')) return null;
+  const expanded = token.replace(/\$\{CLAUDE_PROJECT_DIR\}/g, root);
+  // Any placeholder or shell variable still present is one we can't map.
+  if (/\$\{[^}]*\}|\$[A-Za-z_]/.test(expanded)) return null;
+  return path.isAbsolute(expanded) ? expanded : path.join(root, expanded);
 }
 
 /**
@@ -246,9 +319,11 @@ export function checkHookInstallation({ projectRoot, repoRoot, providerId }) {
       installedAt = toRelative(manifestPath, projectRoot || root);
 
       const broken = commands.filter((command) => {
-        const scriptPath = hookScriptPathFrom(command);
-        if (!scriptPath) return false;
-        const abs = path.isAbsolute(scriptPath) ? scriptPath : path.join(root, scriptPath);
+        const token = hookScriptTokenFrom(command);
+        if (!token) return false;
+        const abs = resolveHookScriptPath(token, root);
+        // Unresolvable placeholder or command substitution: never assert missing.
+        if (!abs) return false;
         return !fs.existsSync(abs);
       });
       if (broken.length) {

@@ -41,7 +41,7 @@ has not changed. After confirmation, require all of the following:
 
 ## Production compatibility floor
 
-Production execution is outside `speckit-implement`.
+Production execution is outside any implementation skill.
 
 1. Before reset, every instance must run the transition-aware guard release.
 2. From the first `resetting` write, recovery is roll-forward-only. Never

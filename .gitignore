@@ -24,7 +24,10 @@ Thumbs.db
 # key passed inline to a CLI). Never commit.
 .claude/settings.local.json
 
-# Codex tooling — this repo standardises on .claude/ (the Impeccable skill
-# under .agents/ is a duplicate of the tracked one). Not used any more.
-.agents/
+# Codex tooling — not used any more. (.agents/skills/ IS tracked: it holds the
+# skills installed via `pnpm dlx skills`, exposed to Claude Code through the
+# symlinks in .claude/skills/.)
 .codex/
+# `impeccable update` also drops a Codex copy of the skill into .agents/; the
+# Claude Code copy in .claude/skills/impeccable is the one this repo uses.
+.agents/skills/impeccable/

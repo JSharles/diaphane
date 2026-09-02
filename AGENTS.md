@@ -73,3 +73,17 @@ To target a single app: `pnpm --filter web dev` or `pnpm --filter api dev` (or `
 - Prisma 7: no `url` in the `datasource` block of `schema.prisma` (validation error if you add one) — the connection string is only passed at runtime via the driver adapter (`@prisma/adapter-pg`, wired in `apps/api/src/prisma/prisma.service.ts`). The generator uses `provider = "prisma-client-js"` (CommonJS output) — the newer `"prisma-client"` generator emits ESM-only code (`import.meta.url`) that breaks under this app's CommonJS setup, don't switch to it without also converting `apps/api` to ESM.
 - Docker Desktop must be running before `docker compose up -d postgres` (`open -a Docker` on macOS if it isn't).
 - `packages/schemas` ships as TypeScript source, no build step (`main`/`types` point straight at `src/index.ts`). `apps/web` consumes it via Next's `transpilePackages: ["schemas"]` in `next.config.ts`. If `apps/api` ever needs it too, it can't just `require()` it the same way (Node can't run raw `.ts` at runtime) — it would need a real build step added to the package first.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues on `JSharles/diaphane`, driven with the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five canonical triage roles map 1:1 to labels of the same name (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` and one `docs/adr/` at the repo root (the api/web split is technical, not a domain boundary). See `docs/agents/domain.md`.
