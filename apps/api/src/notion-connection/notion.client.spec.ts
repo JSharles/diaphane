@@ -208,4 +208,98 @@ describe('NotionClient', () => {
 
     expect(result.content).toBe('Text after image.');
   });
+
+  describe('listSharedPages', () => {
+    it('lists every page the developer ticked, across search pages, newest first as Notion gives them', async () => {
+      fetchMock
+        .mockResolvedValueOnce(
+          jsonResponse({
+            results: [
+              {
+                object: 'page',
+                id: 'page-1',
+                url: 'https://notion.so/Cadrage-page1',
+                archived: false,
+                parent: { type: 'workspace', workspace: true },
+                properties: {
+                  title: { type: 'title', title: richText('Cadrage') },
+                },
+              },
+              {
+                object: 'page',
+                id: 'page-archived',
+                url: 'https://notion.so/Old',
+                archived: true,
+                properties: {
+                  title: { type: 'title', title: richText('Old') },
+                },
+              },
+            ],
+            has_more: true,
+            next_cursor: 'cursor-2',
+          }),
+        )
+        .mockResolvedValueOnce(
+          jsonResponse({
+            results: [
+              {
+                object: 'page',
+                id: 'page-2',
+                url: 'https://notion.so/Roadmap-page2',
+                archived: false,
+                parent: { type: 'page_id', page_id: 'page-1' },
+                properties: {
+                  Name: { type: 'title', title: [] },
+                },
+              },
+            ],
+            has_more: false,
+            next_cursor: null,
+          }),
+        );
+
+      const pages = await client.listSharedPages('token-1');
+
+      expect(pages).toEqual([
+        {
+          id: 'page-1',
+          title: 'Cadrage',
+          url: 'https://notion.so/Cadrage-page1',
+          parentPageId: null,
+        },
+        {
+          id: 'page-2',
+          title: 'Untitled Notion page',
+          url: 'https://notion.so/Roadmap-page2',
+          parentPageId: 'page-1',
+        },
+      ]);
+
+      const [firstUrl, firstInit] = fetchMock.mock.calls[0] as [
+        string,
+        RequestInit,
+      ];
+      expect(firstUrl).toBe('https://api.notion.com/v1/search');
+      expect(firstInit.method).toBe('POST');
+      expect(JSON.parse(firstInit.body as string)).toEqual({
+        filter: { property: 'object', value: 'page' },
+        page_size: 100,
+      });
+      const [, secondInit] = fetchMock.mock.calls[1] as [string, RequestInit];
+      expect(JSON.parse(secondInit.body as string)).toMatchObject({
+        start_cursor: 'cursor-2',
+      });
+    });
+
+    it('throws NotionAccessError carrying the status when the token is refused', async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse({}, false, 401));
+
+      const error = await client
+        .listSharedPages('bad')
+        .catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(NotionAccessError);
+      expect((error as NotionAccessError).status).toBe(401);
+    });
+  });
 });

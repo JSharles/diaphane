@@ -43,8 +43,28 @@ export const DocumentAcknowledgementSchema = z
   .object({ document: SourceDocumentSchema })
   .strict();
 
-export const CreateNotionSourceDocumentRequestSchema = z
-  .object({ pageUrl: z.url().max(2048) })
+// A page the developer ticked in Notion — a racine this project may choose —
+// and the document it already is here when it is one.
+export const NotionRootCandidateSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    url: z.url(),
+    rootDocumentId: DocumentationUuidSchema.nullable(),
+  })
+  .strict();
+
+export const NotionRootCandidateListSchema = z
+  .object({ pages: z.array(NotionRootCandidateSchema) })
+  .strict();
+
+// A Notion page id as `POST /v1/search` returns it: a uuid, dashed or not.
+export const NotionPageIdSchema = z
+  .string()
+  .regex(/^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/iu);
+
+export const CreateNotionRootRequestSchema = z
+  .object({ pageId: NotionPageIdSchema })
   .strict();
 
 export type SourceDocument = z.infer<typeof SourceDocumentSchema>;
@@ -52,3 +72,6 @@ export type SourceDocumentDetail = z.infer<typeof SourceDocumentDetailSchema>;
 export type DocumentAcknowledgement = z.infer<
   typeof DocumentAcknowledgementSchema
 >;
+export type NotionRootCandidate = z.infer<typeof NotionRootCandidateSchema>;
+export type NotionRootCandidateList = z.infer<typeof NotionRootCandidateListSchema>;
+export type CreateNotionRootRequest = z.infer<typeof CreateNotionRootRequestSchema>;

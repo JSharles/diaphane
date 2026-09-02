@@ -1,6 +1,8 @@
 import type {
   ClientContentPreview,
+  CreateNotionRootRequest,
   DocumentAcknowledgement,
+  NotionRootCandidateList,
   SourceDocument,
   SourceDocumentDetail,
   DocumentationWorkspace,
@@ -50,10 +52,16 @@ export function getDocument(projectId: string, documentId: string) {
   );
 }
 
-export function addNotionDocument(
-  projectId: string,
-  data: { pageUrl: string },
-) {
+// The racines Notion this project may choose: the pages the developer ticked
+// in Notion, each with the document it already is here.
+export function listNotionPages(projectId: string) {
+  return apiFetch<NotionRootCandidateList>(
+    `/projects/${projectId}/documentation/documents/notion/pages`,
+  );
+}
+
+// A racine: the page and its whole subtree become one document source.
+export function addNotionRoot(projectId: string, data: CreateNotionRootRequest) {
   return apiFetch<DocumentAcknowledgement>(
     `/projects/${projectId}/documentation/documents/notion`,
     { method: "POST", body: data },

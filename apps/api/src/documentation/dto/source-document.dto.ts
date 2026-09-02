@@ -1,9 +1,11 @@
-import { Equals, IsInt, IsUrl, MaxLength, Min } from 'class-validator';
+import { Equals, IsInt, Matches, Min } from 'class-validator';
 
-export class CreateNotionSourceDocumentDto {
-  @IsUrl({ require_protocol: true })
-  @MaxLength(2048)
-  pageUrl!: string;
+// A Notion page id as `POST /v1/search` returns it: a uuid, dashed or not.
+export class CreateNotionRootDto {
+  @Matches(
+    /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/iu,
+  )
+  pageId!: string;
 }
 
 export class ConfirmSourceDocumentRemovalDto {

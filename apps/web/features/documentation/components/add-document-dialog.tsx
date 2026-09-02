@@ -1,9 +1,7 @@
 "use client";
 
-import { FileUp, Link2 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { notionConnectUrl } from "@/shared/api/connections";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -14,15 +12,8 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/shared/components/ui/tabs";
-import { useConnections } from "@/shared/hooks/use-connections";
-import { ApiError } from "@/shared/lib/api-client";
-import { useAddNotionDocument, useUploadDocument } from "../hooks";
+import { apiErrorMessage } from "@/shared/lib/api-client";
+import { useUploadDocument } from "../hooks";
 
 interface AddDocumentDialogProps {
   projectId: string;
@@ -30,12 +21,8 @@ interface AddDocumentDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type InputKind = "upload" | "notion";
-
-function errorMessage(error: unknown, fallback: string) {
-  return error instanceof ApiError ? error.message : fallback;
-}
-
+// One way in: a file. The racines Notion are chosen on the project's Notion
+// card, among the pages the developer ticked in Notion — no address to paste.
 export function AddDocumentDialog({
   projectId,
   open,
@@ -43,27 +30,14 @@ export function AddDocumentDialog({
 }: AddDocumentDialogProps) {
   const t = useTranslations("Projects.Documentation.AddDocument");
   const tToasts = useTranslations("Toasts");
-  const locale = useLocale();
-  const [kind, setKind] = useState<InputKind>("upload");
   const [file, setFile] = useState<File | null>(null);
-  const [pageUrl, setPageUrl] = useState("");
   const upload = useUploadDocument(projectId);
-  const addNotion = useAddNotionDocument(projectId);
-  // The Notion connection is the developer's, not the project's: the dialog
-  // only needs to know whether there is one before offering a page.
-  const connections = useConnections({ enabled: open });
-  const notionConnected = connections.data?.notion.connected ?? false;
-
-  function reset() {
-    setKind("upload");
-    setFile(null);
-    setPageUrl("");
-    upload.reset();
-    addNotion.reset();
-  }
 
   function changeOpen(nextOpen: boolean) {
-    if (!nextOpen) reset();
+    if (!nextOpen) {
+      setFile(null);
+      upload.reset();
+    }
     onOpenChange(nextOpen);
   }
 
@@ -75,108 +49,33 @@ export function AddDocumentDialog({
           <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
-      {/* This announced itself as a tablist while implementing none of the
-          contract — no tabpanel, no aria-controls, no roving tabindex, no
-          arrow keys. Promising tab semantics and not delivering them is worse
-          for a screen-reader user than plain buttons, so it uses the real
-          primitive now. */}
-      <Tabs value={kind} onValueChange={(value) => setKind(value as "upload" | "notion")}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="upload">
-            <FileUp />
-            {t("uploadTab")}
-          </TabsTrigger>
-          <TabsTrigger value="notion">
-            <Link2 />
-            {t("notionTab")}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="upload">
-          <form
-            key="upload"
-            className="flex flex-col gap-4"
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (!file) return;
-              upload.mutate(file, { onSuccess: () => changeOpen(false) });
-            }}
-          >
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="source-document-file">{t("fileLabel")}</Label>
-              <Input
-                id="source-document-file"
-                type="file"
-                accept=".pdf,.docx,image/png,image/jpeg"
-                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-              />
-              <p className="text-xs leading-relaxed text-muted-foreground">{t("fileHint")}</p>
-            </div>
-            {upload.isError && (
-              <p role="alert" className="text-sm text-destructive">
-                {errorMessage(upload.error, tToasts("genericError"))}
-              </p>
-            )}
-            <Button type="submit" disabled={!file || upload.isPending}>
-              {upload.isPending ? t("uploadPending") : t("uploadSubmit")}
-            </Button>
-          </form>
-        </TabsContent>
-
-        <TabsContent value="notion">
-          {connections.isPending ? (
-            <p className="py-4 text-sm text-muted-foreground">{t("notionChecking")}</p>
-          ) : notionConnected ? (
-          <form
-            key="notion"
-            className="flex flex-col gap-4"
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (!pageUrl) return;
-              addNotion.mutate(
-                { pageUrl },
-                { onSuccess: () => changeOpen(false) },
-              );
-            }}
-          >
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="source-document-notion-url">{t("notionPageUrlLabel")}</Label>
-              <Input
-                id="source-document-notion-url"
-                type="url"
-                value={pageUrl}
-                placeholder="https://notion.so/…"
-                onChange={(event) => setPageUrl(event.target.value)}
-              />
-            </div>
-            {addNotion.isError && (
-              <p role="alert" className="text-sm text-destructive">
-                {errorMessage(addNotion.error, tToasts("genericError"))}
-              </p>
-            )}
-            <Button type="submit" disabled={!pageUrl || addNotion.isPending}>
-              {addNotion.isPending ? t("notionPending") : t("notionSubmit")}
-            </Button>
-          </form>
-          ) : (
-            <div className="flex flex-col gap-3 py-2">
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                {t("notionUnavailable")}
-              </p>
-              <Button asChild variant="outline" className="w-fit">
-                <a
-                  href={notionConnectUrl(
-                    locale,
-                    `/projects/${projectId}/documentation/sources`,
-                  )}
-                >
-                  {t("connectNotion")}
-                </a>
-              </Button>
-            </div>
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!file) return;
+            upload.mutate(file, { onSuccess: () => changeOpen(false) });
+          }}
+        >
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="source-document-file">{t("fileLabel")}</Label>
+            <Input
+              id="source-document-file"
+              type="file"
+              accept=".pdf,.docx,image/png,image/jpeg"
+              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            />
+            <p className="text-xs leading-relaxed text-muted-foreground">{t("fileHint")}</p>
+          </div>
+          {upload.isError && (
+            <p role="alert" className="text-sm text-destructive">
+              {apiErrorMessage(upload.error, tToasts("genericError"))}
+            </p>
           )}
-        </TabsContent>
-      </Tabs>
+          <Button type="submit" disabled={!file || upload.isPending}>
+            {upload.isPending ? t("uploadPending") : t("uploadSubmit")}
+          </Button>
+        </form>
       </DialogContent>
     </Dialog>
   );

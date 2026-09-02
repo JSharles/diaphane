@@ -13,7 +13,10 @@ const file = {
 
 describe('SourceDocumentsController', () => {
   let service: jest.Mocked<
-    Pick<SourceDocumentService, 'addUpload' | 'addNotion' | 'list' | 'detail'>
+    Pick<
+      SourceDocumentService,
+      'addUpload' | 'addNotionRoot' | 'listNotionPages' | 'list' | 'detail'
+    >
   >;
   let controller: SourceDocumentsController;
   let removal: jest.Mocked<Pick<DocumentRemovalService, 'preview' | 'confirm'>>;
@@ -21,7 +24,8 @@ describe('SourceDocumentsController', () => {
   beforeEach(() => {
     service = {
       addUpload: jest.fn(),
-      addNotion: jest.fn(),
+      addNotionRoot: jest.fn(),
+      listNotionPages: jest.fn(),
       list: jest.fn(),
       detail: jest.fn(),
     };
@@ -32,16 +36,16 @@ describe('SourceDocumentsController', () => {
     );
   });
 
-  it('delegates upload and Notion snapshot creation to the contributor service', async () => {
+  it('delegates upload and the racine Notion to the contributor service', async () => {
     service.addUpload.mockResolvedValue({} as never);
-    service.addNotion.mockResolvedValue({} as never);
+    service.addNotionRoot.mockResolvedValue({} as never);
+    service.listNotionPages.mockResolvedValue({ pages: [] });
 
     await controller.upload(user, 'project-1', file, 'fr');
     // No header on this one: the language remembered on the account is what a
     // background write falls back to.
-    await controller.addNotion(user, 'project-1', {
-      pageUrl: 'https://notion.so/Cadrage-0123456789abcdef0123456789abcdef',
-    });
+    await controller.addNotionRoot(user, 'project-1', { pageId: 'page-1' });
+    await controller.listNotionPages(user, 'project-1');
 
     expect(service.addUpload).toHaveBeenCalledWith(
       'user-1',
@@ -49,12 +53,13 @@ describe('SourceDocumentsController', () => {
       file,
       'fr',
     );
-    expect(service.addNotion).toHaveBeenCalledWith(
+    expect(service.addNotionRoot).toHaveBeenCalledWith(
       'user-1',
       'project-1',
-      'https://notion.so/Cadrage-0123456789abcdef0123456789abcdef',
+      'page-1',
       null,
     );
+    expect(service.listNotionPages).toHaveBeenCalledWith('user-1', 'project-1');
   });
 
   it('passes cursor access and document identity without leaking access decisions', async () => {

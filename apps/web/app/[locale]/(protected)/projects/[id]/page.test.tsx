@@ -56,9 +56,9 @@ vi.mock("@/features/board-connections/components/board-connection-card", () => (
   ),
 }));
 
-vi.mock("@/features/notion-connection/components/notion-connection-card", () => ({
-  NotionConnectionCard: ({ projectId }: { projectId: string }) => (
-    <div>notion-connection-card:{projectId}</div>
+vi.mock("@/features/documentation/components/notion-roots-card", () => ({
+  NotionRootsCard: ({ projectId }: { projectId: string }) => (
+    <div>notion-roots-card:{projectId}</div>
   ),
 }));
 
@@ -131,7 +131,7 @@ describe("ProjectPage", () => {
 
     renderPage();
 
-    expect(screen.getByText("notion-connection-card:project-1")).toBeInTheDocument();
+    expect(screen.getByText("notion-roots-card:project-1")).toBeInTheDocument();
     expect(screen.getByText("board-connection-card:project-1")).toBeInTheDocument();
     expect(screen.getByText("meeting-link-card:project-1")).toBeInTheDocument();
     expect(screen.getByText("project-preferences:project-1")).toBeInTheDocument();
@@ -219,7 +219,7 @@ describe("ProjectPage", () => {
       "documentation-summary:project-1",
       "team-summary-card:project-1",
       "connections",
-      "notion-connection-card:project-1",
+      "notion-roots-card:project-1",
       "board-connection-card:project-1",
       "meeting-link-card:project-1",
       "preferences",
@@ -242,7 +242,7 @@ describe("ProjectPage", () => {
     expect(screen.queryByText("team-summary-card:project-1")).not.toBeInTheDocument();
     expect(screen.queryByText("documentation-summary:project-1")).not.toBeInTheDocument();
     expect(screen.queryByText("board-connection-card:project-1")).not.toBeInTheDocument();
-    expect(screen.queryByText("notion-connection-card:project-1")).not.toBeInTheDocument();
+    expect(screen.queryByText("notion-roots-card:project-1")).not.toBeInTheDocument();
     expect(screen.queryByText("meeting-link-card:project-1")).not.toBeInTheDocument();
 
     expect(screen.getByText("team-panel:project-1")).toBeInTheDocument();

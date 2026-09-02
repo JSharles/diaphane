@@ -384,6 +384,10 @@ model SourceDocument {
   originalSizeBytes   Int?                 @map("original_size_bytes")
   storedObjectKey     String?              @map("stored_object_key")
   externalUrl         String?              @map("external_url")
+  // A racine Notion: the page whose whole subtree this document is. Set only
+  // for kind `notion`; what says whether a page is already a root of this
+  // project, and which document to remove to take it out.
+  notionPageId        String?              @map("notion_page_id")
   contentSha256       String?              @map("content_sha256") @db.VarChar(64)
   addedByUserId       String               @map("added_by_user_id") @db.Uuid
   failureCode         String?              @map("failure_code") @db.VarChar(128)
@@ -401,6 +405,7 @@ model SourceDocument {
 
   @@index([projectId, status, createdAt])
   @@index([projectId, contentSha256])
+  @@index([projectId, notionPageId])
   @@map("source_documents")
 }
 

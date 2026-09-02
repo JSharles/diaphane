@@ -40,12 +40,40 @@ interface NotionPageProperty {
 }
 
 interface NotionPageResponse {
+  url: string;
   properties: Record<string, NotionPageProperty>;
 }
 
 export interface NotionPageContent {
   title: string;
+  url: string;
   content: string;
+}
+
+// A page the developer ticked in Notion's page picker: one candidate racine.
+export interface NotionSharedPage {
+  id: string;
+  title: string;
+  url: string;
+  // The page it sits under, when that is a page: what says a candidate is
+  // already read as part of a racine chosen above it.
+  parentPageId: string | null;
+}
+
+interface NotionSearchResult {
+  object: string;
+  id: string;
+  url: string;
+  archived?: boolean;
+  in_trash?: boolean;
+  parent?: { type: string; page_id?: string };
+  properties: Record<string, NotionPageProperty>;
+}
+
+interface SearchResponse {
+  results: NotionSearchResult[];
+  has_more: boolean;
+  next_cursor: string | null;
 }
 
 // specs/011-project-resources research.md Decision 5: Notion content is
@@ -56,28 +84,57 @@ export interface NotionPageContent {
 @Injectable()
 export class NotionClient {
   async fetchPage(token: string, pageId: string): Promise<NotionPageContent> {
-    const title = await this.fetchPageTitle(token, pageId);
+    const { title, url } = await this.fetchPageHead(token, pageId);
     const blocks = await this.fetchBlockChildren(token, pageId);
     const content = (await this.flattenBlocks(token, blocks)).join('\n\n');
 
-    return { title, content };
+    return { title, url, content };
   }
 
-  private async fetchPageTitle(token: string, pageId: string): Promise<string> {
+  // The pages shared with the connection — what the developer ticked, plus
+  // what a ticked parent gives access to. `POST /v1/search` without a query
+  // returns exactly that set, 100 per page; pages directly shared are
+  // guaranteed to be there, though not always the second after the OAuth
+  // return (Notion indexes them shortly after).
+  async listSharedPages(token: string): Promise<NotionSharedPage[]> {
+    const pages: NotionSharedPage[] = [];
+    let cursor: string | undefined;
+    do {
+      const res = await this.request(token, '/search', {
+        method: 'POST',
+        body: JSON.stringify({
+          filter: { property: 'object', value: 'page' },
+          page_size: 100,
+          ...(cursor ? { start_cursor: cursor } : {}),
+        }),
+      });
+      const data = (await res.json()) as SearchResponse;
+      for (const result of data.results) {
+        if (result.object !== 'page' || result.archived || result.in_trash) {
+          continue;
+        }
+        pages.push({
+          id: result.id,
+          title: titleOf(result.properties),
+          url: result.url,
+          parentPageId:
+            result.parent?.type === 'page_id'
+              ? (result.parent.page_id ?? null)
+              : null,
+        });
+      }
+      cursor = data.has_more ? (data.next_cursor ?? undefined) : undefined;
+    } while (cursor);
+    return pages;
+  }
+
+  private async fetchPageHead(
+    token: string,
+    pageId: string,
+  ): Promise<{ title: string; url: string }> {
     const res = await this.request(token, `/pages/${pageId}`);
     const data = (await res.json()) as NotionPageResponse;
-
-    // The title property's key varies by page (e.g. "title" for a plain
-    // page, but a database row names it after its own title column) — find
-    // it by type instead of by key.
-    const titleProperty = Object.values(data.properties).find(
-      (property) => property.type === 'title',
-    );
-    const title = (titleProperty?.title ?? [])
-      .map((t) => t.plain_text)
-      .join('');
-
-    return title.trim() || 'Untitled Notion page';
+    return { title: titleOf(data.properties), url: data.url };
   }
 
   private async fetchBlockChildren(
@@ -124,11 +181,17 @@ export class NotionClient {
     return parts;
   }
 
-  private async request(token: string, path: string): Promise<Response> {
+  private async request(
+    token: string,
+    path: string,
+    init: RequestInit = {},
+  ): Promise<Response> {
     const res = await fetch(`${NOTION_API_URL}${path}`, {
+      ...init,
       headers: {
         Authorization: `Bearer ${token}`,
         'Notion-Version': NOTION_VERSION,
+        'Content-Type': 'application/json',
       },
     });
 
@@ -141,6 +204,17 @@ export class NotionClient {
 
     return res;
   }
+}
+
+// The title property's key varies by page (e.g. "title" for a plain page,
+// but a database row names it after its own title column) — find it by type
+// instead of by key.
+function titleOf(properties: Record<string, NotionPageProperty>): string {
+  const titleProperty = Object.values(properties ?? {}).find(
+    (property) => property.type === 'title',
+  );
+  const title = (titleProperty?.title ?? []).map((t) => t.plain_text).join('');
+  return title.trim() || 'Untitled Notion page';
 }
 
 function extractBlockText(block: NotionBlock): string | null {

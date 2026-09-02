@@ -17,7 +17,7 @@ import { CurrentUser } from '../../auth/current-user.decorator';
 import { SessionGuard } from '../../auth/session.guard';
 import {
   ConfirmSourceDocumentRemovalDto,
-  CreateNotionSourceDocumentDto,
+  CreateNotionRootDto,
 } from '../dto/source-document.dto';
 import { DocumentRemovalService } from '../source/document-removal.service';
 import { SourceDocumentService } from '../source/source-document.service';
@@ -53,17 +53,27 @@ export class SourceDocumentsController {
     );
   }
 
-  @Post('notion')
-  addNotion(
+  // The racines Notion this project may choose: the pages the developer
+  // ticked in Notion, each with the document it already is here.
+  @Get('notion/pages')
+  listNotionPages(
     @CurrentUser() user: User,
     @Param('projectId') projectId: string,
-    @Body() body: CreateNotionSourceDocumentDto,
+  ) {
+    return this.documents.listNotionPages(user.id, projectId);
+  }
+
+  @Post('notion')
+  addNotionRoot(
+    @CurrentUser() user: User,
+    @Param('projectId') projectId: string,
+    @Body() body: CreateNotionRootDto,
     @Headers('x-interface-locale') headerLocale?: string,
   ) {
-    return this.documents.addNotion(
+    return this.documents.addNotionRoot(
       user.id,
       projectId,
-      body.pageUrl,
+      body.pageId,
       headerLocale ?? user.locale ?? null,
     );
   }
