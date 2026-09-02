@@ -12,7 +12,6 @@ export type ProjectLanguage = z.infer<typeof ProjectLanguageSchema>;
 export const ProjectSchema = z.object({
   id: z.uuid(),
   title: z.string(),
-  status: z.string().nullable(),
   progressPercentage: z.number().nullable(),
   // Not yet surfaced anywhere client-facing — see docs/PRODUCT.md "Working
   // notes" (meeting/discussion-summary feature, not yet scoped). Settings
@@ -30,12 +29,10 @@ export const ProjectSchema = z.object({
 });
 export type Project = z.infer<typeof ProjectSchema>;
 
-// GET /projects/:id's response: the project plus the caller's own membership
-// (role/isAdmin) on it — used to decide what the project page shows them.
-// GET /projects (the list) still returns plain ProjectSchema entries, since
-// the dashboard grid has no per-project role-gated UI.
+// GET /projects/:id's response: the project plus whether the caller owns it.
+// What the caller may do on it comes from their account (UserSchema
+// .accountKind), which every protected page already holds.
 export const ProjectDetailSchema = ProjectSchema.extend({
-  role: z.enum(['client', 'contributor']),
   isAdmin: z.boolean(),
 });
 export type ProjectDetail = z.infer<typeof ProjectDetailSchema>;

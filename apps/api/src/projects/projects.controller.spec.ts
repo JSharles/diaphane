@@ -22,7 +22,6 @@ const fakeUser: User = {
   website: null,
   roleTitle: null,
   locale: null,
-  status: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -137,7 +136,7 @@ describe('ProjectsController', () => {
         lastName: 'Lovelace',
         email: 'ada@example.com',
         isAdmin: false,
-        role: 'client' as const,
+        accountKind: 'client' as const,
         image: null,
         roleTitle: null,
         locale: null,

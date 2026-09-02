@@ -25,7 +25,7 @@ export class ClientContentController {
     @CurrentUser() user: User,
     @Param('projectId') projectId: string,
   ) {
-    await this.access.requireContributor(user.id, projectId);
+    await this.access.requireDeveloper(user.id, projectId);
     return this.publication.readPreview(projectId);
   }
 }

@@ -29,7 +29,6 @@ const fakeUser: User = {
   website: null,
   roleTitle: null,
   locale: null,
-  status: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -67,7 +66,7 @@ describe('BoardConnectionsController', () => {
       | 'preview'
       | 'connect'
       | 'disconnect'
-      | 'assertIsContributor'
+      | 'assertIsDeveloper'
     >
   >;
   let githubOauthClient: jest.Mocked<
@@ -83,7 +82,7 @@ describe('BoardConnectionsController', () => {
       preview: jest.fn(),
       connect: jest.fn(),
       disconnect: jest.fn(),
-      assertIsContributor: jest.fn(),
+      assertIsDeveloper: jest.fn(),
     };
     githubOauthClient = { buildAuthorizeUrl: jest.fn() };
     controller = new BoardConnectionsController(
@@ -110,11 +109,10 @@ describe('BoardConnectionsController', () => {
 
   describe('authorizeGithub', () => {
     it('asserts contributor access, sets the board-connection flow cookie, and redirects to GitHub', async () => {
-      boardConnectionsService.assertIsContributor.mockResolvedValue({
+      boardConnectionsService.assertIsDeveloper.mockResolvedValue({
         id: 'member-1',
         projectId: 'project-1',
         userId: 'user-1',
-        role: 'contributor',
         isAdmin: true,
         createdAt: new Date(),
       });
@@ -130,7 +128,7 @@ describe('BoardConnectionsController', () => {
         res as unknown as Response,
       );
 
-      expect(boardConnectionsService.assertIsContributor).toHaveBeenCalledWith(
+      expect(boardConnectionsService.assertIsDeveloper).toHaveBeenCalledWith(
         'user-1',
         'project-1',
       );
@@ -152,7 +150,7 @@ describe('BoardConnectionsController', () => {
 
     it('propagates the not-found error for a non-contributor without touching cookies', async () => {
       const notFound = new Error('Project not found');
-      boardConnectionsService.assertIsContributor.mockRejectedValue(notFound);
+      boardConnectionsService.assertIsDeveloper.mockRejectedValue(notFound);
       const res = createResponseMock();
 
       await expect(

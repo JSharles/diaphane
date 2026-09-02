@@ -42,7 +42,7 @@ describe('ClientSectionService', () => {
   function setup() {
     const prisma = createPrismaMock();
     const access = {
-      requireContributor: jest.fn().mockResolvedValue({ role: 'contributor' }),
+      requireDeveloper: jest.fn().mockResolvedValue({ isAdmin: true }),
     };
     const proposals = {
       compose: jest
@@ -69,7 +69,7 @@ describe('ClientSectionService', () => {
   describe('access', () => {
     it('hides a project the caller is not a contributor on, exactly as a missing one', async () => {
       const { access, service } = setup();
-      access.requireContributor.mockRejectedValue(
+      access.requireDeveloper.mockRejectedValue(
         new NotFoundException({ code: 'NOT_FOUND' }),
       );
 
@@ -80,7 +80,7 @@ describe('ClientSectionService', () => {
 
     it('checks access before reading anything', async () => {
       const { prisma, access, service } = setup();
-      access.requireContributor.mockRejectedValue(
+      access.requireDeveloper.mockRejectedValue(
         new NotFoundException({ code: 'NOT_FOUND' }),
       );
 

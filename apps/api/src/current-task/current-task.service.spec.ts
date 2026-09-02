@@ -11,7 +11,6 @@ const membership = {
   id: 'member-1',
   projectId: 'project-1',
   userId: 'user-1',
-  role: 'client',
   isAdmin: false,
   createdAt: new Date(),
 };
@@ -69,7 +68,6 @@ describe('CurrentTaskService', () => {
   it('allows a contributor to call it too (not client-only at the API level)', async () => {
     prisma.projectMember.findUnique.mockResolvedValue({
       ...membership,
-      role: 'contributor',
       isAdmin: true,
     });
     taskVulgarizationService.getVulgarizedCurrentTask.mockResolvedValue([item]);

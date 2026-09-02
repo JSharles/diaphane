@@ -10,7 +10,7 @@ export const ProjectMemberSchema = z.object({
   lastName: z.string(),
   email: z.email(),
   isAdmin: z.boolean(),
-  role: z.enum(['client', 'contributor']),
+  accountKind: z.enum(['developer', 'client']),
   image: z.string().nullable(),
   roleTitle: z.string().nullable(),
   phone: z.string().nullable(),

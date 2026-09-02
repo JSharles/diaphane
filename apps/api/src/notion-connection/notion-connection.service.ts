@@ -17,7 +17,7 @@ export interface NotionConnectionStatus {
 // specs/012-project-settings: a project-level, standalone connection —
 // connecting/reconnecting/disconnecting is now independent of adding any
 // particular Notion-sourced resource (research.md Decision 1). Mirrors
-// BoardConnectionsService's shape (assertIsContributor, verify-then-persist,
+// BoardConnectionsService's shape (assertIsDeveloper, verify-then-persist,
 // idempotent disconnect).
 @Injectable()
 export class NotionConnectionService {
@@ -30,7 +30,7 @@ export class NotionConnectionService {
     userId: string,
     projectId: string,
   ): Promise<NotionConnectionStatus> {
-    await this.assertIsContributor(userId, projectId);
+    await this.assertIsDeveloper(userId, projectId);
 
     const connection = await this.prisma.notionConnection.findUnique({
       where: { projectId },
@@ -53,7 +53,7 @@ export class NotionConnectionService {
     projectId: string,
     token: string,
   ): Promise<NotionConnectionStatus> {
-    await this.assertIsContributor(userId, projectId);
+    await this.assertIsDeveloper(userId, projectId);
 
     const identity = await this.notionClient.verifyToken(token);
 
@@ -71,7 +71,7 @@ export class NotionConnectionService {
   // nothing is connected is not an error (mirrors
   // BoardConnectionsService.disconnect()).
   async disconnect(userId: string, projectId: string): Promise<void> {
-    await this.assertIsContributor(userId, projectId);
+    await this.assertIsDeveloper(userId, projectId);
 
     await this.prisma.notionConnection.deleteMany({ where: { projectId } });
   }
@@ -87,19 +87,18 @@ export class NotionConnectionService {
     return connection ? decryptToken(connection.encryptedToken) : null;
   }
 
-  // Mirrors the board and documentation services' own membership
-  // checks — kept as a separate copy per Constitution III (Feature
-  // Isolation). A client-role member gets the exact same response as a
-  // non-member.
-  private async assertIsContributor(
+  // Mirrors the board and documentation services' own membership checks.
+  // A client member gets the exact same response as a non-member.
+  private async assertIsDeveloper(
     userId: string,
     projectId: string,
   ): Promise<ProjectMember> {
     const membership = await this.prisma.projectMember.findUnique({
       where: { projectId_userId: { projectId, userId } },
+      include: { user: { select: { accountKind: true } } },
     });
 
-    if (!membership || membership.role !== 'contributor') {
+    if (!membership || membership.user.accountKind !== 'developer') {
       throw new NotFoundException('Project not found');
     }
 

@@ -28,7 +28,7 @@ describe('SectionProposalService', () => {
   function setup() {
     const prisma = createPrismaMock();
     const access = {
-      requireContributor: jest.fn().mockResolvedValue({ role: 'contributor' }),
+      requireDeveloper: jest.fn().mockResolvedValue({ isAdmin: true }),
     };
     const generation = {
       createInTransaction: jest.fn().mockResolvedValue({ id: operationId }),

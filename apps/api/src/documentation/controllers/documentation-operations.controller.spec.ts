@@ -8,7 +8,7 @@ import { DocumentationOperationsController } from './documentation-operations.co
 describe('DocumentationOperationsController', () => {
   function setup() {
     const prisma = createPrismaMock();
-    const access = { requireContributor: jest.fn() };
+    const access = { requireDeveloper: jest.fn() };
     const generation = { retry: jest.fn() };
     const projections = { retryComposition: jest.fn() };
     return {
@@ -39,10 +39,7 @@ describe('DocumentationOperationsController', () => {
       status: 'queued',
       actionCode: 'RETRY_QUEUED',
     });
-    expect(access.requireContributor).toHaveBeenCalledWith(
-      'user-1',
-      'project-1',
-    );
+    expect(access.requireDeveloper).toHaveBeenCalledWith('user-1', 'project-1');
     expect(prisma.generationOperation.findFirst).toHaveBeenCalledWith({
       where: {
         id: 'operation-1',

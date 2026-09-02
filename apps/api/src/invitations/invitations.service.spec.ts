@@ -23,7 +23,6 @@ const fakeInvitation = {
   id: 'invitation-1',
   projectId: 'project-1',
   email: 'client@example.com',
-  role: 'client',
   isAdmin: false,
   token: 'a-random-token',
   status: 'invited',
@@ -35,7 +34,6 @@ const adminMembership = {
   id: 'member-1',
   projectId: 'project-1',
   userId: 'user-1',
-  role: 'contributor',
   isAdmin: true,
   createdAt: new Date(),
 };
@@ -94,7 +92,6 @@ describe('InvitationsService', () => {
         data: {
           projectId: 'project-1',
           email: 'client@example.com',
-          role: 'client',
           isAdmin: false,
           status: 'invited',
           token: expect.stringMatching(/^[0-9a-f]{64}$/) as string,
@@ -134,7 +131,6 @@ describe('InvitationsService', () => {
           id: 'member-2',
           projectId: 'project-1',
           userId: 'user-2',
-          role: 'client',
           isAdmin: false,
           createdAt: new Date(),
         }); // existing membership for the invited email
@@ -472,7 +468,6 @@ describe('InvitationsService', () => {
           data: {
             projectId: 'project-1',
             userId: 'user-1',
-            role: 'client',
             isAdmin: false,
           },
         });
@@ -520,7 +515,6 @@ describe('InvitationsService', () => {
           id: 'member-2',
           projectId: 'project-1',
           userId: 'user-1',
-          role: 'client',
           isAdmin: true,
           createdAt: new Date(),
         });
@@ -570,7 +564,6 @@ describe('InvitationsService', () => {
           data: {
             projectId: 'project-1',
             userId: 'user-1',
-            role: 'client',
             isAdmin: false,
           },
         });

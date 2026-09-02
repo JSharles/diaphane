@@ -76,10 +76,9 @@ export function TeamPanel({
   const { data: members, isPending } = useProjectMembers(projectId);
   const t = useTranslations("Projects.TeamPanel");
 
-  // A project has, in practice, exactly one contributor today — the first
-  // one found is shown as "the developer" (same simplification as the old
-  // DeveloperCard).
-  const developer = members?.find((member) => member.role === "contributor");
+  // A project has exactly one developer today (its owner) — the first one
+  // found is shown as "the developer".
+  const developer = members?.find((member) => member.accountKind === "developer");
   const visibleMembers = members?.slice(0, MAX_VISIBLE_AVATARS) ?? [];
   const overflowCount = members ? Math.max(members.length - MAX_VISIBLE_AVATARS, 0) : 0;
 

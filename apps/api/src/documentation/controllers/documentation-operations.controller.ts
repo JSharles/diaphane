@@ -30,7 +30,7 @@ export class DocumentationOperationsController {
     @Param('projectId') projectId: string,
     @Param('operationId') operationId: string,
   ) {
-    await this.access.requireContributor(user.id, projectId);
+    await this.access.requireDeveloper(user.id, projectId);
     const operation = await this.prisma.generationOperation.findFirst({
       where: { id: operationId, projectId, status: 'needs_attention' },
       select: { id: true, type: true },

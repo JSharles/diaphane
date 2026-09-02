@@ -7,7 +7,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Invitation, ProjectMemberRole, User } from '@prisma/client';
+import { Invitation, User } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { randomBytes } from 'crypto';
 import { AuthService } from '../auth/auth.service';
@@ -86,7 +86,6 @@ export class InvitationsService {
       data: {
         projectId,
         email,
-        role: ProjectMemberRole.client,
         isAdmin: false,
         token: randomBytes(32).toString('hex'),
         status: 'invited',
@@ -285,7 +284,6 @@ export class InvitationsService {
         data: {
           projectId: invitation.projectId,
           userId: user.id,
-          role: invitation.role,
           isAdmin: invitation.isAdmin,
         },
       });

@@ -63,7 +63,7 @@ export class ClientSectionService {
   ) {}
 
   async list(userId: string, projectId: string) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const rows = await this.prisma.clientSection.findMany({
       where: { projectId, archivedAt: null },
       include: SECTION_INCLUDE,
@@ -78,7 +78,7 @@ export class ClientSectionService {
     input: CreateClientSectionDto,
     locale: string | null = null,
   ) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     // US1.8: a section composed from nothing is not worth queueing, and the
     // contributor is better told what is missing than shown an empty proposal.
     await this.requireReferenceDocument(projectId);
@@ -145,7 +145,7 @@ export class ClientSectionService {
     input: UpdateClientSectionDto,
     locale: string | null = null,
   ) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const existing = await this.requireSection(projectId, sectionId);
 
     const changesDefinition =
@@ -237,7 +237,7 @@ export class ClientSectionService {
   }
 
   async archive(userId: string, projectId: string, sectionId: string) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     await this.requireSection(projectId, sectionId);
 
     // Archiving rather than deleting: the client stops reading it, and the
@@ -262,7 +262,7 @@ export class ClientSectionService {
     projectId: string,
     input: ReorderClientSectionsDto,
   ) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
 
     const existing = await this.prisma.clientSection.findMany({
       where: { projectId, archivedAt: null },
@@ -306,7 +306,7 @@ export class ClientSectionService {
     sectionId: string,
     input: { milestoneId?: string | null; expectedVersion: number },
   ) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const section = await this.requireSection(projectId, sectionId);
     if (section.kind !== 'roadmap') {
       throw new BadRequestException({ code: 'SECTION_NOT_ROADMAP' });

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useProject } from "@/features/projects/hooks";
+import { useCurrentUser } from "@/shared/hooks/use-current-user";
 import DocumentationLayout from "./layout";
 
 vi.mock("react", async (importOriginal) => {
@@ -9,6 +10,9 @@ vi.mock("react", async (importOriginal) => {
 });
 
 vi.mock("@/features/projects/hooks", () => ({ useProject: vi.fn() }));
+vi.mock("@/shared/hooks/use-current-user", () => ({
+  useCurrentUser: vi.fn(),
+}));
 
 vi.mock("@/features/documentation/components/documentation-rail", () => ({
   DocumentationRail: ({ projectId }: { projectId: string }) => (
@@ -32,6 +36,13 @@ vi.mock("@/i18n/navigation", () => ({
 
 const mockedUseProject = vi.mocked(useProject);
 
+function mockAccount(accountKind: "developer" | "client") {
+  vi.mocked(useCurrentUser).mockReturnValue({
+    data: { id: "user-1", accountKind },
+    isPending: false,
+  } as unknown as ReturnType<typeof useCurrentUser>);
+}
+
 function renderLayout() {
   return render(
     <DocumentationLayout
@@ -45,13 +56,15 @@ function renderLayout() {
 describe("DocumentationLayout", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockAccount("developer");
   });
 
   // The rail is a layout, not a component each page remembers to include — a
   // step cannot render without it (specs/022).
   it("wraps every step with the rail and the way back", () => {
+    mockAccount("developer");
     mockedUseProject.mockReturnValue({
-      data: { id: "project-1", role: "contributor" },
+      data: { id: "project-1" },
       isPending: false,
       isError: false,
     } as unknown as ReturnType<typeof useProject>);
@@ -67,8 +80,9 @@ describe("DocumentationLayout", () => {
   });
 
   it("sends a client away and shows them nothing", () => {
+    mockAccount("client");
     mockedUseProject.mockReturnValue({
-      data: { id: "project-1", role: "client" },
+      data: { id: "project-1" },
       isPending: false,
       isError: false,
     } as unknown as ReturnType<typeof useProject>);

@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useSourceDocument } from "@/features/documentation/hooks";
 import { useProject } from "@/features/projects/hooks";
+import { useCurrentUser } from "@/shared/hooks/use-current-user";
 import SourceDocumentPage from "./page";
 
 vi.mock("react", async (importOriginal) => {
@@ -16,6 +17,9 @@ vi.mock("@/features/documentation/components/remove-document-dialog", () => ({
     open ? <div>remove-dialog</div> : null,
 }));
 vi.mock("@/features/projects/hooks", () => ({ useProject: vi.fn() }));
+vi.mock("@/shared/hooks/use-current-user", () => ({
+  useCurrentUser: vi.fn(),
+}));
 
 const replace = vi.fn();
 vi.mock("@/i18n/navigation", () => ({
@@ -59,8 +63,12 @@ function renderPage() {
 describe("SourceDocumentPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useCurrentUser).mockReturnValue({
+      data: { id: "user-1", accountKind: "developer" },
+      isPending: false,
+    } as never);
     vi.mocked(useProject).mockReturnValue({
-      data: { role: "contributor" },
+      data: { id: "project-1" },
       isPending: false,
       isError: false,
     } as never);

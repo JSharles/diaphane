@@ -22,7 +22,6 @@ export const UserSchema = z.object({
   malt: z.string().nullable(),
   website: z.string().nullable(),
   roleTitle: z.string().nullable(),
-  status: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

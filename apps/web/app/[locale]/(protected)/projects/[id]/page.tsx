@@ -16,14 +16,16 @@ import { Link } from "@/i18n/navigation";
 import { SettingsSectionHeading } from "@/shared/components/settings-section-heading";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { useCurrentUser } from "@/shared/hooks/use-current-user";
 import { ClientMainTabs } from "./client-main-tabs";
 
 export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data: project, isPending, isError, refetch } = useProject(id);
+  const { data: currentUser, isPending: userPending } = useCurrentUser();
   const t = useTranslations("Projects.ProjectPage");
 
-  if (isPending) {
+  if (isPending || userPending) {
     return <Skeleton className="h-8 w-64" />;
   }
 
@@ -45,7 +47,9 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     );
   }
 
-  const isContributor = project.role === "contributor";
+  // What this page shows comes from the account, not the membership: a
+  // developer tends the project, a client reads it.
+  const isContributor = currentUser?.accountKind === "developer";
 
   return (
     // Both branches are natural-height now, not forced to fill the

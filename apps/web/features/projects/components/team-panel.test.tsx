@@ -27,7 +27,7 @@ function member(
   firstName: string,
   lastName: string,
   overrides: Partial<{
-    role: "client" | "contributor";
+    accountKind: "client" | "developer";
     phone: string | null;
     github: string | null;
     linkedin: string | null;
@@ -41,7 +41,7 @@ function member(
     lastName,
     email: `${firstName.toLowerCase()}@example.com`,
     isAdmin: false,
-    role: "client" as const,
+    accountKind: "client" as const,
     image: null,
     roleTitle: null,
     phone: null,
@@ -67,7 +67,7 @@ describe("TeamPanel", () => {
 
   it("shows an empty message when there is no contributor", () => {
     mockedUseProjectMembers.mockReturnValue({
-      data: [member("1", "Ada", "Lovelace", { role: "client" })],
+      data: [member("1", "Ada", "Lovelace", { accountKind: "client" })],
       isPending: false,
     } as unknown as ReturnType<typeof useProjectMembers>);
 
@@ -80,7 +80,7 @@ describe("TeamPanel", () => {
     mockedUseProjectMembers.mockReturnValue({
       data: [
         member("1", "Jean", "Charles", {
-          role: "contributor",
+          accountKind: "developer",
           phone: "0600000000",
           github: "jc",
           linkedin: "in/jean-charles",
@@ -106,7 +106,7 @@ describe("TeamPanel", () => {
     mockedUseProjectMembers.mockReturnValue({
       data: [
         member("1", "Jean", "Charles", {
-          role: "contributor",
+          accountKind: "developer",
           phone: "0600000000",
           github: "github.com/jc",
           linkedin: "linkedin.com/in/jean-charles",
@@ -138,7 +138,7 @@ describe("TeamPanel", () => {
 
   it("prepends https:// to a social/website value that has no scheme", () => {
     mockedUseProjectMembers.mockReturnValue({
-      data: [member("1", "Jean", "Charles", { role: "contributor", website: "jeancharles.dev" })],
+      data: [member("1", "Jean", "Charles", { accountKind: "developer", website: "jeancharles.dev" })],
       isPending: false,
     } as unknown as ReturnType<typeof useProjectMembers>);
 
@@ -152,7 +152,7 @@ describe("TeamPanel", () => {
 
   it("only renders contact rows for fields that are actually set", () => {
     mockedUseProjectMembers.mockReturnValue({
-      data: [member("1", "Jean", "Charles", { role: "contributor" })],
+      data: [member("1", "Jean", "Charles", { accountKind: "developer" })],
       isPending: false,
     } as unknown as ReturnType<typeof useProjectMembers>);
 
@@ -167,7 +167,7 @@ describe("TeamPanel", () => {
 
   it("shows the developer's roleTitle when set, falling back to a generic label otherwise", () => {
     mockedUseProjectMembers.mockReturnValue({
-      data: [member("1", "Jean", "Charles", { role: "contributor" })],
+      data: [member("1", "Jean", "Charles", { accountKind: "developer" })],
       isPending: false,
     } as unknown as ReturnType<typeof useProjectMembers>);
 
@@ -179,7 +179,7 @@ describe("TeamPanel", () => {
   it("shows an avatar per member in the team section, plus the developer's own avatar", () => {
     mockedUseProjectMembers.mockReturnValue({
       data: [
-        member("1", "Jean", "Charles", { role: "contributor" }),
+        member("1", "Jean", "Charles", { accountKind: "developer" }),
         member("2", "Ada", "Lovelace"),
       ],
       isPending: false,
@@ -193,7 +193,7 @@ describe("TeamPanel", () => {
 
   it("links to the dedicated team page, labeled 'Manage' for an admin viewer", () => {
     mockedUseProjectMembers.mockReturnValue({
-      data: [member("1", "Jean", "Charles", { role: "contributor" })],
+      data: [member("1", "Jean", "Charles", { accountKind: "developer" })],
       isPending: false,
     } as unknown as ReturnType<typeof useProjectMembers>);
 
@@ -207,7 +207,7 @@ describe("TeamPanel", () => {
 
   it("labels the same link 'View' for a non-admin viewer", () => {
     mockedUseProjectMembers.mockReturnValue({
-      data: [member("1", "Jean", "Charles", { role: "contributor" })],
+      data: [member("1", "Jean", "Charles", { accountKind: "developer" })],
       isPending: false,
     } as unknown as ReturnType<typeof useProjectMembers>);
 

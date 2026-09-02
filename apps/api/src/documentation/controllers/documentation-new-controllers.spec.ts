@@ -7,7 +7,7 @@ import { DocumentationWorkspaceService } from '../workspace/documentation-worksp
 const user = { id: 'user' } as User;
 describe('documentation controllers', () => {
   it('separates public current content from contributor preview', async () => {
-    const access = { requireMember: jest.fn(), requireContributor: jest.fn() };
+    const access = { requireMember: jest.fn(), requireDeveloper: jest.fn() };
     const publication = {
       readPublicSections: jest.fn(),
       readPreview: jest.fn(),
@@ -19,7 +19,7 @@ describe('documentation controllers', () => {
     await c.current(user, 'p');
     await c.preview(user, 'p');
     expect(access.requireMember).toHaveBeenCalled();
-    expect(access.requireContributor).toHaveBeenCalled();
+    expect(access.requireDeveloper).toHaveBeenCalled();
   });
   it('delegates the compact workspace', async () => {
     const service = { get: jest.fn() };
