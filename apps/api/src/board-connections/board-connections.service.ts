@@ -47,7 +47,7 @@ export class BoardConnectionsService {
     projectId: string,
     token: string,
   ): Promise<AvailableBoard[]> {
-    await this.assertIsContributor(userId, projectId);
+    await this.assertIsDeveloper(userId, projectId);
 
     return this.callGithub(() => this.githubClient.listAccessibleBoards(token));
   }
@@ -64,7 +64,7 @@ export class BoardConnectionsService {
     token: string,
     selection: BoardSelection,
   ): Promise<BoardConnectionDetails> {
-    await this.assertIsContributor(userId, projectId);
+    await this.assertIsDeveloper(userId, projectId);
 
     const board = await this.callGithub(() =>
       this.githubClient.verifyBoardAccess(
@@ -106,7 +106,7 @@ export class BoardConnectionsService {
     userId: string,
     projectId: string,
   ): Promise<BoardConnectionDetails | null> {
-    await this.assertIsContributor(userId, projectId);
+    await this.assertIsDeveloper(userId, projectId);
 
     const connection = await this.prisma.boardConnection.findUnique({
       where: { projectId },
@@ -118,7 +118,7 @@ export class BoardConnectionsService {
   // Idempotent from the caller's point of view — disconnecting when nothing
   // is connected is not an error (FR-005).
   async disconnect(userId: string, projectId: string): Promise<void> {
-    await this.assertIsContributor(userId, projectId);
+    await this.assertIsDeveloper(userId, projectId);
 
     await this.prisma.boardConnection.deleteMany({ where: { projectId } });
   }
@@ -160,15 +160,16 @@ export class BoardConnectionsService {
   // exists. Exposed publicly (specs/010-github-oauth-board-connection) so
   // the controller's GitHub-authorize endpoint can run the same check
   // before starting an OAuth redirect.
-  async assertIsContributor(
+  async assertIsDeveloper(
     userId: string,
     projectId: string,
   ): Promise<ProjectMember> {
     const membership = await this.prisma.projectMember.findUnique({
       where: { projectId_userId: { projectId, userId } },
+      include: { user: { select: { accountKind: true } } },
     });
 
-    if (!membership || membership.role !== 'contributor') {
+    if (!membership || membership.user.accountKind !== 'developer') {
       throw new NotFoundException('Project not found');
     }
 

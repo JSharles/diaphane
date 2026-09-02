@@ -71,7 +71,7 @@ export class SourceDocumentService {
     file: Express.Multer.File,
     locale: string | null = null,
   ): Promise<SourceDocumentAcknowledgement> {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     this.validateUpload(file);
 
     const documentId = randomUUID();
@@ -130,7 +130,7 @@ export class SourceDocumentService {
     pageUrl: string,
     locale: string | null = null,
   ): Promise<SourceDocumentAcknowledgement> {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const pageId = parseNotionPageId(pageUrl);
     if (!pageId) {
       throw new BadRequestException('Invalid Notion page URL.');
@@ -203,7 +203,7 @@ export class SourceDocumentService {
     total: number;
     nextCursor: string | null;
   }> {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const pageSize = 50;
     const total = await this.prisma.sourceDocument.count({
       where: { projectId, status: { not: 'removed' } },
@@ -228,7 +228,7 @@ export class SourceDocumentService {
     projectId: string,
     documentId: string,
   ): Promise<SourceDocumentDetail> {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const document = await this.prisma.sourceDocument.findFirst({
       where: { id: documentId, projectId },
     });

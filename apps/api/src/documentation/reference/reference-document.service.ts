@@ -25,7 +25,7 @@ export class ReferenceDocumentService {
   ) {}
 
   async write(userId: string, projectId: string, locale: string | null) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
 
     const project = await this.prisma.project.findUniqueOrThrow({
       where: { id: projectId },
@@ -100,7 +100,7 @@ export class ReferenceDocumentService {
   }
 
   async current(userId: string, projectId: string) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const document = await this.prisma.referenceDocument.findFirst({
       where: { projectId, status: { in: ['ready', 'writing', 'failed'] } },
       orderBy: { createdAt: 'desc' },
@@ -113,7 +113,7 @@ export class ReferenceDocumentService {
   // What the working page shows: a count and a way in, never a second list of
   // the points themselves (FR-016c).
   async summary(userId: string, projectId: string) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
 
     const [documentCount, noteCount, project, document] = await Promise.all([
       this.prisma.sourceDocument.count({
@@ -143,7 +143,7 @@ export class ReferenceDocumentService {
     projectId: string,
     input: { content: string; context?: string | null },
   ) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const note = await this.prisma.note.create({
       data: {
         projectId,
@@ -163,7 +163,7 @@ export class ReferenceDocumentService {
   }
 
   async listNotes(userId: string, projectId: string) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const notes = await this.prisma.note.findMany({
       where: { projectId, archivedAt: null },
       orderBy: { createdAt: 'desc' },
@@ -173,7 +173,7 @@ export class ReferenceDocumentService {
   }
 
   async removeNote(userId: string, projectId: string, noteId: string) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const { count } = await this.prisma.note.updateMany({
       where: { id: noteId, projectId, archivedAt: null },
       data: { archivedAt: new Date() },

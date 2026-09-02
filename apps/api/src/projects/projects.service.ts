@@ -4,12 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  AccountKind,
-  Project,
-  ProjectMember,
-  ProjectMemberRole,
-} from '@prisma/client';
+import { AccountKind, Project, ProjectMember } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -21,7 +16,7 @@ export interface ProjectMemberDetails {
   lastName: string;
   email: string;
   isAdmin: boolean;
-  role: ProjectMemberRole;
+  accountKind: AccountKind;
   image: string | null;
   roleTitle: string | null;
   phone: string | null;
@@ -31,12 +26,9 @@ export interface ProjectMemberDetails {
   website: string | null;
 }
 
-// The project plus the caller's own role/isAdmin on it — lets the frontend
-// decide what the project page shows them. See docs/PRODUCT.md "Access".
-export type ProjectDetails = Project & {
-  role: ProjectMemberRole;
-  isAdmin: boolean;
-};
+// The project plus whether the caller owns it. What they may do on it comes
+// from their account, which the frontend already holds.
+export type ProjectDetails = Project & { isAdmin: boolean };
 
 @Injectable()
 export class ProjectsService {
@@ -49,15 +41,8 @@ export class ProjectsService {
     return this.projectAccess.requireMember(userId, projectId);
   }
 
-  requireContributor(
-    userId: string,
-    projectId: string,
-  ): Promise<ProjectMember> {
-    return this.projectAccess.requireContributor(userId, projectId);
-  }
-
-  requireClient(userId: string, projectId: string): Promise<ProjectMember> {
-    return this.projectAccess.requireClient(userId, projectId);
+  requireDeveloper(userId: string, projectId: string): Promise<ProjectMember> {
+    return this.projectAccess.requireDeveloper(userId, projectId);
   }
 
   // The creator becomes a contributor and admin of their own project — see
@@ -86,7 +71,6 @@ export class ProjectsService {
         data: {
           projectId: project.id,
           userId,
-          role: ProjectMemberRole.contributor,
           isAdmin: true,
         },
       });
@@ -112,7 +96,7 @@ export class ProjectsService {
       where: { id: projectId },
     });
 
-    return { ...project, role: membership.role, isAdmin: membership.isAdmin };
+    return { ...project, isAdmin: membership.isAdmin };
   }
 
   async update(
@@ -120,17 +104,7 @@ export class ProjectsService {
     projectId: string,
     dto: UpdateProjectDto,
   ): Promise<Project> {
-    const membership = await this.prisma.projectMember.findUnique({
-      where: { projectId_userId: { projectId, userId } },
-    });
-
-    if (!membership) {
-      throw new NotFoundException('Project not found');
-    }
-
-    if (membership.role !== ProjectMemberRole.contributor) {
-      throw new ForbiddenException('Only a contributor can edit the project');
-    }
+    await this.projectAccess.requireDeveloper(userId, projectId);
 
     return this.prisma.project.update({
       where: { id: projectId },
@@ -162,7 +136,7 @@ export class ProjectsService {
       lastName: member.user.lastName,
       email: member.user.email,
       isAdmin: member.isAdmin,
-      role: member.role,
+      accountKind: member.user.accountKind,
       image: member.user.image,
       roleTitle: member.user.roleTitle,
       phone: member.user.phone,

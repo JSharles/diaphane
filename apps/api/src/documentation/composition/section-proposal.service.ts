@@ -58,7 +58,7 @@ export class SectionProposalService {
     sectionId: string,
     locale: string | null = null,
   ) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
 
     const section = await this.prisma.clientSection.findFirst({
       where: { id: sectionId, projectId, archivedAt: null },
@@ -208,7 +208,7 @@ export class SectionProposalService {
   }
 
   async current(userId: string, projectId: string, sectionId: string) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const section = await this.prisma.clientSection.findFirst({
       where: { id: sectionId, projectId, archivedAt: null },
       select: { id: true },
@@ -276,7 +276,7 @@ export class SectionProposalService {
       expectedProposalVersion: number;
     },
   ) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const section = await this.prisma.clientSection.findFirst({
       where: { id: sectionId, projectId, archivedAt: null },
       select: { id: true, kind: true, activeProposalId: true },
@@ -375,7 +375,7 @@ export class SectionProposalService {
     sectionId: string,
     expectedVersion: number,
   ) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const section = await this.prisma.clientSection.findFirst({
       where: { id: sectionId, projectId, archivedAt: null },
       select: { id: true, kind: true, activeProposalId: true },

@@ -28,7 +28,7 @@ export class DocumentRemovalService {
   ) {}
 
   async preview(userId: string, projectId: string, documentId: string) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const document = await this.prisma.sourceDocument.findFirst({
       where: { id: documentId, projectId, status: { not: 'removed' } },
       select: { id: true, version: true, title: true },
@@ -61,7 +61,7 @@ export class DocumentRemovalService {
     input: { expectedDocumentVersion: number },
     locale: string | null = null,
   ) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
 
     // Claimed at the version the contributor was shown, so a document that
     // moved under the confirmation is refused rather than removed on a

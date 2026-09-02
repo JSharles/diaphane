@@ -13,7 +13,7 @@ describe('DocumentRemovalService', () => {
   function setup() {
     const prisma = createPrismaMock();
     const access = {
-      requireContributor: jest.fn().mockResolvedValue({ role: 'contributor' }),
+      requireDeveloper: jest.fn().mockResolvedValue({ isAdmin: true }),
     };
     const storage = { delete: jest.fn().mockResolvedValue(undefined) };
     const reference = {
@@ -94,7 +94,7 @@ describe('DocumentRemovalService', () => {
 
     it('hides a project the caller is not a contributor on', async () => {
       const { access, service } = setup();
-      access.requireContributor.mockRejectedValue(
+      access.requireDeveloper.mockRejectedValue(
         new NotFoundException({ code: 'NOT_FOUND' }),
       );
 

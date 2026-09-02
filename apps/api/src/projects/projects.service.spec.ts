@@ -28,30 +28,29 @@ const adminMembership = {
   id: 'member-1',
   projectId: 'project-1',
   userId: 'user-1',
-  role: 'contributor',
   isAdmin: true,
   createdAt: new Date(),
 };
 
 describe('ProjectsService', () => {
   let prisma: PrismaMock;
+  let access: ProjectAccessService;
   let service: ProjectsService;
 
   beforeEach(() => {
     jest.clearAllMocks();
     prisma = createPrismaMock();
-    const access = new ProjectAccessService(asPrismaService(prisma));
+    access = new ProjectAccessService(asPrismaService(prisma));
     service = new ProjectsService(asPrismaService(prisma), access);
   });
 
   describe('create', () => {
-    it('creates the project and makes the creator a contributor admin', async () => {
+    it('creates the project and makes the creator the owner', async () => {
       prisma.project.create.mockResolvedValue(fakeProject);
       prisma.projectMember.create.mockResolvedValue({
         id: 'member-1',
         projectId: fakeProject.id,
         userId: 'user-1',
-        role: 'contributor',
         isAdmin: true,
         createdAt: new Date(),
       });
@@ -67,7 +66,6 @@ describe('ProjectsService', () => {
         data: {
           projectId: fakeProject.id,
           userId: 'user-1',
-          role: 'contributor',
           isAdmin: true,
         },
       });
@@ -99,7 +97,7 @@ describe('ProjectsService', () => {
   });
 
   describe('findOneForUser', () => {
-    it('returns the project plus the caller’s own role and admin status', async () => {
+    it('returns the project plus whether the caller owns it', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(adminMembership);
       prisma.project.findUniqueOrThrow.mockResolvedValue(fakeProject);
 
@@ -110,22 +108,19 @@ describe('ProjectsService', () => {
       });
       expect(result).toEqual({
         ...fakeProject,
-        role: 'contributor',
         isAdmin: true,
       });
     });
 
-    it('reflects a non-admin client’s own role/admin status', async () => {
+    it('reflects a member who does not own the project', async () => {
       prisma.projectMember.findUnique.mockResolvedValue({
         ...adminMembership,
-        role: 'client',
         isAdmin: false,
       });
       prisma.project.findUniqueOrThrow.mockResolvedValue(fakeProject);
 
       const result = await service.findOneForUser('user-1', 'project-1');
 
-      expect(result.role).toBe('client');
       expect(result.isAdmin).toBe(false);
     });
 
@@ -141,7 +136,9 @@ describe('ProjectsService', () => {
 
   describe('update', () => {
     it('throws not found when the user has no membership on the project', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(null);
+      jest
+        .spyOn(access, 'requireDeveloper')
+        .mockRejectedValue(new NotFoundException({ code: 'NOT_FOUND' }));
 
       await expect(
         service.update('user-1', 'project-1', { title: 'New title' }),
@@ -150,32 +147,20 @@ describe('ProjectsService', () => {
       expect(prisma.project.update).not.toHaveBeenCalled();
     });
 
-    it('throws forbidden when the member is a client, not a contributor', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue({
-        id: 'member-1',
-        projectId: 'project-1',
-        userId: 'user-1',
-        role: 'client',
-        isAdmin: false,
-        createdAt: new Date(),
-      });
+    it('hides the project from a client member, exactly like a non-member', async () => {
+      jest
+        .spyOn(access, 'requireDeveloper')
+        .mockRejectedValue(new NotFoundException({ code: 'NOT_FOUND' }));
 
       await expect(
         service.update('user-1', 'project-1', { title: 'New title' }),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toThrow(NotFoundException);
 
       expect(prisma.project.update).not.toHaveBeenCalled();
     });
 
-    it('updates the title when the member is a contributor', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue({
-        id: 'member-1',
-        projectId: 'project-1',
-        userId: 'user-1',
-        role: 'contributor',
-        isAdmin: true,
-        createdAt: new Date(),
-      });
+    it('updates the title when the member is a developer', async () => {
+      jest.spyOn(access, 'requireDeveloper').mockResolvedValue(adminMembership);
       prisma.project.update.mockResolvedValue({
         ...fakeProject,
         title: 'New title',
@@ -198,15 +183,8 @@ describe('ProjectsService', () => {
       expect(result.title).toBe('New title');
     });
 
-    it('sets the meeting link when the member is a contributor', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue({
-        id: 'member-1',
-        projectId: 'project-1',
-        userId: 'user-1',
-        role: 'contributor',
-        isAdmin: true,
-        createdAt: new Date(),
-      });
+    it('sets the meeting link when the member is a developer', async () => {
+      jest.spyOn(access, 'requireDeveloper').mockResolvedValue(adminMembership);
       prisma.project.update.mockResolvedValue({
         ...fakeProject,
         meetingUrl: 'https://meet.google.com/abc-defg-hij',
@@ -230,14 +208,7 @@ describe('ProjectsService', () => {
     });
 
     it('clears the meeting link when explicitly set to null', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue({
-        id: 'member-1',
-        projectId: 'project-1',
-        userId: 'user-1',
-        role: 'contributor',
-        isAdmin: true,
-        createdAt: new Date(),
-      });
+      jest.spyOn(access, 'requireDeveloper').mockResolvedValue(adminMembership);
       prisma.project.update.mockResolvedValue({
         ...fakeProject,
         meetingUrl: null,
@@ -257,15 +228,8 @@ describe('ProjectsService', () => {
       });
     });
 
-    it('sets the timezone, date format, and language when the member is a contributor', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue({
-        id: 'member-1',
-        projectId: 'project-1',
-        userId: 'user-1',
-        role: 'contributor',
-        isAdmin: true,
-        createdAt: new Date(),
-      });
+    it('sets the timezone, date format, and language when the member is a developer', async () => {
+      jest.spyOn(access, 'requireDeveloper').mockResolvedValue(adminMembership);
       prisma.project.update.mockResolvedValue({
         ...fakeProject,
         timezone: 'Europe/Paris',
@@ -331,7 +295,6 @@ describe('ProjectsService', () => {
           lastName: 'Charles',
           email: 'jc@example.com',
           isAdmin: true,
-          role: 'contributor',
           image: null,
           roleTitle: null,
           phone: null,
@@ -390,7 +353,6 @@ describe('ProjectsService', () => {
           id: 'member-2',
           projectId: 'project-1',
           userId: 'user-2',
-          role: 'client',
           isAdmin: false,
           createdAt: new Date(),
         }); // target
@@ -411,7 +373,6 @@ describe('ProjectsService', () => {
           id: 'member-2',
           projectId: 'project-1',
           userId: 'user-2',
-          role: 'contributor',
           isAdmin: true,
           createdAt: new Date(),
         }); // target, also an admin

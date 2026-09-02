@@ -10,7 +10,7 @@ export class DocumentationWorkspaceService {
   ) {}
 
   async get(userId: string, projectId: string) {
-    await this.access.requireContributor(userId, projectId);
+    await this.access.requireDeveloper(userId, projectId);
     const [
       project,
       documentCount,

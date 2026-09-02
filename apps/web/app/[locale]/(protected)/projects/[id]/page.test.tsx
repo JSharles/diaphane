@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { useProject } from "@/features/projects/hooks";
+import { useCurrentUser } from "@/shared/hooks/use-current-user";
 import ProjectPage from "./page";
 
 vi.mock("react", async (importOriginal) => {
@@ -11,6 +12,9 @@ vi.mock("react", async (importOriginal) => {
 
 vi.mock("@/features/projects/hooks", () => ({
   useProject: vi.fn(),
+}));
+vi.mock("@/shared/hooks/use-current-user", () => ({
+  useCurrentUser: vi.fn(),
 }));
 
 vi.mock("@/i18n/navigation", () => ({
@@ -81,6 +85,15 @@ vi.mock("./client-main-tabs", () => ({
 }));
 
 const mockedUseProject = vi.mocked(useProject);
+const mockedUseCurrentUser = vi.mocked(useCurrentUser);
+
+// What the page shows comes from the account: a developer tends, a client reads.
+function mockAccount(accountKind: "developer" | "client") {
+  mockedUseCurrentUser.mockReturnValue({
+    data: { id: "user-1", accountKind },
+    isPending: false,
+  } as unknown as ReturnType<typeof useCurrentUser>);
+}
 
 function renderPage() {
   return render(
@@ -89,8 +102,9 @@ function renderPage() {
 }
 
 function mockProject(role: "contributor" | "client", isAdmin: boolean) {
+  mockAccount(role === "contributor" ? "developer" : "client");
   mockedUseProject.mockReturnValue({
-    data: { id: "project-1", title: "Site vitrine client X", role, isAdmin },
+    data: { id: "project-1", title: "Site vitrine client X", isAdmin },
     isPending: false,
   } as unknown as ReturnType<typeof useProject>);
 }
@@ -149,11 +163,11 @@ describe("ProjectPage", () => {
   });
 
   it("shows a join-meeting shortcut next to the title when a meeting link is set, for a contributor", () => {
+    mockAccount("developer");
     mockedUseProject.mockReturnValue({
       data: {
         id: "project-1",
         title: "Site vitrine client X",
-        role: "contributor",
         isAdmin: true,
         meetingUrl: "https://meet.google.com/abc-defg-hij",
       },
@@ -169,11 +183,11 @@ describe("ProjectPage", () => {
   });
 
   it("hides the header join-meeting shortcut for a client — MeetingCard already shows one prominently in the sidebar", () => {
+    mockAccount("client");
     mockedUseProject.mockReturnValue({
       data: {
         id: "project-1",
         title: "Site vitrine client X",
-        role: "client",
         isAdmin: false,
         meetingUrl: "https://meet.google.com/abc-defg-hij",
       },
@@ -270,8 +284,9 @@ describe("ProjectPage", () => {
   });
 
   it("shows the error state, not a stale project from a prior session, when the query errors", () => {
+    mockAccount("developer");
     mockedUseProject.mockReturnValue({
-      data: { id: "project-1", title: "Someone else's project", role: "contributor", isAdmin: true },
+      data: { id: "project-1", title: "Someone else's project", isAdmin: true },
       isPending: false,
       isError: true,
       refetch: vi.fn(),

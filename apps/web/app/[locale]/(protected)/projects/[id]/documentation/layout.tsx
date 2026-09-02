@@ -8,6 +8,7 @@ import { useProject } from "@/features/projects/hooks";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { useCurrentUser } from "@/shared/hooks/use-current-user";
 
 // The documentary feature in one place (specs/022): every step renders inside
 // this layout, so a step cannot exist without the rail and the four cannot
@@ -25,7 +26,8 @@ export default function DocumentationLayout({
   const router = useRouter();
   const t = useTranslations("Projects.Documentation.Hub");
 
-  const isClient = project?.role === "client";
+  const { data: currentUser } = useCurrentUser();
+  const isClient = currentUser?.accountKind === "client";
 
   useEffect(() => {
     if (isClient) router.replace(`/projects/${id}`);

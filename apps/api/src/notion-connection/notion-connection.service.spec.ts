@@ -14,14 +14,14 @@ const contributorMembership = {
   id: 'member-1',
   projectId: 'project-1',
   userId: 'user-1',
-  role: 'contributor',
+  user: { accountKind: 'developer' as const },
   isAdmin: true,
   createdAt: new Date(),
 };
 
 const clientMembership = {
   ...contributorMembership,
-  role: 'client',
+  user: { accountKind: 'client' as const },
   isAdmin: false,
 };
 

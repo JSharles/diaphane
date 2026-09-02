@@ -58,7 +58,7 @@ describe('DocumentationWorkspaceService', () => {
     ],
   ])('maps aggregate state %#', async (input, priority, clientVisibility) => {
     const prisma = createPrismaMock();
-    const access = { requireContributor: jest.fn() };
+    const access = { requireDeveloper: jest.fn() };
     prisma.project.findUnique.mockResolvedValue({
       referenceNeedsRewrite: false,
       activeReferenceDocumentId: null,
@@ -87,6 +87,6 @@ describe('DocumentationWorkspaceService', () => {
       openPointCount: 2,
       refreshAfterMs: input.active || input.pending ? 5_000 : 30_000,
     });
-    expect(access.requireContributor).toHaveBeenCalled();
+    expect(access.requireDeveloper).toHaveBeenCalled();
   });
 });

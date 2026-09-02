@@ -59,7 +59,7 @@ describe('SourceDocumentService', () => {
   let normalizer: jest.Mocked<
     Pick<DocumentInputNormalizerService, 'normalizeUpload'>
   >;
-  let access: jest.Mocked<Pick<ProjectAccessService, 'requireContributor'>>;
+  let access: jest.Mocked<Pick<ProjectAccessService, 'requireDeveloper'>>;
   let notionClient: jest.Mocked<Pick<NotionClient, 'fetchPage'>>;
   let notionConnection: jest.Mocked<
     Pick<NotionConnectionService, 'getDecryptedToken'>
@@ -77,7 +77,7 @@ describe('SourceDocumentService', () => {
     normalizer = {
       normalizeUpload: jest.fn().mockResolvedValue({ parts: [] }),
     };
-    access = { requireContributor: jest.fn().mockResolvedValue({}) };
+    access = { requireDeveloper: jest.fn().mockResolvedValue({}) };
     notionClient = { fetchPage: jest.fn() };
     notionConnection = { getDecryptedToken: jest.fn() };
     reference = { write: jest.fn().mockResolvedValue({ documentId: 'ref-1' }) };
@@ -350,7 +350,7 @@ describe('SourceDocumentService', () => {
         originalDownloadUrl: 'https://signed.example/file',
       }),
     );
-    expect(access.requireContributor).toHaveBeenCalledTimes(2);
+    expect(access.requireDeveloper).toHaveBeenCalledTimes(2);
     expect(storage.getDownloadUrl).toHaveBeenCalledWith(
       expect.any(String),
       900,

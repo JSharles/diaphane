@@ -60,7 +60,7 @@ export class BoardConnectionsController {
     @Query('locale') locale: string | undefined,
     @Res() res: Response,
   ) {
-    await this.boardConnectionsService.assertIsContributor(user.id, projectId);
+    await this.boardConnectionsService.assertIsDeveloper(user.id, projectId);
 
     const state = randomBytes(16).toString('hex');
     res.cookie(

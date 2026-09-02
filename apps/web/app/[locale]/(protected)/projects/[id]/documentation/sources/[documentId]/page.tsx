@@ -17,6 +17,7 @@ import { useProject } from "@/features/projects/hooks";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { useCurrentUser } from "@/shared/hooks/use-current-user";
 
 export default function SourceDocumentPage({
   params,
@@ -29,7 +30,8 @@ export default function SourceDocumentPage({
   const document = useSourceDocument(id, documentId);
   const router = useRouter();
   const [removeOpen, setRemoveOpen] = useState(false);
-  const isClient = project.data?.role === "client";
+  const { data: currentUser } = useCurrentUser();
+  const isClient = currentUser?.accountKind === "client";
 
   useEffect(() => {
     if (isClient) router.replace(`/projects/${id}`);

@@ -5,7 +5,6 @@ export const InvitationSchema = z.object({
   id: z.uuid(),
   projectId: z.uuid(),
   email: z.email(),
-  role: z.enum(['client', 'contributor']),
   isAdmin: z.boolean(),
   token: z.string(),
   status: z.string(),

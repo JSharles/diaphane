@@ -22,7 +22,6 @@ const fakeUser: User = {
   website: null,
   roleTitle: null,
   locale: null,
-  status: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -31,7 +30,6 @@ const fakeInvitation = {
   id: 'invitation-1',
   projectId: 'project-1',
   email: 'client@example.com',
-  role: 'client' as const,
   isAdmin: true,
   token: 'a-random-token',
   status: 'invited',
