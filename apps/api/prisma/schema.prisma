@@ -210,8 +210,10 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  memberships ProjectMember[]
-  sessions    Session[]
+  memberships      ProjectMember[]
+  sessions         Session[]
+  githubConnection GithubConnection?
+  boardChoices     BoardConnection[]  @relation("BoardConnectionConnectedBy")
 
   sourceDocuments          SourceDocument[]  @relation("SourceDocumentAuthor")
   authoredClientSections   ClientSection[]   @relation("ClientSectionAuthor")
@@ -321,14 +323,35 @@ model Invitation {
 }
 
 
-// One connection per project (see specs/005-github-project-connection). This
-// feature only stores the connection itself — no task/issue content is
-// fetched or stored here. `encryptedToken` is never returned by the API once
-// stored; it is the developer's own GitHub PAT, encrypted at rest.
+// A developer's GitHub authorization, taken once at login and kept on the
+// account. It serves every board the developer chose on their projects
+// (docs/PRODUCT.md « Connexions et choix »).
+model GithubConnection {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  encryptedToken String @map("encrypted_token")
+
+  // Set by the board sweep when GitHub answers 401/403: the token was
+  // revoked. Cleared by the next login, which brings a fresh token.
+  needsReconnect Boolean @default(false) @map("needs_reconnect")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("github_connections")
+}
+
+// The board a project chose, one per project. No token here: the board is
+// read with the GitHub connection of the developer who chose it.
 model BoardConnection {
   id        String  @id @default(uuid()) @db.Uuid
   projectId String  @unique @map("project_id") @db.Uuid
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  connectedById String @map("connected_by_id") @db.Uuid
+  connectedBy   User   @relation("BoardConnectionConnectedBy", fields: [connectedById], references: [id], onDelete: Cascade)
 
   provider BoardProvider
 
@@ -338,20 +361,11 @@ model BoardConnection {
   boardTitle      String @map("board_title")
   boardUrl        String @map("board_url")
 
-  encryptedToken String @map("encrypted_token")
-
   // How to interpret the board's numeric "Estimate" field as a duration
-  // when there's no "Target date" field to read directly (specs/008,
-  // FR-005b). Set at connection-creation time; no edit endpoint exists yet
-  // (research.md Decision 5) — reconnect to change it.
+  // when there's no "Target date" field to read directly. Set when the
+  // board is chosen; no edit endpoint yet — choose the board again to
+  // change it.
   estimateUnit EstimateUnit @default(days) @map("estimate_unit")
-
-  // Set by the background sweep (task-vulgarization.service.ts) when a
-  // GitHub call for this connection fails with an auth error (401/403) —
-  // the stored token was revoked or is otherwise invalid. Cleared back to
-  // false whenever connect() next succeeds for this project (specs/010-
-  // github-oauth-board-connection, FR-008, data-model.md).
-  needsReconnect Boolean @default(false) @map("needs_reconnect")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

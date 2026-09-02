@@ -1,20 +1,9 @@
-import {
-  IsIn,
-  IsInt,
-  IsOptional,
-  IsPositive,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
 import type { GithubOwnerType } from '../github-projects.client';
 
-// `token` is optional — see preview-board-connection.dto.ts.
+// The board a project chooses. No token: the developer's GitHub connection,
+// given at login, is what reads it.
 export class CreateBoardConnectionDto {
-  @IsOptional()
-  @IsString()
-  @MinLength(1)
-  token?: string;
-
   @IsString()
   ownerLogin: string;
 
@@ -25,8 +14,7 @@ export class CreateBoardConnectionDto {
   @IsPositive()
   number: number;
 
-  // specs/008-current-task-progress FR-005b — defaults to "days" in the
-  // service when omitted.
+  // Defaults to "days" in the service when omitted.
   @IsOptional()
   @IsIn(['days', 'hours'])
   estimateUnit?: 'days' | 'hours';

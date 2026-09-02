@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProjectsModule } from './projects/projects.module';
 import { InvitationsModule } from './invitations/invitations.module';
 import { BoardConnectionsModule } from './board-connections/board-connections.module';
+import { ConnectionsModule } from './connections/connections.module';
 import { CurrentTaskModule } from './current-task/current-task.module';
 import { TaskVulgarizationModule } from './task-vulgarization/task-vulgarization.module';
 import { NotionConnectionModule } from './notion-connection/notion-connection.module';
@@ -22,6 +23,7 @@ import { DocumentationModule } from './documentation/documentation.module';
     AuthModule,
     ProjectsModule,
     InvitationsModule,
+    ConnectionsModule,
     BoardConnectionsModule,
     TaskVulgarizationModule,
     CurrentTaskModule,

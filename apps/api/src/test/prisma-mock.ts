@@ -30,6 +30,7 @@ const DELEGATE_NAMES = [
   'invitation',
   'task',
   'boardConnection',
+  'githubConnection',
   'vulgarizedTask',
   'taskProgress',
   'notionConnection',

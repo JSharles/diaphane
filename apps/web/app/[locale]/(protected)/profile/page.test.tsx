@@ -17,6 +17,10 @@ vi.mock("@/features/auth/components/profile-fields", () => ({
   ProfileFields: () => <div>profile-fields</div>,
 }));
 
+vi.mock("@/features/connections/components/connections-card", () => ({
+  ConnectionsCard: () => <div>connections-card</div>,
+}));
+
 const mockedUseCurrentUser = vi.mocked(useCurrentUser);
 
 describe("ProfilePage", () => {
@@ -47,6 +51,28 @@ describe("ProfilePage", () => {
     expect(screen.getByText("jc@example.com")).toBeInTheDocument();
     expect(screen.getByText("JC")).toBeInTheDocument();
     expect(screen.getByText("profile-fields")).toBeInTheDocument();
+  });
+
+  it("shows the connections to a developer, whose tools live on the account", () => {
+    mockedUseCurrentUser.mockReturnValue({
+      isPending: false,
+      data: { firstName: "Jean", lastName: "Charles", email: "jc@example.com", accountKind: "developer" },
+    } as unknown as ReturnType<typeof useCurrentUser>);
+
+    render(<ProfilePage />);
+
+    expect(screen.getByText("connections-card")).toBeInTheDocument();
+  });
+
+  it("shows no connections to a client, who connects nothing", () => {
+    mockedUseCurrentUser.mockReturnValue({
+      isPending: false,
+      data: { firstName: "Ada", lastName: "Lovelace", email: "ada@example.com", accountKind: "client" },
+    } as unknown as ReturnType<typeof useCurrentUser>);
+
+    render(<ProfilePage />);
+
+    expect(screen.queryByText("connections-card")).not.toBeInTheDocument();
   });
 
   it("navigates back to wherever the user came from when Back is clicked", async () => {

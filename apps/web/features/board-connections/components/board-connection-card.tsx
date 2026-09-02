@@ -2,7 +2,6 @@
 
 import { ExternalLink, KanbanSquare, TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
 import type { MouseEvent } from "react";
 import { useState } from "react";
 import {
@@ -15,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
+import { Link } from "@/i18n/navigation";
 import { SetupBlock, type SetupTone } from "@/shared/components/setup-block";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -27,12 +27,7 @@ function errorMessage(error: unknown, generic: string): string {
 }
 
 export function BoardConnectionCard({ projectId }: { projectId: string }) {
-  const searchParams = useSearchParams();
-  // specs/010-github-oauth-board-connection: the GitHub OAuth callback
-  // redirects back here with ?connectBoard=1 — open straight into the
-  // dialog's board-picker step instead of making the developer click
-  // "Connect" again after already authorizing.
-  const [open, setOpen] = useState(() => searchParams.get("connectBoard") === "1");
+  const [open, setOpen] = useState(false);
   const [confirmDisconnectOpen, setConfirmDisconnectOpen] = useState(false);
   const { data: connection, isPending } = useBoardConnection(projectId);
   const disconnect = useDisconnectBoard(projectId);
@@ -54,10 +49,10 @@ export function BoardConnectionCard({ projectId }: { projectId: string }) {
     disconnect.mutate(undefined, { onSuccess: () => setConfirmDisconnectOpen(false) });
   }
 
-  // specs/021: the board is the project's other input, and it states what it
-  // feeds. A revoked authorization is neither waiting nor live — the board is
-  // still named but no longer read — so it reads as unknown rather than
-  // claiming a service that has quietly stopped.
+  // The board is the project's other input, and it states what it feeds. A
+  // developer whose GitHub connection is cut or revoked leaves the board
+  // named but no longer read: unknown, rather than a service that has
+  // quietly stopped.
   const feedsTone: SetupTone = connection?.needsReconnect
     ? "unknown"
     : connection
@@ -73,10 +68,8 @@ export function BoardConnectionCard({ projectId }: { projectId: string }) {
           isPending ? (
             <Skeleton className="h-4 w-32" />
           ) : connection?.needsReconnect ? (
-            // specs/010-github-oauth-board-connection FR-008: the background
-            // sweep detected the stored GitHub authorization was revoked —
-            // surface it clearly rather than letting the board silently go
-            // stale.
+            // The GitHub connection lives on the developer's account: the
+            // fix is in the profile, not on this card.
             <span className="flex items-center gap-1.5 text-destructive">
               <TriangleAlert className="size-3.5 shrink-0" />
               {t("needsReconnect")}
@@ -100,8 +93,8 @@ export function BoardConnectionCard({ projectId }: { projectId: string }) {
         }
       >
         {connection?.needsReconnect ? (
-          <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-            {t("reconnect")}
+          <Button asChild variant="outline" size="sm">
+            <Link href="/profile">{t("openProfile")}</Link>
           </Button>
         ) : connection ? (
           <Button

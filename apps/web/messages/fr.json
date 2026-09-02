@@ -540,8 +540,7 @@
       "connectedTo": "Connecté à {title}",
       "disconnect": "Déconnecter",
       "disconnecting": "Déconnexion…",
-      "needsReconnect": "Votre autorisation GitHub a été révoquée — reconnectez-vous pour garder ce board synchronisé.",
-      "reconnect": "Reconnecter",
+      "needsReconnect": "Votre connexion GitHub est coupée ou a été révoquée — ce board n’est plus lu.",
       "disconnectConfirmTitle": "Déconnecter ce board ?",
       "disconnectConfirmDescription": "Le client ne verra plus l’avancement des tâches de ce board tant qu’il n’est pas reconnecté.",
       "disconnectConfirmCancel": "Annuler",
@@ -549,18 +548,20 @@
       "feeds": "Alimente l’avancement affiché au client",
       "state_waiting": "En attente",
       "state_live": "En service",
-      "state_unknown": "État inconnu"
+      "state_unknown": "État inconnu",
+      "openProfile": "Ouvrir votre profil"
     },
     "ConnectBoardDialog": {
       "title": "Connecter un board GitHub Projects",
-      "continueWithGithub": "Continuer avec GitHub",
-      "previewPending": "Vérification…",
       "noBoards": "Ce compte GitHub n’a accès à aucun board GitHub Projects.",
       "connectSubmit": "Connecter",
       "connectPending": "Connexion…",
       "estimateUnitLabel": "Quand une tâche a un nombre \"Estimate\" mais pas de \"Target date\", l’interpréter en :",
       "estimateUnitDays": "Jours",
-      "estimateUnitHours": "Heures"
+      "estimateUnitHours": "Heures",
+      "loading": "Chargement de vos boards…",
+      "githubNotConnected": "GitHub n’est pas connecté sur votre compte : aucun board à choisir.",
+      "goToProfile": "Ouvrir votre profil"
     },
     "NotionConnectionCard": {
       "connected": "Connectée",
@@ -715,6 +716,21 @@
     "malt": "Malt",
     "website": "Site web",
     "save": "Enregistrer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "Connections": {
+      "title": "Connexions",
+      "github": "GitHub",
+      "githubFeeds": "Lit les boards que vous choisissez sur vos projets",
+      "githubConnected": "Connecté — chaque board que vous choisissez est lu avec",
+      "githubNotConnected": "Non connecté",
+      "githubNeedsReconnect": "GitHub a révoqué cette autorisation — reconnectez-vous pour la renouveler.",
+      "connect": "Connecter GitHub",
+      "reconnect": "Reconnecter",
+      "disconnect": "Déconnecter",
+      "disconnecting": "Déconnexion…",
+      "state_waiting": "Non connecté",
+      "state_live": "En service",
+      "state_unknown": "Révoquée"
+    }
   }
 }

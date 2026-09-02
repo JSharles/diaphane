@@ -1,9 +1,4 @@
-import type {
-  AvailableBoard,
-  BoardConnection,
-  CreateBoardConnectionRequest,
-  PreviewBoardConnectionRequest,
-} from "schemas";
+import type { AvailableBoard, BoardConnection, CreateBoardConnectionRequest } from "schemas";
 import { apiFetch } from "@/shared/lib/api-client";
 
 // NestJS sends an empty body (no JSON at all) when the controller returns
@@ -17,11 +12,10 @@ export async function getBoardConnection(projectId: string): Promise<BoardConnec
   return result ?? null;
 }
 
-export function previewBoardConnection(projectId: string, data: PreviewBoardConnectionRequest) {
-  return apiFetch<AvailableBoard[]>(`/projects/${projectId}/board-connection/preview`, {
-    method: "POST",
-    body: data,
-  });
+// What the developer's GitHub connection (given at login) can see. No token
+// travels: the API reads it from the account.
+export function listAvailableBoards(projectId: string) {
+  return apiFetch<AvailableBoard[]>(`/projects/${projectId}/board-connection/boards`);
 }
 
 export function connectBoard(projectId: string, data: CreateBoardConnectionRequest) {

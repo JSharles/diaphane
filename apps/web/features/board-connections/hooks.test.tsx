@@ -2,29 +2,24 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
-import {
-  connectBoard,
-  disconnectBoard,
-  getBoardConnection,
-  previewBoardConnection,
-} from "./api";
+import { connectBoard, disconnectBoard, getBoardConnection, listAvailableBoards } from "./api";
 import {
   boardConnectionKey,
+  useAvailableBoards,
   useBoardConnection,
   useConnectBoard,
   useDisconnectBoard,
-  usePreviewBoardConnection,
 } from "./hooks";
 
 vi.mock("./api", () => ({
   getBoardConnection: vi.fn(),
-  previewBoardConnection: vi.fn(),
+  listAvailableBoards: vi.fn(),
   connectBoard: vi.fn(),
   disconnectBoard: vi.fn(),
 }));
 
 const mockedGetBoardConnection = vi.mocked(getBoardConnection);
-const mockedPreviewBoardConnection = vi.mocked(previewBoardConnection);
+const mockedListAvailableBoards = vi.mocked(listAvailableBoards);
 const mockedConnectBoard = vi.mocked(connectBoard);
 const mockedDisconnectBoard = vi.mocked(disconnectBoard);
 
@@ -71,19 +66,20 @@ describe("board-connections hooks", () => {
     expect(result.current.data).toEqual(fakeConnection);
   });
 
-  it("usePreviewBoardConnection returns the available boards", async () => {
-    mockedPreviewBoardConnection.mockResolvedValue([fakeBoard]);
+  it("useAvailableBoards lists the boards once enabled, and not before", async () => {
+    mockedListAvailableBoards.mockResolvedValue([fakeBoard]);
     const { Wrapper } = createWrapper();
 
-    const { result } = renderHook(() => usePreviewBoardConnection("project-1"), {
-      wrapper: Wrapper,
-    });
-    act(() => {
-      result.current.mutate({ token: "a-token" });
-    });
+    const { result, rerender } = renderHook(
+      ({ enabled }: { enabled: boolean }) => useAvailableBoards("project-1", { enabled }),
+      { wrapper: Wrapper, initialProps: { enabled: false } },
+    );
+    expect(mockedListAvailableBoards).not.toHaveBeenCalled();
+
+    rerender({ enabled: true });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockedPreviewBoardConnection).toHaveBeenCalledWith("project-1", { token: "a-token" });
+    expect(mockedListAvailableBoards).toHaveBeenCalledWith("project-1");
     expect(result.current.data).toEqual([fakeBoard]);
   });
 
@@ -94,12 +90,7 @@ describe("board-connections hooks", () => {
 
     const { result } = renderHook(() => useConnectBoard("project-1"), { wrapper: Wrapper });
     act(() => {
-      result.current.mutate({
-        token: "a-token",
-        ownerLogin: "acme",
-        ownerType: "Organization",
-        number: 3,
-      });
+      result.current.mutate({ ownerLogin: "acme", ownerType: "Organization", number: 3 });
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));

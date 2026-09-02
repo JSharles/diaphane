@@ -1,16 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CreateBoardConnectionRequest, PreviewBoardConnectionRequest } from "schemas";
-import {
-  connectBoard,
-  disconnectBoard,
-  getBoardConnection,
-  previewBoardConnection,
-} from "./api";
+import type { CreateBoardConnectionRequest } from "schemas";
+import { connectBoard, disconnectBoard, getBoardConnection, listAvailableBoards } from "./api";
 
 export const boardConnectionKey = (projectId: string) =>
   ["projects", projectId, "board-connection"] as const;
+
+export const availableBoardsKey = (projectId: string) =>
+  ["projects", projectId, "board-connection", "boards"] as const;
 
 export function useBoardConnection(projectId: string, options?: { enabled?: boolean }) {
   return useQuery({
@@ -20,11 +18,14 @@ export function useBoardConnection(projectId: string, options?: { enabled?: bool
   });
 }
 
-// Error is surfaced inline in the dialog (see ConnectBoardDialog), not as a
-// generic toast — skipGlobalErrorToast opts this out of that default.
-export function usePreviewBoardConnection(projectId: string) {
-  return useMutation({
-    mutationFn: (data: PreviewBoardConnectionRequest) => previewBoardConnection(projectId, data),
+// Fetched only while the picker is open. Errors (GitHub not connected, GitHub
+// unreachable) are shown inline in the dialog, not as a generic toast.
+export function useAvailableBoards(projectId: string, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: availableBoardsKey(projectId),
+    queryFn: () => listAvailableBoards(projectId),
+    enabled: options?.enabled ?? true,
+    retry: false,
     meta: { skipGlobalErrorToast: true },
   });
 }

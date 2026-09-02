@@ -5,13 +5,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { BoardProvider, EstimateUnit, ProjectMember } from '@prisma/client';
+import { GithubConnectionService } from '../auth/github-connection.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AvailableBoard,
   GithubOwnerType,
   GithubProjectsClient,
 } from './github-projects.client';
-import { encryptToken } from './token-encryption';
 
 export interface BoardConnectionDetails {
   provider: BoardProvider;
@@ -21,6 +21,8 @@ export interface BoardConnectionDetails {
   boardTitle: string;
   boardUrl: string;
   estimateUnit: EstimateUnit;
+  // The developer who chose this board has no usable GitHub connection any
+  // more (cut, or revoked): the board is named but no longer read.
   needsReconnect: boolean;
 }
 
@@ -36,35 +38,31 @@ export class BoardConnectionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly githubClient: GithubProjectsClient,
+    private readonly githubConnections: GithubConnectionService,
   ) {}
 
-  // Nothing is persisted here — just calls GitHub with the resolved token
-  // (pasted PAT or OAuth-obtained, specs/010-github-oauth-board-connection
-  // — the caller has already resolved which one) and returns what it can
-  // see, for the developer to pick from (FR-001).
-  async preview(
+  // What the developer's GitHub connection can see, for them to pick from.
+  // Nothing is persisted.
+  async listBoards(
     userId: string,
     projectId: string,
-    token: string,
   ): Promise<AvailableBoard[]> {
     await this.assertIsDeveloper(userId, projectId);
+    const token = await this.githubConnections.getToken(userId);
 
     return this.callGithub(() => this.githubClient.listAccessibleBoards(token));
   }
 
-  // Re-validates access (FR-002) even though preview() already showed this
-  // board — the two calls are a real round-trip apart. Upserts on
-  // projectId so connecting a new board always replaces the old one in the
-  // same operation (FR-006, research.md Decision 5). Also clears
-  // needsReconnect (specs/010, FR-008) — a fresh, working token was just
-  // verified, so any prior "reconnect" state no longer applies.
+  // Re-validates access even though listBoards() already showed this board:
+  // the two calls are a real round-trip apart. Upserts on projectId so
+  // choosing a new board always replaces the old one.
   async connect(
     userId: string,
     projectId: string,
-    token: string,
     selection: BoardSelection,
   ): Promise<BoardConnectionDetails> {
     await this.assertIsDeveloper(userId, projectId);
+    const token = await this.githubConnections.getToken(userId);
 
     const board = await this.callGithub(() =>
       this.githubClient.verifyBoardAccess(
@@ -79,18 +77,15 @@ export class BoardConnectionsService {
       throw new ForbiddenException('You do not have access to this board');
     }
 
-    const encryptedToken = encryptToken(token);
     const boardData = {
+      connectedById: userId,
       provider: BoardProvider.github,
       boardOwnerLogin: board.ownerLogin,
       boardOwnerType: board.ownerType,
       boardNumber: board.number,
       boardTitle: board.title,
       boardUrl: board.url,
-      encryptedToken,
-      // specs/008-current-task-progress FR-005b.
       estimateUnit: selection.estimateUnit ?? EstimateUnit.days,
-      needsReconnect: false,
     };
 
     const connection = await this.prisma.boardConnection.upsert({
@@ -99,7 +94,7 @@ export class BoardConnectionsService {
       update: boardData,
     });
 
-    return this.toDetails(connection);
+    return { ...this.toDetails(connection), needsReconnect: false };
   }
 
   async findForProject(
@@ -110,36 +105,45 @@ export class BoardConnectionsService {
 
     const connection = await this.prisma.boardConnection.findUnique({
       where: { projectId },
+      include: {
+        connectedBy: {
+          select: { githubConnection: { select: { needsReconnect: true } } },
+        },
+      },
     });
+    if (!connection) return null;
 
-    return connection ? this.toDetails(connection) : null;
+    const github = connection.connectedBy.githubConnection;
+    return {
+      ...this.toDetails(connection),
+      needsReconnect: !github || github.needsReconnect,
+    };
   }
 
-  // Idempotent from the caller's point of view — disconnecting when nothing
-  // is connected is not an error (FR-005).
+  // Idempotent from the caller's point of view: disconnecting when nothing
+  // is connected is not an error.
   async disconnect(userId: string, projectId: string): Promise<void> {
     await this.assertIsDeveloper(userId, projectId);
 
     await this.prisma.boardConnection.deleteMany({ where: { projectId } });
   }
 
-  // Wraps every GithubProjectsClient call: a bad/expired token or a GitHub
-  // outage must surface as a clean, sanitized 4xx the caller can act on —
-  // never GithubProjectsClient's raw Error, which NestJS would otherwise
-  // turn into an opaque 500 with no actionable message.
+  // Wraps every GithubProjectsClient call: a revoked token or a GitHub
+  // outage must surface as a clean 4xx the caller can act on, never the
+  // client's raw Error, which NestJS would turn into an opaque 500.
   private async callGithub<T>(fn: () => Promise<T>): Promise<T> {
     try {
       return await fn();
     } catch {
       throw new BadRequestException(
-        "Unable to verify this token with GitHub. Check that it's valid and has access to Projects.",
+        'Unable to read your boards from GitHub. Reconnect GitHub from your profile and try again.',
       );
     }
   }
 
   private toDetails(
-    connection: BoardConnectionDetails,
-  ): BoardConnectionDetails {
+    connection: Omit<BoardConnectionDetails, 'needsReconnect'>,
+  ): Omit<BoardConnectionDetails, 'needsReconnect'> {
     return {
       provider: connection.provider,
       boardOwnerLogin: connection.boardOwnerLogin,
@@ -148,18 +152,12 @@ export class BoardConnectionsService {
       boardTitle: connection.boardTitle,
       boardUrl: connection.boardUrl,
       estimateUnit: connection.estimateUnit,
-      needsReconnect: connection.needsReconnect,
     };
   }
 
-  // Mirrors ProjectsService/InvitationsService's own assertIsMember —
-  // kept as a separate copy per Constitution III (Feature Isolation): a
-  // module's service must not reach into another module's Prisma queries.
-  // A client-role member gets the exact same response as a non-member
-  // (FR-009) — never a distinct "forbidden" that would confirm a connection
-  // exists. Exposed publicly (specs/010-github-oauth-board-connection) so
-  // the controller's GitHub-authorize endpoint can run the same check
-  // before starting an OAuth redirect.
+  // Mirrors ProjectAccessService.requireDeveloper. A client member gets the
+  // exact same response as a non-member, never a distinct "forbidden" that
+  // would confirm a connection exists.
   async assertIsDeveloper(
     userId: string,
     projectId: string,

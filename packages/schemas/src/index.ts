@@ -3,6 +3,7 @@ export * from "./project";
 export * from "./project-member";
 export * from "./invitation";
 export * from "./board-connection";
+export * from "./connections";
 export * from "./current-task";
 export * from "./documentation-common";
 export * from "./documentation-source";

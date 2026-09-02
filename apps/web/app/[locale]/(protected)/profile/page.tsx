@@ -3,6 +3,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ProfileFields } from "@/features/auth/components/profile-fields";
+import { ConnectionsCard } from "@/features/connections/components/connections-card";
 import { useRouter } from "@/i18n/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
@@ -53,6 +54,8 @@ export default function ProfilePage() {
       </div>
 
       <ProfileFields user={user} />
+
+      {user.accountKind === "developer" && <ConnectionsCard />}
     </div>
   );
 }

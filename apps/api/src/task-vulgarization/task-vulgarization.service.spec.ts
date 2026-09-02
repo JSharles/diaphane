@@ -7,7 +7,7 @@ import {
   GithubAuthError,
   GithubProjectsClient,
 } from '../board-connections/github-projects.client';
-import { encryptToken } from '../board-connections/token-encryption';
+import { encryptToken } from '../auth/token-encryption';
 import { AnthropicVulgarizationClient } from './anthropic-vulgarization.client';
 import {
   resolveConfidence,
@@ -28,9 +28,11 @@ const connection = {
   boardNumber: 3,
   boardTitle: 'Roadmap',
   boardUrl: 'https://github.com/orgs/acme/projects/3',
-  encryptedToken: encryptToken('a-real-token'),
+  connectedById: 'user-1',
+  connectedBy: {
+    githubConnection: { encryptedToken: encryptToken('a-real-token') },
+  },
   estimateUnit: 'days' as const,
-  needsReconnect: false,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -295,8 +297,7 @@ describe('TaskVulgarizationService', () => {
       expect(anthropicClient.vulgarize).toHaveBeenCalledTimes(2); // en + fr, for project-2 only
     });
 
-    // specs/010-github-oauth-board-connection FR-008.
-    it('flags the connection as needing reconnect when the GitHub call fails with an auth error', async () => {
+    it('flags the developer’s GitHub connection as needing reconnect when GitHub answers an auth error', async () => {
       prisma.boardConnection.findMany.mockResolvedValue([connection]);
       githubClient.fetchInProgressItems.mockRejectedValue(
         new GithubAuthError('GitHub API request failed with status 401'),
@@ -304,8 +305,8 @@ describe('TaskVulgarizationService', () => {
 
       await service.sweep();
 
-      expect(prisma.boardConnection.update).toHaveBeenCalledWith({
-        where: { id: 'connection-1' },
+      expect(prisma.githubConnection.update).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
         data: { needsReconnect: true },
       });
     });
@@ -318,7 +319,18 @@ describe('TaskVulgarizationService', () => {
 
       await service.sweep();
 
-      expect(prisma.boardConnection.update).not.toHaveBeenCalled();
+      expect(prisma.githubConnection.update).not.toHaveBeenCalled();
+    });
+
+    it('skips a board whose chooser cut their GitHub connection, without calling GitHub', async () => {
+      prisma.boardConnection.findMany.mockResolvedValue([
+        { ...connection, connectedBy: { githubConnection: null } },
+      ]);
+
+      await service.sweep();
+
+      expect(githubClient.fetchInProgressItems).not.toHaveBeenCalled();
+      expect(prisma.githubConnection.update).not.toHaveBeenCalled();
     });
   });
 
