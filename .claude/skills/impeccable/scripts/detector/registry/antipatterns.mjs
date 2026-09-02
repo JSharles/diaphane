@@ -29,22 +29,12 @@ const ANTIPATTERNS = [
     skillGuideline: 'overused fonts like Inter',
   },
   {
-    id: 'single-font',
-    category: 'slop',
-    scopes: ['type'],
-    name: 'Single font without hierarchy',
-    description:
-      'Only one font family is used for the entire page. A single family can work when weight and size contrast carry the hierarchy; otherwise pair a distinctive display font with a refined body font.',
-    skillSection: 'Typography',
-    skillGuideline: 'only one font family for the entire page',
-  },
-  {
     id: 'flat-type-hierarchy',
     category: 'slop',
     scopes: ['type'],
     name: 'Flat type hierarchy',
     description:
-      'Font sizes are too close together — no clear visual hierarchy. Use fewer sizes with more contrast (aim for at least a 1.25 ratio between steps).',
+      'Dominant heading and body roles are separated by less than 1.25× at every step, leaving the size hierarchy flat. Add at least one stronger size step.',
     skillSection: 'Typography',
     skillGuideline: 'flat type hierarchy',
   },
@@ -132,6 +122,24 @@ const ANTIPATTERNS = [
     skillSection: 'Imagery',
   },
   {
+    id: 'organic-clip-path',
+    category: 'quality',
+    name: 'Organic contour drawn as clip-path',
+    description:
+      'A clip-path polygon with many arbitrary vertices, or a curved clip-path path(), is CSS approximating a torn edge, blob, or silhouette. It reads as the cheap version of the effect and is usually a produced or photographic material replaced with code. Derive an alpha matte from the real image, or ship the shape as a cut-out raster; keep clip-path for geometry (cut corners, diagonals, hexagons).',
+    skillSection: 'Imagery',
+    skillGuideline: 'geometric masks standing in for organic contours',
+  },
+  {
+    id: 'buried-raster',
+    category: 'quality',
+    name: 'Raster buried under a wash or opacity',
+    description:
+      'A background image under a near-opaque gradient wash, or a raster on an element at near-zero opacity, never reaches the screen: the page shows the wash, and the produced texture or photo ships as a compliance token. Let the material show (a tint under 0.9 alpha, a blend mode, an opacity you can see) or remove the file.',
+    skillSection: 'Imagery',
+    skillGuideline: 'a produced material must survive to the screen',
+  },
+  {
     id: 'dark-glow',
     category: 'slop',
     name: 'Glowing shadow accents',
@@ -146,6 +154,15 @@ const ANTIPATTERNS = [
     name: 'Radial-gradient background halo',
     description:
       'A chromatic radial-gradient wash — saturated at the center, fading to transparent — used as a decorative background glow on a dark page. Same tell as glowing shadows, drawn with a gradient instead of a shadow. Ground the surface with a solid or subtly shifted background instead.',
+    skillSection: 'Color & Contrast',
+    skillGuideline: 'dark mode with glowing accents',
+  },
+  {
+    id: 'radial-spotlight-glow',
+    category: 'slop',
+    name: 'Decorative radial spotlight glow',
+    description:
+      'A soft, low-opacity accent-colored radial gradient fading to transparent, dropped behind a hero or section as a "spotlight." It is a reflex AI decoration — the translucent cousin of the saturated radial halo. Let the surface stand on its own, or light the composition with a deliberate material accent rather than a floating colored haze.',
     skillSection: 'Color & Contrast',
     skillGuideline: 'dark mode with glowing accents',
   },
@@ -189,15 +206,14 @@ const ANTIPATTERNS = [
     skillGuideline: 'tiny uppercase tracked label above the hero headline',
   },
   {
-    id: 'repeated-section-kickers',
+    id: 'kicker-above-heading',
     category: 'slop',
     scopes: ['type'],
-    severity: 'advisory',
-    name: 'Repeated section kicker labels',
+    name: 'Kicker / eyebrow label above heading',
     description:
-      'Repeating tiny uppercase tracked labels above section headings turns a brand page into AI editorial scaffolding. Replace them with stronger structure, artifacts, imagery, or a deliberate brand system.',
+      'A tiny tracked uppercase or small-caps label sitting as its own block directly above a heading is banned outright, repeated or not. Generated kickers never earn their place: the heading carries its own weight. Delete the label and let the heading speak; if the words matter, work them into the heading or the body.',
     skillSection: 'Typography',
-    skillGuideline: 'repeated eyebrow or kicker labels as section scaffolding',
+    skillGuideline: 'kicker or eyebrow labels above headings',
   },
   {
     id: 'numbered-section-labels',
@@ -213,9 +229,14 @@ const ANTIPATTERNS = [
   {
     id: 'em-dash-overuse',
     category: 'slop',
+    // Advisory: humans use em-dashes legitimately, so this rule is opt-in noise
+    // rather than a failure. It fires only on the AI saturation pattern, not on
+    // ordinary prose. Advisory findings are surfaced separately, never counted
+    // as failures, and skipped by the design hook unless a project opts in.
+    advisory: true,
     name: 'Em-dash overuse',
     description:
-      'More than two em-dashes (— or --) in body copy is an AI cadence tell. Use commas, colons, periods, or parentheses instead.',
+      'Em-dash saturation in body copy is an AI cadence tell. Advisory only: humans use em-dashes legitimately, so this fires only on saturation — at least 8 em-dashes (— or --) at a density near one per 500 characters of body text — never on a long article that uses a few. Prefer commas, colons, periods, or parentheses.',
     skillSection: 'Copy',
     skillGuideline: 'no em dashes',
   },
@@ -406,6 +427,14 @@ const ANTIPATTERNS = [
       'Body text below 12px is hard to read, especially on high-DPI screens. Use at least 14px for body content, 16px is ideal.',
   },
   {
+    id: 'undersized-ui-text',
+    category: 'quality',
+    scopes: ['type'],
+    name: 'Undersized functional text',
+    description:
+      'Interactive and content-bearing UI text (links, buttons, nav items, labels, table cells, meta rows, timecodes) below 11px is a legibility failure, not a style choice. WCAG sets no absolute pixel floor, but functional text under 11px is a defensible quality bar: it fails on high-DPI and small viewports and it degrades tap and read targets. The 11px floor holds even inside a footer; only non-interactive legal smallprint gets the softer 10px floor. Being ON the DESIGN.md size ramp does not exempt a value here: adding 8px to the ramp launders the token but not the legibility problem, and that is exactly the escape hatch this rule closes. Exempts sup/sub, visually-hidden (sr-only) text, and code/terminal contexts. Decorative letterspaced micro-labels are still functional and stay in scope.',
+  },
+  {
     id: 'all-caps-body',
     category: 'quality',
     scopes: ['type'],
@@ -556,6 +585,18 @@ function getAntipattern(id) {
   return ANTIPATTERNS.find(rule => rule.id === id);
 }
 
+// Advisory rules are detected and reported, but never treated as failures:
+// the CLI lists them under a separate "Advisory" section, they do not affect
+// exit codes or the failure count, and the design hook skips them by default.
+// The set is derived from the registry so a rule only needs `advisory: true`.
+const ADVISORY_RULE_IDS = new Set(
+  ANTIPATTERNS.filter(rule => rule.advisory === true).map(rule => rule.id),
+);
+
+function isAdvisoryRule(id) {
+  return ADVISORY_RULE_IDS.has(id);
+}
+
 function getRulesForCategory(category) {
   return ANTIPATTERNS.filter(rule => rule.category === category);
 }
@@ -585,8 +626,10 @@ export {
   ANTIPATTERNS,
   RULE_SCOPES,
   RULE_ENGINE_SUPPORT,
+  ADVISORY_RULE_IDS,
   getAntipattern,
   getRulesForCategory,
   getRuleEngineSupport,
+  isAdvisoryRule,
   filterByScopes,
 };

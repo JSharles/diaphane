@@ -28,3 +28,6 @@ Thumbs.db
 # skills installed via `pnpm dlx skills`, exposed to Claude Code through the
 # symlinks in .claude/skills/.)
 .codex/
+# `impeccable update` also drops a Codex copy of the skill into .agents/; the
+# Claude Code copy in .claude/skills/impeccable is the one this repo uses.
+.agents/skills/impeccable/
