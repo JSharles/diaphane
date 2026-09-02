@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import type { GithubConnectionService } from './github-connection.service';
 import type { GithubOauthClient } from './github-oauth.client';
 import {
-  OAUTH_FLOW_COOKIE_NAME,
+  oauthFlowCookieName,
   serializeOAuthFlowCookie,
 } from './oauth-state-cookie';
 import { SESSION_COOKIE_NAME } from './session-cookie';
@@ -169,7 +169,7 @@ describe('AuthController', () => {
       controller.githubStart('en', res as unknown as Response);
 
       expect(res.cookie).toHaveBeenCalledWith(
-        OAUTH_FLOW_COOKIE_NAME,
+        oauthFlowCookieName('github'),
         expect.any(String),
         expect.any(Object),
       );
@@ -200,7 +200,10 @@ describe('AuthController', () => {
     function reqWithFlowCookie(state: string, locale = 'en'): Request {
       return {
         cookies: {
-          [OAUTH_FLOW_COOKIE_NAME]: serializeOAuthFlowCookie({ state, locale }),
+          [oauthFlowCookieName('github')]: serializeOAuthFlowCookie({
+            state,
+            locale,
+          }),
         },
       } as unknown as Request;
     }
@@ -217,7 +220,7 @@ describe('AuthController', () => {
       );
 
       expect(res.clearCookie).toHaveBeenCalledWith(
-        OAUTH_FLOW_COOKIE_NAME,
+        oauthFlowCookieName('github'),
         expect.any(Object),
       );
       expect(authService.findOrCreateFromGitHub).not.toHaveBeenCalled();

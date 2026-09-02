@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiFetch } from "@/shared/lib/api-client";
-import { disconnectGithub, getConnections } from "./api";
+import { disconnectGithub, disconnectNotion } from "./api";
 
 vi.mock("@/shared/lib/api-client", () => ({
   apiFetch: vi.fn(),
@@ -13,20 +13,19 @@ describe("features/connections/api", () => {
     mockedApiFetch.mockReset();
   });
 
-  it("getConnections gets /connections", async () => {
-    mockedApiFetch.mockResolvedValue({ github: { connected: true, needsReconnect: false } });
-
-    const result = await getConnections();
-
-    expect(mockedApiFetch).toHaveBeenCalledWith("/connections");
-    expect(result.github.connected).toBe(true);
-  });
-
   it("disconnectGithub deletes /connections/github", async () => {
     mockedApiFetch.mockResolvedValue(undefined);
 
     await disconnectGithub();
 
     expect(mockedApiFetch).toHaveBeenCalledWith("/connections/github", { method: "DELETE" });
+  });
+
+  it("disconnectNotion deletes /connections/notion", async () => {
+    mockedApiFetch.mockResolvedValue(undefined);
+
+    await disconnectNotion();
+
+    expect(mockedApiFetch).toHaveBeenCalledWith("/connections/notion", { method: "DELETE" });
   });
 });

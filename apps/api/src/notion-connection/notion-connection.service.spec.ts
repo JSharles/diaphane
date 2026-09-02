@@ -1,43 +1,36 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
+import { decryptToken, encryptToken } from '../auth/token-encryption';
 import {
   asPrismaService,
   createPrismaMock,
   PrismaMock,
 } from '../test/prisma-mock';
-import { decryptToken } from '../auth/token-encryption';
-import { NotionAccessError, NotionClient } from './notion.client';
 import { NotionConnectionService } from './notion-connection.service';
+import { NotionOauthClient, NotionOauthError } from './notion-oauth.client';
+import { NotionAccessError } from './notion.client';
 
 const ORIGINAL_ENV = process.env.BOARD_CONNECTION_ENCRYPTION_KEY;
 
-const contributorMembership = {
-  id: 'member-1',
-  projectId: 'project-1',
-  userId: 'user-1',
-  user: { accountKind: 'developer' as const },
-  isAdmin: true,
-  createdAt: new Date(),
-};
-
-const clientMembership = {
-  ...contributorMembership,
-  user: { accountKind: 'client' as const },
-  isAdmin: false,
+const grant = {
+  accessToken: 'ntn_access',
+  refreshToken: 'ntn_refresh',
+  workspaceId: 'ws-1',
+  workspaceName: 'Acme',
 };
 
 describe('NotionConnectionService', () => {
   let prisma: PrismaMock;
-  let notionClient: jest.Mocked<Pick<NotionClient, 'verifyToken'>>;
+  let oauth: jest.Mocked<Pick<NotionOauthClient, 'refresh' | 'revoke'>>;
   let service: NotionConnectionService;
 
   beforeEach(() => {
     process.env.BOARD_CONNECTION_ENCRYPTION_KEY =
       '0000000000000000000000000000000000000000000000000000000000000000';
     prisma = createPrismaMock();
-    notionClient = { verifyToken: jest.fn() };
+    oauth = { refresh: jest.fn(), revoke: jest.fn() };
     service = new NotionConnectionService(
       asPrismaService(prisma),
-      notionClient as unknown as NotionClient,
+      oauth as unknown as NotionOauthClient,
     );
   });
 
@@ -45,153 +38,254 @@ describe('NotionConnectionService', () => {
     process.env.BOARD_CONNECTION_ENCRYPTION_KEY = ORIGINAL_ENV;
   });
 
-  describe('findForProject', () => {
-    it('returns connected: false, workspaceName: null when no connection exists', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(contributorMembership);
-      prisma.notionConnection.findUnique.mockResolvedValue(null);
+  it('saveFromAuthorization stores the pair encrypted, on the account, and clears any reconnect flag', async () => {
+    await service.saveFromAuthorization('user-1', grant);
 
-      const result = await service.findForProject('user-1', 'project-1');
+    const call = prisma.notionConnection.upsert.mock.calls[0][0] as {
+      where: unknown;
+      create: Record<string, unknown>;
+      update: Record<string, unknown>;
+    };
+    expect(call.where).toEqual({ userId: 'user-1' });
+    expect(call.create.userId).toBe('user-1');
+    expect(call.create.workspaceId).toBe('ws-1');
+    expect(call.create.workspaceName).toBe('Acme');
+    expect(call.create.needsReconnect).toBe(false);
+    expect(call.update.needsReconnect).toBe(false);
+    expect(call.create.encryptedAccessToken).not.toBe('ntn_access');
+    expect(decryptToken(call.create.encryptedAccessToken as string)).toBe(
+      'ntn_access',
+    );
+    expect(decryptToken(call.create.encryptedRefreshToken as string)).toBe(
+      'ntn_refresh',
+    );
+  });
 
-      expect(result).toEqual({ connected: false, workspaceName: null });
+  it('saveFromAuthorization keeps a null refresh token as null', async () => {
+    await service.saveFromAuthorization('user-1', {
+      ...grant,
+      refreshToken: null,
     });
 
-    it('returns connected: true with the stored workspace name when a connection exists', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(contributorMembership);
-      prisma.notionConnection.findUnique.mockResolvedValue({
-        id: 'conn-1',
-        projectId: 'project-1',
-        encryptedToken: 'encrypted',
-        workspaceName: 'Acme Workspace',
-      });
+    const call = prisma.notionConnection.upsert.mock.calls[0][0] as {
+      create: { encryptedRefreshToken: string | null };
+    };
+    expect(call.create.encryptedRefreshToken).toBeNull();
+  });
 
-      const result = await service.findForProject('user-1', 'project-1');
+  it('findForUser reports not connected when there is no row', async () => {
+    prisma.notionConnection.findUnique.mockResolvedValue(null);
 
-      expect(result).toEqual({
-        connected: true,
-        workspaceName: 'Acme Workspace',
-      });
-    });
-
-    it('throws not found for a client-role member', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(clientMembership);
-
-      await expect(
-        service.findForProject('user-1', 'project-1'),
-      ).rejects.toThrow(NotFoundException);
-    });
-
-    it('throws not found for a non-member', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(null);
-
-      await expect(
-        service.findForProject('user-1', 'project-1'),
-      ).rejects.toThrow(NotFoundException);
+    await expect(service.findForUser('user-1')).resolves.toEqual({
+      connected: false,
+      needsReconnect: false,
+      workspaceName: null,
     });
   });
 
-  describe('connect', () => {
-    it('verifies the token, encrypts it, and upserts the connection + workspace name on projectId', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(contributorMembership);
-      notionClient.verifyToken.mockResolvedValue({ name: 'Acme Workspace' });
-      prisma.notionConnection.upsert.mockResolvedValue({
-        id: 'conn-1',
-        projectId: 'project-1',
-        encryptedToken: 'encrypted-value',
-        workspaceName: 'Acme Workspace',
-      });
+  it('findForUser reports the workspace and the reconnect flag when connected', async () => {
+    prisma.notionConnection.findUnique.mockResolvedValue({
+      needsReconnect: true,
+      workspaceName: 'Acme',
+    });
 
-      const result = await service.connect(
-        'user-1',
-        'project-1',
-        'secret-token',
+    await expect(service.findForUser('user-1')).resolves.toEqual({
+      connected: true,
+      needsReconnect: true,
+      workspaceName: 'Acme',
+    });
+  });
+
+  describe('withToken', () => {
+    function connected(overrides: Record<string, unknown> = {}) {
+      prisma.notionConnection.findUnique.mockResolvedValue({
+        encryptedAccessToken: encryptToken('ntn_stored'),
+        encryptedRefreshToken: encryptToken('ntn_refresh'),
+        needsReconnect: false,
+        ...overrides,
+      });
+    }
+
+    it('runs the call with the stored access token', async () => {
+      connected();
+      const call = jest.fn().mockResolvedValue('page');
+
+      await expect(service.withToken('user-1', call)).resolves.toBe('page');
+      expect(call).toHaveBeenCalledWith('ntn_stored');
+      expect(oauth.refresh).not.toHaveBeenCalled();
+    });
+
+    it('refreshes the pair and retries once when Notion answers 401', async () => {
+      connected();
+      oauth.refresh.mockResolvedValue({
+        accessToken: 'ntn_fresh',
+        refreshToken: 'ntn_refresh_2',
+      });
+      const call = jest
+        .fn()
+        .mockRejectedValueOnce(new NotionAccessError('unauthorized', 401))
+        .mockResolvedValueOnce('page');
+
+      await expect(service.withToken('user-1', call)).resolves.toBe('page');
+
+      expect(oauth.refresh).toHaveBeenCalledWith('ntn_refresh');
+      expect(call).toHaveBeenLastCalledWith('ntn_fresh');
+      const update = prisma.notionConnection.update.mock.calls[0][0] as {
+        where: unknown;
+        data: { encryptedAccessToken: string; needsReconnect: boolean };
+      };
+      expect(update.where).toEqual({ userId: 'user-1' });
+      expect(decryptToken(update.data.encryptedAccessToken)).toBe('ntn_fresh');
+    });
+
+    it('marks the connection to reconnect and raises a named 400 when the refresh is refused', async () => {
+      connected();
+      oauth.refresh.mockRejectedValue(
+        new NotionOauthError('invalid_grant', 'revoked'),
       );
+      const call = jest
+        .fn()
+        .mockRejectedValue(new NotionAccessError('unauthorized', 401));
 
-      expect(notionClient.verifyToken).toHaveBeenCalledWith('secret-token');
-      expect(prisma.notionConnection.upsert).toHaveBeenCalledWith({
-        where: { projectId: 'project-1' },
-        create: {
-          projectId: 'project-1',
-          encryptedToken: expect.any(String) as string,
-          workspaceName: 'Acme Workspace',
-        },
-        update: {
-          encryptedToken: expect.any(String) as string,
-          workspaceName: 'Acme Workspace',
-        },
+      const error = await service
+        .withToken('user-1', call)
+        .catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(BadRequestException);
+      expect((error as BadRequestException).getResponse()).toMatchObject({
+        code: 'NOTION_NEEDS_RECONNECT',
       });
-      expect(result).toEqual({
-        connected: true,
-        workspaceName: 'Acme Workspace',
+      expect(prisma.notionConnection.update).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
+        data: { needsReconnect: true },
+      });
+      expect(call).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not refresh when there is no refresh token: marks to reconnect instead', async () => {
+      connected({ encryptedRefreshToken: null });
+      const call = jest
+        .fn()
+        .mockRejectedValue(new NotionAccessError('unauthorized', 401));
+
+      await expect(service.withToken('user-1', call)).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
+      expect(oauth.refresh).not.toHaveBeenCalled();
+      expect(prisma.notionConnection.update).toHaveBeenCalledWith({
+        where: { userId: 'user-1' },
+        data: { needsReconnect: true },
       });
     });
 
-    it('persists nothing and throws a clear error when the token fails verification', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(contributorMembership);
-      notionClient.verifyToken.mockRejectedValue(
-        new NotionAccessError('Unable to access this Notion page (status 401)'),
-      );
+    it('uses a pair another call already renewed instead of refreshing again', async () => {
+      prisma.notionConnection.findUnique
+        .mockResolvedValueOnce({
+          encryptedAccessToken: encryptToken('ntn_stale'),
+          encryptedRefreshToken: encryptToken('ntn_refresh'),
+          needsReconnect: false,
+        })
+        .mockResolvedValueOnce({
+          encryptedAccessToken: encryptToken('ntn_renewed'),
+          encryptedRefreshToken: encryptToken('ntn_refresh_2'),
+          needsReconnect: false,
+        });
+      const call = jest
+        .fn()
+        .mockRejectedValueOnce(new NotionAccessError('unauthorized', 401))
+        .mockResolvedValueOnce('page');
 
-      await expect(
-        service.connect('user-1', 'project-1', 'bad-token'),
-      ).rejects.toThrow();
-      expect(prisma.notionConnection.upsert).not.toHaveBeenCalled();
+      await expect(service.withToken('user-1', call)).resolves.toBe('page');
+
+      expect(oauth.refresh).not.toHaveBeenCalled();
+      expect(call).toHaveBeenLastCalledWith('ntn_renewed');
     });
 
-    it('throws not found for a client-role member and never calls Notion', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(clientMembership);
+    it('lets a passing refresh fault through without flagging the connection', async () => {
+      connected();
+      oauth.refresh.mockRejectedValue(new Error('network'));
+      const call = jest
+        .fn()
+        .mockRejectedValue(new NotionAccessError('unauthorized', 401));
 
-      await expect(
-        service.connect('user-1', 'project-1', 'token'),
-      ).rejects.toThrow(NotFoundException);
-      expect(notionClient.verifyToken).not.toHaveBeenCalled();
+      await expect(service.withToken('user-1', call)).rejects.toThrow(
+        'network',
+      );
+      expect(prisma.notionConnection.update).not.toHaveBeenCalled();
+    });
+
+    it('lets any other Notion error through untouched', async () => {
+      connected();
+      const call = jest
+        .fn()
+        .mockRejectedValue(new NotionAccessError('not found', 404));
+
+      await expect(service.withToken('user-1', call)).rejects.toBeInstanceOf(
+        NotionAccessError,
+      );
+      expect(oauth.refresh).not.toHaveBeenCalled();
+    });
+
+    it('raises a named 400 when Notion is not connected', async () => {
+      prisma.notionConnection.findUnique.mockResolvedValue(null);
+
+      const error = await service
+        .withToken('user-1', jest.fn())
+        .catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(BadRequestException);
+      expect((error as BadRequestException).getResponse()).toMatchObject({
+        code: 'NOTION_NOT_CONNECTED',
+      });
+    });
+
+    it('raises the reconnect 400 without calling Notion when already flagged', async () => {
+      connected({ needsReconnect: true });
+      const call = jest.fn();
+
+      const error = await service
+        .withToken('user-1', call)
+        .catch((e: unknown) => e);
+
+      expect((error as BadRequestException).getResponse()).toMatchObject({
+        code: 'NOTION_NEEDS_RECONNECT',
+      });
+      expect(call).not.toHaveBeenCalled();
     });
   });
 
   describe('disconnect', () => {
-    it('deletes the connection, idempotently (deleteMany, no error if nothing was connected)', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(contributorMembership);
+    it('revokes the token at Notion, then deletes the row', async () => {
+      prisma.notionConnection.findUnique.mockResolvedValue({
+        encryptedAccessToken: encryptToken('ntn_stored'),
+      });
+      oauth.revoke.mockResolvedValue(undefined);
+      prisma.notionConnection.deleteMany.mockResolvedValue({ count: 1 });
 
-      await service.disconnect('user-1', 'project-1');
+      await service.disconnect('user-1');
 
+      expect(oauth.revoke).toHaveBeenCalledWith('ntn_stored');
       expect(prisma.notionConnection.deleteMany).toHaveBeenCalledWith({
-        where: { projectId: 'project-1' },
+        where: { userId: 'user-1' },
       });
     });
 
-    it('throws not found for a client-role member', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(clientMembership);
+    it('still cuts the connection when Notion refuses the revocation', async () => {
+      prisma.notionConnection.findUnique.mockResolvedValue({
+        encryptedAccessToken: encryptToken('ntn_stored'),
+      });
+      oauth.revoke.mockRejectedValue(new Error('network'));
+      prisma.notionConnection.deleteMany.mockResolvedValue({ count: 1 });
 
-      await expect(service.disconnect('user-1', 'project-1')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.disconnect('user-1')).resolves.toBeUndefined();
+      expect(prisma.notionConnection.deleteMany).toHaveBeenCalled();
     });
-  });
 
-  describe('getDecryptedToken', () => {
-    it('returns null when no connection exists', async () => {
+    it('tolerates there being nothing to disconnect', async () => {
       prisma.notionConnection.findUnique.mockResolvedValue(null);
 
-      const result = await service.getDecryptedToken('project-1');
-
-      expect(result).toBeNull();
-    });
-
-    it('returns the decrypted token when a connection exists', async () => {
-      const { encryptToken } = jest.requireActual<
-        typeof import('../auth/token-encryption')
-      >('../auth/token-encryption');
-      prisma.notionConnection.findUnique.mockResolvedValue({
-        id: 'conn-1',
-        projectId: 'project-1',
-        encryptedToken: encryptToken('secret-token'),
-      });
-
-      const result = await service.getDecryptedToken('project-1');
-
-      expect(result).toBe('secret-token');
-      // Sanity check the fixture itself round-trips (guards against a
-      // future encryption change silently breaking this test's setup).
-      expect(decryptToken(encryptToken('secret-token'))).toBe('secret-token');
+      await expect(service.disconnect('user-1')).resolves.toBeUndefined();
+      expect(oauth.revoke).not.toHaveBeenCalled();
     });
   });
 });

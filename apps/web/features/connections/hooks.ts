@@ -1,25 +1,31 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { disconnectGithub, getConnections } from "./api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { connectionsKey } from "@/shared/hooks/use-connections";
+import { disconnectGithub, disconnectNotion } from "./api";
 
-export const connectionsKey = ["connections"] as const;
-
-export function useConnections() {
-  return useQuery({ queryKey: connectionsKey, queryFn: getConnections });
-}
-
-// Cutting GitHub also changes what every board card says (the board is
-// named but no longer read), so the project queries are invalidated too.
-export function useDisconnectGithub() {
+// Cutting a connection also changes what every project card says (the board
+// is named but no longer read, the Notion roots are no longer readable), so
+// the project queries are invalidated too.
+function useDisconnect(mutationFn: () => Promise<void>) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: disconnectGithub,
+    mutationFn,
     meta: { skipGlobalErrorToast: true },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: connectionsKey });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
   });
+}
+
+export type DisconnectMutation = ReturnType<typeof useDisconnect>;
+
+export function useDisconnectGithub() {
+  return useDisconnect(disconnectGithub);
+}
+
+export function useDisconnectNotion() {
+  return useDisconnect(disconnectNotion);
 }

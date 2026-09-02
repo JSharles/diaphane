@@ -1,72 +1,46 @@
 "use client";
 
-import { CheckCircle2, NotebookText } from "lucide-react";
-import { useTranslations } from "next-intl";
-import type { MouseEvent } from "react";
-import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
-import { SetupBlock, type SetupTone } from "@/shared/components/setup-block";
+import { CheckCircle2, NotebookText, TriangleAlert } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { notionConnectUrl } from "@/shared/api/connections";
+import { NotionConnectError } from "@/shared/components/notion-connect-error";
+import { SetupBlock } from "@/shared/components/setup-block";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { ApiError } from "@/shared/lib/api-client";
-import { useDisconnectNotionConnection, useNotionConnection } from "../hooks";
-import { ConnectNotionDialog } from "./connect-notion-dialog";
+import { connectionTone, useConnections } from "@/shared/hooks/use-connections";
 
-function errorMessage(error: unknown, generic: string): string {
-  return error instanceof ApiError ? error.message : generic;
-}
-
+// The project's Notion card. The connection belongs to the developer, so
+// this card only says whether it is there and offers the one button that
+// opens Notion's page picker — to connect, or to tick more pages. The roots
+// the project picks among those pages come next (GitHub issue #60). Cutting
+// the connection lives on the profile, beside GitHub.
 export function NotionConnectionCard({ projectId }: { projectId: string }) {
-  const [open, setOpen] = useState(false);
-  const [confirmDisconnectOpen, setConfirmDisconnectOpen] = useState(false);
-  const { data: connection, isPending } = useNotionConnection(projectId);
-  const disconnect = useDisconnectNotionConnection(projectId);
   const t = useTranslations("Projects.NotionConnectionCard");
-  const tToasts = useTranslations("Toasts");
+  const locale = useLocale();
+  const { data: connections, isPending } = useConnections();
+  const notion = connections?.notion;
 
-  function handleConfirmOpenChange(nextOpen: boolean) {
-    if (!nextOpen) disconnect.reset();
-    setConfirmDisconnectOpen(nextOpen);
-  }
-
-  // AlertDialogAction is Radix's DialogPrimitive.Close under the hood, so it
-  // dismisses the dialog on click by default regardless of outcome —
-  // preventDefault() here keeps it open until the mutation actually
-  // settles, closing only on success, so a slow or failed disconnect stays
-  // visible instead of silently reading as "done".
-  function handleDisconnect(event: MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    disconnect.mutate(undefined, { onSuccess: () => setConfirmDisconnectOpen(false) });
-  }
-
-
-  // specs/022: the documents left the setup screen for the documentation's
-  // own step 1, so this connection stands alone again — the pipe, not what
-  // pours through it. Its consequence line names the step it feeds.
-  const feedsTone: SetupTone = connection?.connected ? "live" : "waiting";
+  const connectHref = notionConnectUrl(locale, `/projects/${projectId}`);
+  const tone = connectionTone(notion);
 
   return (
     <>
       <SetupBlock
         title={t("title")}
-        feeds={{ label: t("feeds"), state: t(`state_${feedsTone}`), tone: feedsTone }}
+        feeds={{ label: t("feeds"), state: t(`state_${tone}`), tone }}
         description={
           isPending ? (
             <Skeleton className="h-4 w-32" />
-          ) : connection?.connected ? (
+          ) : notion?.needsReconnect ? (
+            <span className="flex items-center gap-1.5 text-destructive">
+              <TriangleAlert className="size-3.5 shrink-0" />
+              {t("needsReconnect")}
+            </span>
+          ) : notion?.connected ? (
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="size-3.5 shrink-0" />
-              {connection.workspaceName
-                ? t("connectedTo", { name: connection.workspaceName })
+              {notion.workspaceName
+                ? t("connectedTo", { name: notion.workspaceName })
                 : t("connected")}
             </span>
           ) : (
@@ -77,62 +51,19 @@ export function NotionConnectionCard({ projectId }: { projectId: string }) {
           )
         }
       >
-        {connection?.connected ? (
-          <>
-            <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-              {t("reconnect")}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={disconnect.isPending}
-              onClick={() => setConfirmDisconnectOpen(true)}
-            >
-              {disconnect.isPending ? t("disconnecting") : t("disconnect")}
-            </Button>
-          </>
-        ) : (
-          <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-            {t("connect")}
+        {!isPending && notion && (
+          <Button asChild variant="outline" size="sm">
+            <a href={connectHref}>
+              {!notion.connected
+                ? t("connect")
+                : notion.needsReconnect
+                  ? t("reconnect")
+                  : t("choosePages")}
+            </a>
           </Button>
         )}
       </SetupBlock>
-
-      <ConnectNotionDialog projectId={projectId} open={open} onOpenChange={setOpen} />
-
-      <AlertDialog open={confirmDisconnectOpen} onOpenChange={handleConfirmOpenChange}>
-        {/* reset() only clears the mutation's local state — it doesn't cancel
-            the in-flight request. Outside-click is already blocked by Radix's
-            own AlertDialogContent; Escape and the disabled Cancel button
-            below close the remaining two paths, so the dialog is genuinely
-            un-dismissable while pending instead of just looking that way. */}
-        <AlertDialogContent
-          onEscapeKeyDown={(event) => {
-            if (disconnect.isPending) event.preventDefault();
-          }}
-        >
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("disconnectConfirmTitle")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("disconnectConfirmDescription")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          {disconnect.isError && (
-            <p className="text-sm text-destructive">
-              {errorMessage(disconnect.error, tToasts("genericError"))}
-            </p>
-          )}
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={disconnect.isPending}>
-              {t("disconnectConfirmCancel")}
-            </AlertDialogCancel>
-            <AlertDialogAction disabled={disconnect.isPending} onClick={handleDisconnect}>
-              {disconnect.isPending ? t("disconnecting") : t("disconnectConfirmAction")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <NotionConnectError />
     </>
   );
 }

@@ -1,12 +1,11 @@
-import type { Connections } from "schemas";
 import { apiFetch } from "@/shared/lib/api-client";
 
-// The developer's connections, as the profile shows them. Connecting GitHub
-// is the login itself; only reading and cutting go through here.
-export function getConnections() {
-  return apiFetch<Connections>("/connections");
-}
-
+// Cutting a connection. Reading them is shared/api/connections.ts; connecting
+// GitHub is the login itself and connecting Notion is a link to the API.
 export function disconnectGithub() {
   return apiFetch<void>("/connections/github", { method: "DELETE" });
+}
+
+export function disconnectNotion() {
+  return apiFetch<void>("/connections/notion", { method: "DELETE" });
 }

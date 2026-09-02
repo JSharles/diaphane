@@ -13,4 +13,3 @@ export * from "./client-release";
 export * from "./documentation-workspace";
 export * from "./document-removal";
 export * from "./generation";
-export * from "./notion-connection";

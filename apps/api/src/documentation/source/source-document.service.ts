@@ -135,20 +135,16 @@ export class SourceDocumentService {
     if (!pageId) {
       throw new BadRequestException('Invalid Notion page URL.');
     }
-    const token = await this.notionConnection.getDecryptedToken(projectId);
-    if (!token) {
-      throw new BadRequestException(
-        'Connect a Notion integration for this project first.',
-      );
-    }
-
+    // Read with the developer's own Notion connection, refreshed on use.
     let page: { title: string; content: string };
     try {
-      page = await this.notionClient.fetchPage(token, pageId);
+      page = await this.notionConnection.withToken(userId, (token) =>
+        this.notionClient.fetchPage(token, pageId),
+      );
     } catch (error) {
       if (error instanceof NotionAccessError) {
         throw new BadRequestException(
-          'Unable to access this Notion page with the connected integration.',
+          'Unable to access this Notion page with your Notion connection.',
         );
       }
       throw error;

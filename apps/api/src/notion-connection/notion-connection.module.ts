@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from '../auth/auth.module';
-import { NotionConnectionController } from './notion-connection.controller';
 import { NotionConnectionService } from './notion-connection.service';
+import { NotionOauthClient } from './notion-oauth.client';
 import { NotionClient } from './notion.client';
 
+// The developer's Notion connection and the client that reads pages with it.
+// Its routes live in ConnectionsController, beside GitHub's.
 @Module({
-  imports: [AuthModule],
-  controllers: [NotionConnectionController],
-  providers: [NotionConnectionService, NotionClient],
-  exports: [NotionConnectionService, NotionClient],
+  providers: [NotionConnectionService, NotionOauthClient, NotionClient],
+  exports: [NotionConnectionService, NotionOauthClient, NotionClient],
 })
 export class NotionConnectionModule {}

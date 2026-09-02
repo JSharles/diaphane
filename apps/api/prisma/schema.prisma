@@ -213,6 +213,7 @@ model User {
   memberships      ProjectMember[]
   sessions         Session[]
   githubConnection GithubConnection?
+  notionConnection NotionConnection?
   boardChoices     BoardConnection[]  @relation("BoardConnectionConnectedBy")
 
   sourceDocuments          SourceDocument[]  @relation("SourceDocumentAuthor")
@@ -270,8 +271,6 @@ model Project {
   boardConnection  BoardConnection?
   vulgarizedTasks  VulgarizedTask[]
   taskProgress     TaskProgress[]
-  notionConnection NotionConnection?
-
   sourceDocuments         SourceDocument[]
   clientContentReleases   ClientContentRelease[]
   clientPublication       ProjectClientPublication?
@@ -751,26 +750,25 @@ model GenerationAttempt {
   @@map("generation_attempts")
 }
 
-// Frozen legacy relation retained for the separately approved post-drain
-// schema drop. The active Notion connection is project-scoped and canonical
-// document snapshots are stored through SourceDocument.
-// A resource's own page id is parsed on demand from `Resource.notionPageUrl`
-// (see ResourcesService.createFromNotion), not stored here.
+// A developer's Notion authorization, taken with the « Connecter Notion »
+// button and kept on the account: one workspace, whose ticked pages are the
+// roots a project may choose (docs/PRODUCT.md « Connexions et choix »). The
+// token pair is refreshed on use; a refresh Notion refuses marks the row
+// needsReconnect until the same button is pressed again.
 model NotionConnection {
-  id        String  @id @default(uuid()) @db.Uuid
-  projectId String  @unique @map("project_id") @db.Uuid
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  encryptedToken String @map("encrypted_token")
+  encryptedAccessToken  String  @map("encrypted_access_token")
+  // Notion declares it nullable in the token response; kept as such rather
+  // than inventing a value.
+  encryptedRefreshToken String? @map("encrypted_refresh_token")
 
-  // The workspace (or, absent that, integration) name Notion's own
-  // GET /v1/users/me response returns at connect time (NotionClient.
-  // verifyToken) — surfaced on NotionConnectionCard so a developer sees
-  // *what* they're connected to, not just a bare "Connected" (2026-08-08
-  // critique, P1). Nullable only because a row created before this field
-  // existed would otherwise fail to read; every row created going forward
-  // always sets it.
+  workspaceId   String  @map("workspace_id")
   workspaceName String? @map("workspace_name")
+
+  needsReconnect Boolean @default(false) @map("needs_reconnect")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

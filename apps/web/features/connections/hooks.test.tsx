@@ -2,12 +2,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { disconnectGithub, getConnections } from "./api";
-import { connectionsKey, useConnections, useDisconnectGithub } from "./hooks";
+import { connectionsKey } from "@/shared/hooks/use-connections";
+import { disconnectGithub, disconnectNotion } from "./api";
+import { useDisconnectGithub, useDisconnectNotion } from "./hooks";
 
 vi.mock("./api", () => ({
-  getConnections: vi.fn(),
   disconnectGithub: vi.fn(),
+  disconnectNotion: vi.fn(),
 }));
 
 function createWrapper() {
@@ -23,18 +24,6 @@ function createWrapper() {
 }
 
 describe("connections hooks", () => {
-  it("useConnections returns the developer's connections", async () => {
-    vi.mocked(getConnections).mockResolvedValue({
-      github: { connected: true, needsReconnect: false },
-    });
-    const { Wrapper } = createWrapper();
-
-    const { result } = renderHook(() => useConnections(), { wrapper: Wrapper });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data?.github.connected).toBe(true);
-  });
-
   it("useDisconnectGithub refreshes the connections and every project query on success", async () => {
     vi.mocked(disconnectGithub).mockResolvedValue(undefined);
     const { Wrapper, queryClient } = createWrapper();
@@ -46,6 +35,23 @@ describe("connections hooks", () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(disconnectGithub).toHaveBeenCalled();
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: connectionsKey });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["projects"] });
+  });
+
+  it("useDisconnectNotion does the same for Notion", async () => {
+    vi.mocked(disconnectNotion).mockResolvedValue(undefined);
+    const { Wrapper, queryClient } = createWrapper();
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+    const { result } = renderHook(() => useDisconnectNotion(), { wrapper: Wrapper });
+    act(() => {
+      result.current.mutate();
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(disconnectNotion).toHaveBeenCalled();
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: connectionsKey });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["projects"] });
   });
