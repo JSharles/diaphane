@@ -216,8 +216,8 @@
         "notionPageUrlLabel": "Notion page address",
         "notionSubmit": "Add to the source",
         "notionPending": "Adding…",
-        "notionUnavailable": "Connect Notion in the project tools first, then come back to add the page you want.",
-        "configureNotion": "Configure Notion"
+        "notionUnavailable": "Connect Notion first, then come back to add the page you want.",
+        "connectNotion": "Connect Notion"
       },
       "Documents": {
         "statusIncorporated": "Taken into account",
@@ -564,28 +564,18 @@
       "goToProfile": "Open your profile"
     },
     "NotionConnectionCard": {
-      "connected": "Connected",
-      "connectedTo": "Connected to {name}",
-      "connect": "Connect Notion",
-      "reconnect": "Reconnect",
-      "disconnect": "Disconnect",
-      "disconnecting": "Disconnecting…",
-      "disconnectConfirmTitle": "Disconnect this Notion integration?",
-      "disconnectConfirmDescription": "New Notion resources won't be addable until it's reconnected. Existing resources already added from Notion are unaffected.",
-      "disconnectConfirmCancel": "Cancel",
-      "disconnectConfirmAction": "Disconnect",
       "title": "Notion",
-      "feeds": "Feeds your files and Notion pages",
+      "feeds": "Feeds the pages this project reads",
       "state_waiting": "Waiting",
       "state_live": "Live",
-      "notConnected": "No integration connected yet"
-    },
-    "ConnectNotionDialog": {
-      "title": "Connect a Notion integration",
-      "tokenLabel": "Notion integration token",
-      "tokenHint": "Create one and copy its secret at",
-      "connectSubmit": "Connect",
-      "connectPending": "Connecting…"
+      "state_unknown": "Revoked",
+      "notConnected": "Connect Notion to choose the pages this project reads",
+      "connected": "Connected",
+      "connectedTo": "Connected to {name}",
+      "needsReconnect": "Notion no longer accepts this connection — connect it again.",
+      "connect": "Connect Notion",
+      "reconnect": "Reconnect",
+      "choosePages": "Choose pages in Notion"
     },
     "MeetingLinkCard": {
       "title": "Meetings",
@@ -730,7 +720,20 @@
       "disconnecting": "Disconnecting…",
       "state_waiting": "Not connected",
       "state_live": "Live",
-      "state_unknown": "Revoked"
+      "state_unknown": "Revoked",
+      "notion": "Notion",
+      "notionFeeds": "Reads the pages you tick for your projects",
+      "notionConnected": "Connected",
+      "notionConnectedTo": "Connected to {name}",
+      "notionNotConnected": "Not connected",
+      "notionNeedsReconnect": "Notion no longer accepts this connection — connect it again.",
+      "connectNotion": "Connect Notion"
+    }
+  },
+  "Connections": {
+    "NotionError": {
+      "denied": "You didn't allow access in Notion. Press the button again when you're ready.",
+      "failed": "Something went wrong connecting to Notion. Please try again."
     }
   }
 }

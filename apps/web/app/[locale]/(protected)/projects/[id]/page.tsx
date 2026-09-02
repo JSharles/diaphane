@@ -106,11 +106,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
           <DocumentationSummaryCard projectId={id} />
           <TeamSummaryCard projectId={id} isAdmin={project.isAdmin} />
 
-          {/* The anchor is AddDocumentDialog's landing when Notion is not yet
-              connected — the dialog sends the developer here to connect. */}
-          <div id="connections">
-            <SettingsSectionHeading>{t("connections")}</SettingsSectionHeading>
-          </div>
+          <SettingsSectionHeading>{t("connections")}</SettingsSectionHeading>
           <NotionConnectionCard projectId={id} />
           <BoardConnectionCard projectId={id} />
 

@@ -1,104 +1,173 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProjectMember } from '@prisma/client';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { decryptToken, encryptToken } from '../auth/token-encryption';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotionClient } from './notion.client';
+import {
+  NotionOauthClient,
+  NotionOauthError,
+  type NotionTokenGrant,
+  type NotionTokenPair,
+} from './notion-oauth.client';
+import { NotionAccessError } from './notion.client';
 
-export interface NotionConnectionStatus {
+export interface NotionConnectionState {
   connected: boolean;
-  // The workspace/integration name captured at connect time (NotionClient.
-  // verifyToken) — null only when nothing is connected.
+  // Notion refused to refresh the pair; pressing the button again heals it.
+  needsReconnect: boolean;
   workspaceName: string | null;
 }
 
-// specs/012-project-settings: a project-level, standalone connection —
-// connecting/reconnecting/disconnecting is now independent of adding any
-// particular Notion-sourced resource (research.md Decision 1). Mirrors
-// BoardConnectionsService's shape (assertIsDeveloper, verify-then-persist,
-// idempotent disconnect).
+export const NOTION_NOT_CONNECTED = {
+  code: 'NOTION_NOT_CONNECTED',
+  message: 'Connect Notion from your profile first.',
+} as const;
+
+export const NOTION_NEEDS_RECONNECT = {
+  code: 'NOTION_NEEDS_RECONNECT',
+  message: 'Notion no longer accepts this connection. Connect Notion again.',
+} as const;
+
+// The developer's Notion authorization: taken with the « Connecter Notion »
+// button, kept encrypted on the account, read by every project that chose
+// roots in it (docs/PRODUCT.md « Connexions et choix »). Tokens never leave
+// the API: callers hand over the call they want made, not a token they keep.
 @Injectable()
 export class NotionConnectionService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly notionClient: NotionClient,
+    private readonly oauth: NotionOauthClient,
   ) {}
 
-  async findForProject(
+  // Every authorization mints a fresh pair (Notion changelog, 2026-06-08),
+  // so pressing the button again — to tick more pages, or after a
+  // revocation — always replaces what was stored.
+  async saveFromAuthorization(
     userId: string,
-    projectId: string,
-  ): Promise<NotionConnectionStatus> {
-    await this.assertIsDeveloper(userId, projectId);
-
-    const connection = await this.prisma.notionConnection.findUnique({
-      where: { projectId },
+    grant: NotionTokenGrant,
+  ): Promise<void> {
+    const data = {
+      ...this.encryptedPair(grant),
+      workspaceId: grant.workspaceId,
+      workspaceName: grant.workspaceName,
+      needsReconnect: false,
+    };
+    await this.prisma.notionConnection.upsert({
+      where: { userId },
+      create: { userId, ...data },
+      update: data,
     });
+  }
 
+  async findForUser(userId: string): Promise<NotionConnectionState> {
+    const connection = await this.prisma.notionConnection.findUnique({
+      where: { userId },
+      select: { needsReconnect: true, workspaceName: true },
+    });
     return {
       connected: connection !== null,
+      needsReconnect: connection?.needsReconnect ?? false,
       workspaceName: connection?.workspaceName ?? null,
     };
   }
 
-  // Verifies the token against Notion's own API before persisting it
-  // (research.md Decision 2) — mirrors BoardConnectionsService.connect()'s
-  // re-verify-before-persist pattern. Upserts on projectId, so connecting a
-  // new token always replaces the old one in the same operation. Stores the
-  // workspace identity verifyToken() returns, so the developer sees *what*
-  // they connected (2026-08-08 critique, P1) instead of a bare boolean.
-  async connect(
+  // Refresh on use: Notion documents no lifetime for the access token, only
+  // a 401 once it stops working. The call runs with the stored token; a 401
+  // refreshes the pair and retries once; a refresh Notion refuses
+  // (`invalid_grant`: expired or revoked) flags the row and raises a 400 the
+  // frontend can name. Any other refresh failure is a passing fault, not a
+  // revocation, and reaches the caller as is.
+  async withToken<T>(
     userId: string,
-    projectId: string,
-    token: string,
-  ): Promise<NotionConnectionStatus> {
-    await this.assertIsDeveloper(userId, projectId);
+    call: (accessToken: string) => Promise<T>,
+  ): Promise<T> {
+    const stored = await this.storedTokens(userId);
 
-    const identity = await this.notionClient.verifyToken(token);
-
-    const encryptedToken = encryptToken(token);
-    await this.prisma.notionConnection.upsert({
-      where: { projectId },
-      create: { projectId, encryptedToken, workspaceName: identity.name },
-      update: { encryptedToken, workspaceName: identity.name },
-    });
-
-    return { connected: true, workspaceName: identity.name };
-  }
-
-  // Idempotent from the caller's point of view — disconnecting when
-  // nothing is connected is not an error (mirrors
-  // BoardConnectionsService.disconnect()).
-  async disconnect(userId: string, projectId: string): Promise<void> {
-    await this.assertIsDeveloper(userId, projectId);
-
-    await this.prisma.notionConnection.deleteMany({ where: { projectId } });
-  }
-
-  // For `resources` to resolve the stored token when creating a
-  // Notion-sourced resource — no membership check here, the caller
-  // The documentation ingestion service performs its own membership check.
-  async getDecryptedToken(projectId: string): Promise<string | null> {
-    const connection = await this.prisma.notionConnection.findUnique({
-      where: { projectId },
-    });
-
-    return connection ? decryptToken(connection.encryptedToken) : null;
-  }
-
-  // Mirrors the board and documentation services' own membership checks.
-  // A client member gets the exact same response as a non-member.
-  private async assertIsDeveloper(
-    userId: string,
-    projectId: string,
-  ): Promise<ProjectMember> {
-    const membership = await this.prisma.projectMember.findUnique({
-      where: { projectId_userId: { projectId, userId } },
-      include: { user: { select: { accountKind: true } } },
-    });
-
-    if (!membership || membership.user.accountKind !== 'developer') {
-      throw new NotFoundException('Project not found');
+    try {
+      return await call(stored.accessToken);
+    } catch (error) {
+      if (!(error instanceof NotionAccessError) || error.status !== 401) {
+        throw error;
+      }
     }
 
-    return membership;
+    // Notion rotates the refresh token, so two calls refreshing at once
+    // would see the second refused and a live connection flagged. Re-read
+    // first: a pair another call already renewed is used, not refreshed.
+    const current = await this.storedTokens(userId);
+    if (current.accessToken !== stored.accessToken) {
+      return call(current.accessToken);
+    }
+
+    let pair: NotionTokenPair;
+    try {
+      if (!current.refreshToken) {
+        throw new NotionOauthError('invalid_grant', 'No refresh token');
+      }
+      pair = await this.oauth.refresh(current.refreshToken);
+    } catch (error) {
+      if (error instanceof NotionOauthError && error.code === 'invalid_grant') {
+        await this.prisma.notionConnection.update({
+          where: { userId },
+          data: { needsReconnect: true },
+        });
+        throw new BadRequestException(NOTION_NEEDS_RECONNECT);
+      }
+      throw error;
+    }
+
+    await this.prisma.notionConnection.update({
+      where: { userId },
+      data: { ...this.encryptedPair(pair), needsReconnect: false },
+    });
+    return call(pair.accessToken);
+  }
+
+  private async storedTokens(
+    userId: string,
+  ): Promise<{ accessToken: string; refreshToken: string | null }> {
+    const connection = await this.prisma.notionConnection.findUnique({
+      where: { userId },
+      select: {
+        encryptedAccessToken: true,
+        encryptedRefreshToken: true,
+        needsReconnect: true,
+      },
+    });
+    if (!connection) {
+      throw new BadRequestException(NOTION_NOT_CONNECTED);
+    }
+    if (connection.needsReconnect) {
+      throw new BadRequestException(NOTION_NEEDS_RECONNECT);
+    }
+    return {
+      accessToken: decryptToken(connection.encryptedAccessToken),
+      refreshToken: connection.encryptedRefreshToken
+        ? decryptToken(connection.encryptedRefreshToken)
+        : null,
+    };
+  }
+
+  // Revocation at Notion is best effort: the row goes either way, and
+  // disconnecting twice is not an error. Documents already taken from Notion
+  // keep their snapshots.
+  async disconnect(userId: string): Promise<void> {
+    const connection = await this.prisma.notionConnection.findUnique({
+      where: { userId },
+      select: { encryptedAccessToken: true },
+    });
+    if (connection) {
+      await this.oauth
+        .revoke(decryptToken(connection.encryptedAccessToken))
+        .catch(() => undefined);
+    }
+    await this.prisma.notionConnection.deleteMany({ where: { userId } });
+  }
+
+  private encryptedPair(pair: NotionTokenPair) {
+    return {
+      encryptedAccessToken: encryptToken(pair.accessToken),
+      encryptedRefreshToken: pair.refreshToken
+        ? encryptToken(pair.refreshToken)
+        : null,
+    };
   }
 }

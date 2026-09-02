@@ -1,9 +1,9 @@
 "use client";
 
 import { FileUp, Link2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import { Link } from "@/i18n/navigation";
+import { notionConnectUrl } from "@/shared/api/connections";
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
@@ -20,7 +20,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { useNotionConnectionStatus } from "@/shared/hooks/use-notion-connection-status";
+import { useConnections } from "@/shared/hooks/use-connections";
 import { ApiError } from "@/shared/lib/api-client";
 import { useAddNotionDocument, useUploadDocument } from "../hooks";
 
@@ -43,12 +43,16 @@ export function AddDocumentDialog({
 }: AddDocumentDialogProps) {
   const t = useTranslations("Projects.Documentation.AddDocument");
   const tToasts = useTranslations("Toasts");
+  const locale = useLocale();
   const [kind, setKind] = useState<InputKind>("upload");
   const [file, setFile] = useState<File | null>(null);
   const [pageUrl, setPageUrl] = useState("");
   const upload = useUploadDocument(projectId);
   const addNotion = useAddNotionDocument(projectId);
-  const notion = useNotionConnectionStatus(projectId, { enabled: open });
+  // The Notion connection is the developer's, not the project's: the dialog
+  // only needs to know whether there is one before offering a page.
+  const connections = useConnections({ enabled: open });
+  const notionConnected = connections.data?.notion.connected ?? false;
 
   function reset() {
     setKind("upload");
@@ -120,9 +124,9 @@ export function AddDocumentDialog({
         </TabsContent>
 
         <TabsContent value="notion">
-          {notion.isPending ? (
+          {connections.isPending ? (
             <p className="py-4 text-sm text-muted-foreground">{t("notionChecking")}</p>
-          ) : notion.data?.connected ? (
+          ) : notionConnected ? (
           <form
             key="notion"
             className="flex flex-col gap-4"
@@ -160,7 +164,14 @@ export function AddDocumentDialog({
                 {t("notionUnavailable")}
               </p>
               <Button asChild variant="outline" className="w-fit">
-                <Link href={`/projects/${projectId}#connections`}>{t("configureNotion")}</Link>
+                <a
+                  href={notionConnectUrl(
+                    locale,
+                    `/projects/${projectId}/documentation/sources`,
+                  )}
+                >
+                  {t("connectNotion")}
+                </a>
               </Button>
             </div>
           )}

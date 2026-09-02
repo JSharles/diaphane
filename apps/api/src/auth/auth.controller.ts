@@ -21,7 +21,7 @@ import { GithubConnectionService } from './github-connection.service';
 import { GithubOauthClient, type GithubProfile } from './github-oauth.client';
 import { DEFAULT_LOCALE, resolveLocale } from './locale';
 import {
-  OAUTH_FLOW_COOKIE_NAME,
+  oauthFlowCookieName,
   oauthFlowCookieOptions,
   parseOAuthFlowCookie,
   serializeOAuthFlowCookie,
@@ -87,9 +87,9 @@ export class AuthController {
     const state = randomBytes(16).toString('hex');
 
     res.cookie(
-      OAUTH_FLOW_COOKIE_NAME,
+      oauthFlowCookieName('github'),
       serializeOAuthFlowCookie({ state, locale: resolvedLocale }),
-      oauthFlowCookieOptions(),
+      oauthFlowCookieOptions('github'),
     );
     res.redirect(this.githubOauthClient.buildAuthorizeUrl(state));
   }
@@ -103,9 +103,12 @@ export class AuthController {
   ) {
     const webOrigin = process.env.WEB_ORIGIN;
     const oauthFlow = parseOAuthFlowCookie(
-      req.cookies?.[OAUTH_FLOW_COOKIE_NAME] as string | undefined,
+      req.cookies?.[oauthFlowCookieName('github')] as string | undefined,
     );
-    res.clearCookie(OAUTH_FLOW_COOKIE_NAME, oauthFlowCookieOptions());
+    res.clearCookie(
+      oauthFlowCookieName('github'),
+      oauthFlowCookieOptions('github'),
+    );
     const locale = oauthFlow?.locale ?? DEFAULT_LOCALE;
 
     // No flow cookie, or a state that doesn't match what we generated, means

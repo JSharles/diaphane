@@ -5,11 +5,17 @@ const NOTION_API_URL = 'https://api.notion.com/v1';
 // silently picking up a breaking response-shape change.
 const NOTION_VERSION = '2022-06-28';
 
-// Thrown for an invalid/expired token or a page the token can't access
-// (a non-2xx from the Notion API) — the service layer turns this into a
-// clean 400 for the developer, mirroring GithubAuthError in
-// board-connections/github-projects.client.ts.
-export class NotionAccessError extends Error {}
+// Thrown for a non-2xx from the Notion API. The status travels with it: a
+// 401 is the one NotionConnectionService.withToken answers by refreshing the
+// pair; the rest (a page not shared, a rate limit) reach the caller as is.
+export class NotionAccessError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
 
 interface NotionRichText {
   plain_text: string;
@@ -42,22 +48,6 @@ export interface NotionPageContent {
   content: string;
 }
 
-// Notion's own bot-user shape (GET /v1/users/me for a bot token) — only the
-// fields this app actually reads.
-interface NotionBotUserResponse {
-  name: string | null;
-  bot?: {
-    workspace_name?: string | null;
-  };
-}
-
-export interface NotionIdentity {
-  // The workspace name when the integration is workspace-owned (the common
-  // case) — falls back to the integration's own display name when Notion
-  // doesn't return one (e.g. a user-owned integration).
-  name: string;
-}
-
 // specs/011-project-resources research.md Decision 5: Notion content is
 // fetched as plain text only — no image blocks are forwarded to Claude's
 // vision input for v1 (Notion's own image URLs are short-lived presigned
@@ -71,22 +61,6 @@ export class NotionClient {
     const content = (await this.flattenBlocks(token, blocks)).join('\n\n');
 
     return { title, content };
-  }
-
-  // specs/012-project-settings research.md Decision 2: the standard way to
-  // validate a Notion integration token in isolation, without needing any
-  // specific page shared with it — used by NotionConnectionService.connect()
-  // to verify-before-persist, mirroring BoardConnectionsService.connect().
-  // Also returns the workspace/integration identity Notion's own response
-  // already carries, so the developer sees *what* they connected instead of
-  // a bare "Connected" (2026-08-08 critique, P1).
-  async verifyToken(token: string): Promise<NotionIdentity> {
-    const res = await this.request(token, '/users/me');
-    const data = (await res.json()) as NotionBotUserResponse;
-    const name =
-      data.bot?.workspace_name?.trim() || data.name?.trim() || 'Notion';
-
-    return { name };
   }
 
   private async fetchPageTitle(token: string, pageId: string): Promise<string> {
@@ -161,6 +135,7 @@ export class NotionClient {
     if (!res.ok) {
       throw new NotionAccessError(
         `Unable to access this Notion page (status ${res.status})`,
+        res.status,
       );
     }
 

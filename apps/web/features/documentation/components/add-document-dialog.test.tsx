@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useNotionConnectionStatus } from "@/shared/hooks/use-notion-connection-status";
+import { useConnections } from "@/shared/hooks/use-connections";
 import { useAddNotionDocument, useUploadDocument } from "../hooks";
 import { AddDocumentDialog } from "./add-document-dialog";
 
@@ -10,13 +10,25 @@ vi.mock("../hooks", () => ({
   useAddNotionDocument: vi.fn(),
 }));
 
-vi.mock("@/shared/hooks/use-notion-connection-status", () => ({
-  useNotionConnectionStatus: vi.fn(),
+vi.mock("@/shared/hooks/use-connections", () => ({
+  useConnections: vi.fn(),
 }));
 
 const mockedUpload = vi.mocked(useUploadDocument);
 const mockedAddNotion = vi.mocked(useAddNotionDocument);
-const mockedNotionStatus = vi.mocked(useNotionConnectionStatus);
+const mockedConnections = vi.mocked(useConnections);
+
+function notionConnected(connected: boolean, isPending = false) {
+  mockedConnections.mockReturnValue({
+    data: isPending
+      ? undefined
+      : {
+          github: { connected: true, needsReconnect: false },
+          notion: { connected, needsReconnect: false, workspaceName: null },
+        },
+    isPending,
+  } as unknown as ReturnType<typeof useConnections>);
+}
 
 function mutation() {
   return {
@@ -34,10 +46,7 @@ describe("AddDocumentDialog", () => {
     mockedAddNotion.mockReturnValue(
       mutation() as unknown as ReturnType<typeof useAddNotionDocument>,
     );
-    mockedNotionStatus.mockReturnValue({
-      data: { connected: true },
-      isPending: false,
-    } as ReturnType<typeof useNotionConnectionStatus>);
+    notionConnected(true);
   });
 
   it("adds an uploaded document to the project source", async () => {
@@ -79,6 +88,31 @@ describe("AddDocumentDialog", () => {
       { pageUrl: "https://notion.so/project-brief" },
       expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
+  });
+
+  it("offers « Connecter Notion », coming back to the sources, when the developer is not connected", async () => {
+    notionConnected(false);
+    const user = userEvent.setup();
+
+    render(<AddDocumentDialog projectId="project-1" open onOpenChange={vi.fn()} />);
+    await user.click(screen.getByRole("tab", { name: "notionTab" }));
+
+    expect(screen.getByText("notionUnavailable")).toBeInTheDocument();
+    expect(screen.queryByLabelText("notionPageUrlLabel")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "connectNotion" })).toHaveAttribute(
+      "href",
+      "http://localhost:3001/connections/notion?locale=fr&returnTo=%2Fprojects%2Fproject-1%2Fdocumentation%2Fsources",
+    );
+  });
+
+  it("says it is checking while the connections load", async () => {
+    notionConnected(false, true);
+    const user = userEvent.setup();
+
+    render(<AddDocumentDialog projectId="project-1" open onOpenChange={vi.fn()} />);
+    await user.click(screen.getByRole("tab", { name: "notionTab" }));
+
+    expect(screen.getByText("notionChecking")).toBeInTheDocument();
   });
 
   // It announced itself as a tablist while implementing none of the contract:

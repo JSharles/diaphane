@@ -61,9 +61,7 @@ describe('SourceDocumentService', () => {
   >;
   let access: jest.Mocked<Pick<ProjectAccessService, 'requireDeveloper'>>;
   let notionClient: jest.Mocked<Pick<NotionClient, 'fetchPage'>>;
-  let notionConnection: jest.Mocked<
-    Pick<NotionConnectionService, 'getDecryptedToken'>
-  >;
+  let notionConnection: jest.Mocked<Pick<NotionConnectionService, 'withToken'>>;
   let reference: jest.Mocked<Pick<ReferenceDocumentService, 'write'>>;
   let service: SourceDocumentService;
 
@@ -79,7 +77,13 @@ describe('SourceDocumentService', () => {
     };
     access = { requireDeveloper: jest.fn().mockResolvedValue({}) };
     notionClient = { fetchPage: jest.fn() };
-    notionConnection = { getDecryptedToken: jest.fn() };
+    notionConnection = {
+      // Runs the call with a token, the way the real service does.
+      withToken: jest.fn(
+        (_userId: string, call: (t: string) => Promise<unknown>) =>
+          call('secret-token'),
+      ) as unknown as jest.MockedFunction<NotionConnectionService['withToken']>,
+    };
     reference = { write: jest.fn().mockResolvedValue({ documentId: 'ref-1' }) };
     service = new SourceDocumentService(
       asPrismaService(prisma),
@@ -247,7 +251,6 @@ describe('SourceDocumentService', () => {
   });
 
   it('stores an immutable Notion snapshot instead of a live page reference only', async () => {
-    notionConnection.getDecryptedToken.mockResolvedValue('secret-token');
     notionClient.fetchPage.mockResolvedValue({
       title: 'Cadrage',
       content: 'Le lancement est en avril.',
@@ -290,7 +293,9 @@ describe('SourceDocumentService', () => {
       service.addNotion(userId, projectId, 'https://example.com/page'),
     ).rejects.toBeInstanceOf(BadRequestException);
 
-    notionConnection.getDecryptedToken.mockResolvedValueOnce(null);
+    notionConnection.withToken.mockRejectedValueOnce(
+      new BadRequestException({ code: 'NOTION_NOT_CONNECTED' }),
+    );
     await expect(
       service.addNotion(
         userId,
@@ -299,9 +304,8 @@ describe('SourceDocumentService', () => {
       ),
     ).rejects.toBeInstanceOf(BadRequestException);
 
-    notionConnection.getDecryptedToken.mockResolvedValue('token');
     notionClient.fetchPage.mockRejectedValueOnce(
-      new NotionAccessError('forbidden'),
+      new NotionAccessError('forbidden', 403),
     );
     await expect(
       service.addNotion(
