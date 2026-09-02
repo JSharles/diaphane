@@ -4,9 +4,9 @@ Monorepo managed with **pnpm workspaces** + **Turborepo**.
 
 ## Product
 
-`Diaphane` is a client-facing project tracking portal: developers manage projects and tasks, invite non-technical clients by email, clients get a read-only view of progress. Full product spec, data model and rationale, and business rules: **[docs/PRODUCT.md](docs/PRODUCT.md) — read it before implementing any feature.**
+`Diaphane` is a portal where a freelance developer shows a non-technical client where their project stands: rubriques and a roadmap written by AI from the developer's documents, the task in progress vulgarized from their GitHub board, all read-only for the client. Product spec: **[docs/PRODUCT.md](docs/PRODUCT.md) — read it before implementing any feature.** Vocabulary: **[CONTEXT.md](CONTEXT.md)** — use its terms in issues, code comments and test names.
 
-The spec is still evolving (early ideation). It contains an explicit "Open decisions" list — DB choice, auth strategy, status enums, etc. **Never resolve one of those unilaterally.** Ask about each one only when the current implementation step actually needs it, not upfront.
+The spec was rebuilt on 2026-09-02 from the decisions of the wayfinder map (GitHub issue #43); every section links the ticket that holds the decision's detail. What is deliberately out of the MVP is listed there — don't build it. Anything the spec leaves open is a question for the user, not a call to make alone.
 
 ## Structure
 
@@ -62,7 +62,7 @@ To target a single app: `pnpm --filter web dev` or `pnpm --filter api dev` (or `
 - TypeScript strict mode on both apps — don't weaken `tsconfig.json` compiler options to silence an error; fix the type.
 - `apps/web`: App Router, feature-based (see Structure above). Path alias `@/*` maps to the app root, so shared code is imported as `@/shared/...`.
 - `apps/api`: standard Nest module/controller/service structure. Keep one module per domain concern.
-- **Auth**: hand-rolled, not Passport — `apps/api/src/auth`. Server-side sessions (`Session` table), `httpOnly` cookie, no JWT. To protect a route: `@UseGuards(SessionGuard)` + `@CurrentUser() user: User`. See `docs/PRODUCT.md` § Authentication for why.
+- **Auth**: hand-rolled, not Passport — `apps/api/src/auth`. Server-side sessions (`Session` table), `httpOnly` cookie, no JWT. To protect a route: `@UseGuards(SessionGuard)` + `@CurrentUser() user: User`. See `docs/PRODUCT.md` § Authentification for why.
 - `packages/schemas` is the only shared package so far. Before duplicating a type or a validation rule between `apps/web` and `apps/api`, check whether it belongs there instead.
 - Commit messages follow Conventional Commits (`feat:`, `fix:`, `chore:`, etc.).
 

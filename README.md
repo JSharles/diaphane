@@ -2,7 +2,7 @@
 
 Client-facing project tracking portal. Developers manage projects and tasks; non-technical clients get email invites and a read-only view of progress.
 
-> Early stage — MVP scope and open decisions are tracked in [`docs/PRODUCT.md`](docs/PRODUCT.md).
+> Early stage — the MVP spec is [`docs/PRODUCT.md`](docs/PRODUCT.md), the vocabulary is [`CONTEXT.md`](CONTEXT.md).
 
 ## Tech stack
 
@@ -50,7 +50,8 @@ To target a single app: `pnpm --filter web dev` or `pnpm --filter api dev`.
 ## Documentation
 
 - [`AGENTS.md`](AGENTS.md) — conventions and workflow for AI coding agents working in this repo
-- [`docs/PRODUCT.md`](docs/PRODUCT.md) — product spec, data model, and open decisions
+- [`docs/PRODUCT.md`](docs/PRODUCT.md) — product spec for the MVP
+- [`CONTEXT.md`](CONTEXT.md) — glossary
 
 ## License
 

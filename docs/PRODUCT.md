@@ -1,369 +1,167 @@
-# Client Portal — Project Tracking & Simplification
+# Diaphane
 
-<!-- impeccable:product-schema 1 -->
+Spécification du produit pour le MVP, reconstruite le 2 septembre 2026 à partir des décisions de la carte [« Le chemin vers le MVP pour le premier client »](https://github.com/JSharles/diaphane/issues/43). Chaque décision est détaillée sur son ticket ; ce fichier dit ce que le produit est, pas comment le code le fait. Le vocabulaire est fixé dans [`CONTEXT.md`](../CONTEXT.md) ; le backlog d'implémentation vit dans les issues GitHub `ready-for-agent`.
 
-## Platform
+## Ce qu'est Diaphane
 
-web
+Un portail où un **développeur** freelance montre à son **client** non technique où en est son projet, sans que le client ait à apprendre un outil ou un vocabulaire. Le client lit des textes écrits pour lui, dans sa langue, à partir de ce que le développeur fait réellement : ses documents, son board de tickets, sa roadmap.
 
-> Status: output of a first ideation pass. Nothing is locked in — see "Open decisions". Full project context, decisions made with the alternatives that were ruled out, and the data model diagrams are documented in Notion; this file is the working version used by AI agents on this repo.
+**Premier client** : un ami qui a une entreprise et demande la refonte de son site. Il ne s'intéresse pas à la technique. Aucun autre utilisateur, aucune donnée en production : le produit peut encore casser et refaire.
 
-## What the product does
+## Principes
 
-A transparency and project-tracking tool for **non-technical clients**, who often pay a lot of money for something opaque. The goal: let them follow, understand, and participate in a digital project without mastering dev tools or vocabulary.
+- **Rien d'inventé.** Tout ce que le client lit vient de matière réelle : les documents, le board, les notes du développeur. L'IA reformule et résume ; elle n'ajoute pas. Ce que les documents laissent incertain est publié comme incertain.
+- **L'approbation est la seule porte vers le client.** Rien n'atteint le client avant que le développeur ait approuvé, sauf deux exceptions voulues : la tâche en cours (vulgarisée sans relecture) et le repère de la roadmap (déplacé à la main, visible aussitôt).
+- **Le geste le plus simple, toujours.** Quand deux façons de faire existent, on prend celle qui demande le moins au développeur, même si elle coûte plus à construire.
+- **Aucune méthode imposée.** Le développeur garde son board GitHub, ses pages Notion, ses fichiers. Diaphane s'y connecte ; il ne les remplace pas.
+- **Casser et refaire.** Sans utilisateurs en production, on préfère réécrire proprement à rafistoler, et on supprime ce qu'on remplace dans le même changement.
 
-The full vision includes an AI-assisted simplification layer. **It is not part of the MVP** — see "Out of scope" below. It's described here only so that architecture choices don't accidentally rule it out.
+## Les deux publics
 
-### Product principles (locked)
+Un compte est **développeur** ou **client**, une fois pour toutes. C'est la façon d'arriver qui le dit : un développeur se connecte avec GitHub, un client arrive par une invitation et se donne un mot de passe. Un projet a un développeur, son créateur (le **propriétaire**), et des clients, ses invités. Être **membre** d'un projet donne l'accès ; ce qu'on y voit et ce qu'on peut y faire découle du compte. Un projet n'a qu'un développeur pour le MVP ; plusieurs développeurs par projet et la passation d'un projet à un autre développeur viendront plus tard.
 
-- The content shown is **real**, displayed as-is, under the developer's responsibility. Never generated content.
-- The AI's role (post-MVP) is **bounded**: it defines generic technical terms and answers based on content that actually exists. It never makes things up.
-- If the information doesn't exist, the AI doesn't improvise: it **escalates the question to the developer**. An answer to the client is always either reliable or routed, never wrong.
+| | Développeur du projet | Client du projet |
+|---|---|---|
+| Créer un projet | oui | non |
+| Modifier le projet (titre, lien de réunion, préférences) | oui | non |
+| Connexions et choix (board, racines Notion), base documentaire, document de référence, rubriques, roadmap, approbation | oui | non |
+| Inviter et retirer des clients | oui | non |
+| Lire le projet publié (rubriques, roadmap, tâche en cours, équipe, réunion) | oui, dans « ce que lit votre client » | oui |
+| Son profil | oui | oui |
 
----
+Décision : [Développeur ou client : marqué une fois ou deux](https://github.com/JSharles/diaphane/issues/49).
 
-## Positioning
+## Ce que le client voit
 
-**Full vision, not yet implemented — see "Out of scope" in MVP scope below for what exists today.** The mechanism that a neighboring "client portal" or generic status-report tool could not truthfully copy: Diaphane connects to the developer's **existing** task board (whatever tool they already use day to day — Jira, Linear, GitHub Issues, Trello, etc.) and automatically translates its real content into plain language for the client, across two views: the task currently in progress, and the roadmap. The client is never asked to learn the developer's tool, and never reads a summary the developer had to write by hand — they read the real board, worded for them.
+Le côté client est fixé : les écrans existants, en lecture seule. Ce que chaque écran suppose du développeur est la matière de tout le reste de ce document.
 
-This is the product's ultimate differentiator; it is deliberately **not** part of the MVP (see "Out of scope" — no external integrations, no AI layer yet), but architecture should not accidentally rule it out.
+| Écran | Ce que le client voit | Ce que ça suppose du développeur |
+|---|---|---|
+| Liste des projets | Carte du projet, pourcentage d'avancement, statut, bouton réunion | Un board connecté avec des tickets dans le workflow de statut ; un lien de réunion |
+| Page projet, fiche développeur | Nom, rôle, contacts | Profil rempli une fois |
+| Page projet, réunion | Le lien | Lien de réunion renseigné |
+| Page projet, rubriques (onglets) | Une rubrique par sujet, en prose, dans sa langue et son ton | Base documentaire connectée, document de référence généré et relu, rubrique créée et **approuvée** |
+| Page projet, roadmap (onglet) | Étapes et sous-étapes, « quand » en texte libre, repère « on est ici » | Même chaîne, plus au moins une étape ; le repère se déplace sans réapprobation |
+| Page projet, tâche en cours | Titre vulgarisé, pourquoi, impact, état, estimation de fin | Board connecté, au moins un ticket « in progress » |
+| Équipe | Les membres | Invitations acceptées |
+| Profil | Ses propres informations | Rien |
 
-## Operating Context
+**Jour 1** : le client lit les rubriques qui décrivent le projet et la roadmap. Sans les trois gestes du développeur (configurer, connecter, générer), il voit une page vide. **Ensuite** : rien de nouveau à l'écran. La tâche en cours s'allume quand le board a des tickets, les rubriques sont réécrites quand une décision change, le repère avance.
 
-The developer's real workflow already lives inside whatever task tracker they use for their own work — Diaphane is not meant to replace that tool. The full vision has Diaphane fetch from that existing board rather than require re-entry, then vulgarize the fetched content for the client across two client-facing surfaces: current task status and roadmap.
+Décision : [Ce que le client voit](https://github.com/JSharles/diaphane/issues/44).
 
-Today (MVP), this fetch/translate layer does not exist: tasks are entered directly in Diaphane (see "Out of scope" — no Jira/Linear/GitHub/Notion integration, no AI layer), and this gap is deliberate rather than an oversight — see Positioning above.
+## Le côté développeur
 
-## Evidence on Hand
+### Connexions et choix
 
-**Pre-launch. No paying customers, no case studies, no testimonials on hand.** The landing page FAQ says as much directly: "Diaphane est en phase de lancement — la tarification sera communiquée prochainement." Future work (landing copy, onboarding, marketing surfaces) must not fabricate customer quotes, usage numbers, logos, or case studies until real ones exist.
+Diaphane se connecte à deux outils, et à rien d'autre pour le MVP : **GitHub** (connexion à Diaphane et board) et **Notion** (pages). Les fichiers uploadés ne demandent aucune connexion.
 
-## Brand Commitments
+- **La connexion appartient au développeur**, pas au projet. Elle se fait une fois et vit dans son profil, avec un bouton pour la couper.
+- **GitHub** : l'accès en lecture aux projets GitHub est demandé au moment du login, avec l'identité. Un seul consentement, jamais de second aller-retour par projet.
+- **Notion** : un bouton « Connecter Notion » ouvre la fenêtre de Notion où le développeur coche les pages à partager, puis revient. Rien à créer, rien à copier. Les pages cochées sont les racines disponibles ; il en coche d'autres en refaisant le même bouton. Notion n'exige aucune revue pour ça.
+- **Le projet ne porte que des choix** : quel board, quelles racines Notion. Ils se font dans les cartes du bloc « Connexions » de la page projet. Pas d'assistant à la création.
 
-Product name: **Diaphane**. Tagline (from app metadata): "Track your project's progress with total transparency."
+Décisions : [La connexion des outils](https://github.com/JSharles/diaphane/issues/48), [Notion : revue exigée ?](https://github.com/JSharles/diaphane/issues/56).
 
-**Visual identity — confirmed binding at the product-truth level** (2026-08-30 "Optical memory", superseding the same-day Phosphor pass): a contemporary, editorial, single-dark-theme brand carrying the faint memory of a very good screen. The CRT reference is a **texture, not a theme** — no scanlines, no screen frame, no retro devices. The brand language is **BLACK + WHITE + LIGHT**: near-black grounds with felt-not-seen depth, cold-white text, and one signature light appearing rarely.
+### La base documentaire et le document de référence
 
-| Family | Values |
-| --- | --- |
-| **Blacks** | Background `#080A0B`, Elevated `#0E1113` (cards), Soft `#14181A` (controls) — cold hairline borders `rgba(220,240,248,.10)` |
-| **Whites** | Primary Text `#F1F5F6`, Secondary `#949DA1`, Pure White `#FFFFFF` (peaks) |
-| **The signature light** | **Optical Light `#C8EBFD`** with halo falloff toward `#577DB8` — both *sampled from the brand moodboard's film-credit frame*. Lives in: emphasized words in titles, eyebrows and small icons, focus rings, the hero title's film-credit halo, and the light effects (SideRays beam, glass nav) — never as fills or long text runs |
+**Deux entrées** pour le MVP : les **racines Notion** (une page cochée, dont tout le sous-arbre, sous-pages comprises, forme un seul document source) et les **fichiers uploadés** (PDF, Word, images). Le Markdown du dépôt GitHub reviendra avec un deuxième projet ; les issues GitHub n'entrent pas, elles alimentent déjà la tâche en cours par le board.
 
-Emphasis works by light: titles break into a matte first phrase and a signature-lit second one (the hero pattern echoed down the page). Matte by default — the rarity of the light is the sophistication. Effects are decorative by contract: the page is complete with all of them disabled (`prefers-reduced-motion`, no-WebGL fallbacks).
+Un document source est lu une fois pour vérifier qu'il se lit, puis stocké tel quel. Rien n'est extrait ni indexé : chaque écriture du document de référence repart des documents originaux.
 
-**Known remnant, deliberately out of scope:** the logo assets (`logo-square.png`, `brand-logo.png`) still carry the old periwinkle mark baked into the image — regenerating them is a separate manual asset task.
+**Le document de référence s'écrit tout seul.** Ajouter ou retirer un document le réécrit, en un seul appel au modèle, à partir de tous les documents et de toutes les notes. Il en sort une prose continue en parties nommées, plus les points que les documents ne tranchent pas. Un document qui n'a rien à voir avec le projet est nommé, pas tissé dedans.
 
-Full token-level detail (elevation, borders, semantic/status colors, component treatments) lives in `apps/web/DESIGN.md` — this table is the confirmed brand-truth summary; DESIGN.md is where it's implemented.
+**Une note est à la fois une réponse et une correction.** Le développeur répond à un point ouvert là où il apparaît, ou corrige un passage là où il est. Chaque note garde une copie figée de ce qui était à l'écran, et toutes les notes sont rejouées à chaque écriture.
 
----
+**« Mettre à jour »** : un bouton relit toutes les racines Notion du projet, remplace celles dont le contenu a changé, et réécrit le document de référence une seule fois si au moins une a bougé. Pas de surveillance automatique pour le MVP.
 
-## MVP scope
+Décision : [La matière première du document de référence](https://github.com/JSharles/diaphane/issues/47).
 
-**Task tracking, with AI-assisted simplification.** An interface that mirrors the real state of ongoing work, translated into plain language rather than the raw ticket. (Originally scoped as "no AI layer" — see "Out of scope" below for what's shipped since and what's genuinely still absent: the client-facing AI chat surface and automatic escalation logic.)
+### Les rubriques
 
-### Target flow
+Le développeur définit lui-même les rubriques que lit son client : un nom, une consigne (ce qu'elle doit couvrir), et des réglages éditoriaux (longueur, pédagogie, familiarité technique, ton). Il n'y a pas de liste fixe. Une rubrique est **composée** par l'IA depuis le document de référence seul, jamais depuis les documents bruts, dans la langue du développeur.
 
-1. A developer creates an account.
-2. They create a project.
-3. They invite their client by email.
-4. The client receives a link, activates their account, accesses the project.
-5. The client views progress: task list, statuses, who's doing what.
+Créer ou modifier une rubrique la compose aussitôt. Une réécriture du document de référence marque toutes les rubriques comme à refaire et les laisse en l'état : rien n'est republié dans le dos du développeur. Il revient, recompose ce qu'il veut, relit, approuve.
 
-### In scope
+**Approuver publie.** L'approbation lance la dérivation de la rubrique dans la langue du client, sous son ton, et la publication est atomique : le client lit la version en place jusqu'à ce que la nouvelle soit complète. Une panne du fournisseur, un crédit épuisé ou une sortie invalide retardent la publication sans écraser ce qui était validé.
 
-- Sign-up and authentication (developer and client)
-- Project creation and editing
-- Email invitation with token, acceptance, expiration
-- Managing project members and their roles
-- Client view: viewing a project's progress
-- Developer view: managing the project, connecting external tools, providing resources
-- AI vulgarization of tasks and uploaded/linked resources
-- A reference document written from all the project documents, and rubriques the developer defines and approves before a client reads them (`specs/018-canonical-source-reading` and `specs/019-reference-and-client-surfaces`, superseding specs/016 for the active implementation).
+### La roadmap
 
-### Out of scope (explicitly)
+Une rubrique d'un genre particulier, une par projet, créée avec un nom seul : pas de consigne, pas de ton. Composée par l'IA depuis le document de référence en **étapes** ordonnées avec sous-étapes et un « quand » en texte libre, éventuellement absent. Pas de lien avec le board : le board ne connaît pas les étapes.
 
-- Interactive AI chat with clients, and automatic escalation of ambiguous questions to the developer — the two AI capabilities named in "Product principles (locked)" above that have not been built yet.
-- External integrations beyond GitHub Projects and Notion (Jira, Linear, Trello, etc.)
-- Billing, payments, quotes
-- Notifications other than the invitation email
-- Gantt charts, dependencies between steps, durations, and any roadmap fed by
-  the task board rather than by the project's documents
+- **Le repère** « on est ici » se déplace à la main, sans approbation, et le client le voit aussitôt.
+- **Recomposer garde les retouches du développeur.** L'IA reçoit la roadmap en place en plus du document de référence et propose des ajouts ou corrections ; les étapes écrites ou retouchées par le développeur ne sont pas touchées.
+- **Une roadmap publiée s'édite directement.** L'éditeur s'ouvre sur la roadmap publiée ; la correction devient une proposition pré-remplie, sans appel à l'IA ; l'approbation publie comme d'habitude.
+- **Une roadmap vide n'est pas publiée.**
 
-**No longer out of scope, already shipped** (this list previously said "Any AI feature" and "File or attachment management" were both excluded — both are stale as of 2026-08-09):
+Décision : [La roadmap, côté développeur](https://github.com/JSharles/diaphane/issues/46).
 
-- **AI-assisted simplification (vulgarization)** — task vulgarization (`apps/api/src/task-vulgarization/`, specs/007-current-task-vulgarization) and documentary processing (`apps/api/src/documentation/`, specs/018) use durable, provider-neutral generation operations. Anthropic is the current configured primary; provider/model/fallback policy remains modifiable without changing the documentary domain.
-- **File/attachment management** — uploads (PDF/Word/PNG/JPEG) and immutable Notion snapshots are what the reference document is written from. A document is never published directly and is never processed into anything either: it is read once at upload to check it can be read at all, stored, and read again in full on every write. Its lifecycle is `received`, `incorporated`, `failed`, `removed`, and nothing else.
-- **The reference document, and the rubriques written from it** (`specs/018-canonical-source-reading`, `specs/019-reference-and-client-surfaces`, superseding specs/016 as the active implementation — 2026-08-13).
+### La tâche en cours
 
-  **One call, from the documents themselves.** The project's documents and the developer's notes go to the model in one request; it returns the reference document — named parts of continuous prose — and the points it could not settle. There is no fact base between the documents and the text: extraction, consolidation, information items, revisions and per-sentence provenance were built for a scale this product does not have, and two documents produced a hundred statements of which two asked anything of anyone. Every write starts from the original documents again, which is why a note is stored rather than applied once.
+Le ou les tickets du board GitHub Projects connecté au projet qui sont dans une colonne dont le nom contient « in progress ». Chacun est **vulgarisé** pour le client (titre, pourquoi, impact, état, dans sa langue) et part **sans relecture** : une validation à chaque changement de carte n'est pas viable. La vulgarisation se refait quand le ticket change.
 
-  **An answer and a correction are the same thing: a note.** The developer answers an open point where it appears in the document, and corrects a passage where it stands. Both record a note carrying a frozen copy of what was on screen, and every note is replayed on every write. There is no second surface for answering.
-
-  **The rubriques are the developer's own.** They name each one, say what it should cover, and choose its tone and how much it explains — there is no fixed category list any more. A rubrique is composed from the reference document, in the developer's language, and reviewed by them before anything reaches their client.
-
-  **Two levels, one door.** The client documentation is the feature and sits on the project page; the documents it runs on are a setting, with the board and the Notion connection. A rubrique cannot be written before a reference document exists, and the screen says so as a first step rather than refusing.
-
-  **What the developer does themselves starts the work.** Adding or removing a document writes the reference document; defining or revising a rubrique writes that rubrique. What they did not touch waits and says so — a rewritten reference document marks its rubriques and leaves them alone, and notes accumulate behind one action that takes them all into account.
-
-  **Uncertainty is published, not arbitrated.** What the documents leave unsettled is marked where it applies, carried into the rubrique that covers it, and shown to the client as unsettled. A document that has nothing to do with the project is named rather than woven in.
-
-  **Publication is atomic, and approving is the only act that reaches the client.** A rubrique the developer approves is derived into the client's own language under its tone; the client keeps reading the current version until the new one is complete. Provider outages, exhausted credits, invalid output or a manual retry delay publication without overwriting what was validated.
+**Le geste du développeur** : déplacer la carte en « In progress » quand il commence, et écrire de vrais titres et descriptions, seule matière de la vulgarisation. Optionnel : une date cible ou une estimation sur la carte ; si elles sont là, elles priment, sinon l'estimation IA existante reste affichée avec sa confiance basse.
 
-- **The roadmap rubrique** (`specs/020-roadmap-sections` — 2026-08-13). A
-  roadmap written as prose is a bad roadmap: order, dates and where the project
-  stands are spatial facts, and a paragraph hides all three.
-
-  **Choosing it removes controls rather than adding them.** A rubrique is prose
-  or a roadmap, decided once at creation. A roadmap has no brief — its brief is
-  fixed, what the documents say about sequence — and no register, because a
-  milestone date has no tone. The dialog collapses to a name, and the five
-  editorial columns are null rather than holding a default nobody chose.
-
-  **"When" is text, and it may be absent.** Documents say "Q3 2026", "après la
-  phase pilote", "mi-octobre". A date type would lose those or invent a
-  precision they never gave; requiring one at all made the developer invent a
-  date to get past a disabled button. Order is carried by the list.
-
-  **Two levels, and the ceiling is the type.** A milestone may carry sub-steps —
-  Feature 1, Feature 2 — because "Développement" is one word for three months
-  and the milestone a client looks at longest tells them least. A sub-step
-  carries none: no contract, validator or output schema can express a third
-  level, so none has to be forbidden.
-
-  **Where the project stands is the developer's word, and it moves on its own.**
-  It is a column on the rubrique, not part of what was published: it changes
-  weekly without a document changing, without composing, approving or
-  publishing, and the client sees it at once. It may name a sub-step — "Feature
-  2 of five" says what "Développement" cannot.
-
-  **The standard phases are offered to the developer, never handed to the
-  model.** Cadrage, Conception, Développement, Recette, Mise en ligne, Suivi
-  live inside the one control that adds a step. Giving the model an arc to fill
-  is how it ends up asserting a phase nobody planned; what the developer accepts
-  is their word, exactly like a note. A project holds one roadmap, and no two
-  live rubriques share a name.
-
-  **An empty roadmap is not published.** A composition that found no sequence is
-  a starting point, not something to approve: publishing it gave the client a tab
-  with nothing in it and no way to know why.
-
----
-
-## Stack
-
-- **Frontend**: Next.js (`apps/web`)
-- **Backend**: NestJS, as a separate service (deliberate choice, even though Next.js allows fullstack) (`apps/api`)
-- **Repo**: pnpm + Turborepo monorepo — decided (this was originally in "Open decisions" below, now removed from that list)
-- **Database**: PostgreSQL, via Prisma — decided (this was originally in "Open decisions" below, now removed from that list)
-- **Hosting**: Railway, for both `apps/api` and the production Postgres instance — decided
-
----
-
-## Data model
-
-### Users
-
-A single table for every person. A client and a developer are the same kind of thing: a person with a name and an email, who logs in.
+**Ce que la chaîne lit sur le board** : les champs `Status`, `Start date`, `Target date`, `Estimate` par leur nom exact ; les colonnes reconnues par un nom contenant « in progress » et « done » ; l'unité de l'estimation (jours ou heures) choisie à la connexion. Un ticket sans statut ne compte nulle part. Le pourcentage d'avancement du projet est « done » sur « total », recalculé au même sondage, toutes les cinq minutes ; nul tant que rien n'est trié.
 
-| Field         | Type             | Note                                                                                                                                                                 |
-| ------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| id            | uuid             | PK                                                                                                                                                                   |
-| first_name    | string           |                                                                                                                                                                      |
-| last_name     | string           |                                                                                                                                                                      |
-| email         | string           | unique — used as the invitation identifier                                                                                                                           |
-| password_hash | string, nullable | Argon2id hash. Clients authenticate with email + password; developers authenticate via GitHub OAuth only (see "Authentication" below) and have no password — `null`. |
-| company       | string           |                                                                                                                                                                      |
-| address       | string           |                                                                                                                                                                      |
-| phone         | string           |                                                                                                                                                                      |
-| image         | string           |                                                                                                                                                                      |
-| bio           | string           |                                                                                                                                                                      |
-| github        | string           | Free-text, declarative profile field ("here's my GitHub"). Unrelated to authentication — not to be confused with `github_id` below.                                  |
-| github_id     | string, nullable | GitHub's stable numeric account id, set on first GitHub OAuth login (developers only).                                                                               |
-| socials       | string           |                                                                                                                                                                      |
-| role_title    | string           | Job title, **free text**, purely declarative. No effect on permissions. Not to be confused with `ProjectMembers.role`.                                               |
-| status        | string           |                                                                                                                                                                      |
+Décision : [La tâche en cours, côté développeur](https://github.com/JSharles/diaphane/issues/45).
 
-### Projects
+### Les invitations et l'email
 
-| Field               | Type   | Note       |
-| ------------------- | ------ | ---------- |
-| id                  | uuid   | PK         |
-| title               | string |            |
-| status              | string | values TBD |
-| progress_percentage | int    |            |
+Le développeur invite son client par email. L'invitation porte un jeton aléatoire, expire au bout de sept jours, ne sert qu'une fois, et **envoie un vrai email** via Resend (domaine d'envoi en région Irlande, SDK HTTPS parce que Railway bloque le SMTP). Le client suit le lien, se donne un mot de passe, et voit le projet.
 
-### ProjectMembers
+Règles : pas d'annuaire de clients (un développeur ne peut jamais lister des personnes hors de ses projets) ; la réponse à une invitation ne doit pas révéler si un compte existe ; un projet a toujours son propriétaire.
 
-Pivot table. This is where access is decided: who is on which project, and in what capacity.
+Décision : [Quel service pour envoyer les emails d'invitation](https://github.com/JSharles/diaphane/issues/50).
 
-| Field      | Type    | Note                                 |
-| ---------- | ------- | ------------------------------------ |
-| id         | uuid    | PK                                   |
-| project_id | uuid    | FK → Projects                        |
-| user_id    | uuid    | FK → Users, **non-nullable**         |
-| role       | enum    | `client` \| `contributor`            |
-| is_admin   | boolean | Multiple admins possible per project |
+### La réunion
 
-### Invitations
+Le projet porte un **lien de réunion**, une URL collée par le développeur, affichée au client. Rien de plus pour le MVP : les résumés automatiques de réunion sont hors périmètre (voir plus bas).
 
-Separate table: what's invited is an **email**, which doesn't necessarily have an account yet.
+## Authentification
 
-| Field      | Type     | Note                                                                                        |
-| ---------- | -------- | ------------------------------------------------------------------------------------------- |
-| id         | uuid     | PK                                                                                          |
-| project_id | uuid     | FK → Projects                                                                               |
-| email      | string   | no user_id                                                                                  |
-| role       | enum     | role to be granted on acceptance                                                            |
-| is_admin   | boolean  | whether the invitee becomes a project admin on acceptance — see "Ownership & handoff" below |
-| token      | string   | random string, unguessable                                                                  |
-| status     | string   | invited / accepted / expired                                                                |
-| expires_at | datetime |                                                                                             |
+Sessions côté serveur, pas de JWT : à la connexion, l'API crée une session et envoie son identifiant dans un cookie `httpOnly` (`SameSite=Lax`, trente jours, `Secure` en production). Chaque requête relit la session ; se déconnecter la supprime, ce qui révoque l'accès aussitôt. Pas de bibliothèque d'authentification : l'API NestJS est la seule source de vérité sur l'identité.
 
-### Tasks
+- **Développeur** : GitHub OAuth uniquement, qui couvre inscription et connexion. Pas de mot de passe.
+- **Client** : email et mot de passe (Argon2id), créés à l'acceptation de l'invitation. Pas d'inscription libre.
 
-| Field       | Type   | Note                     |
-| ----------- | ------ | ------------------------ |
-| id          | uuid   | PK                       |
-| project_id  | uuid   | FK → Projects            |
-| assignee_id | uuid   | FK → Users, **nullable** |
-| title       | string |                          |
-| description | string |                          |
-| status      | string | values TBD               |
-| duration    | int    | estimated time           |
+## Modèle de données
 
-### Sessions
+Ce qui compte, en mots ; le schéma Prisma fait foi pour les colonnes.
 
-Server-side sessions (decided over JWT — see "Authentication" below). The row's `id` is itself the bearer secret sent to the browser in an `httpOnly` cookie; deleting the row logs the session out instantly, everywhere.
+- **Compte** (développeur ou client), **session**.
+- **Projet** : titre, lien de réunion, préférences (fuseau, format de date, langue), pourcentage d'avancement calculé. **Membre** d'un projet (avec le drapeau propriétaire), **invitation**.
+- **Connexions du développeur** : GitHub (token gardé au login), Notion (token par workspace). **Choix du projet** : le board (propriétaire, numéro, unité d'estimation), les racines Notion.
+- **Base documentaire** : document source (upload ou racine Notion), note, document de référence.
+- **Rubriques** : rubrique (prose ou roadmap), proposition, contenu client, publication.
+- **Tâche en cours** : tâche vulgarisée, progression.
+- **Génération** : opération et tentative, la file de travail des appels au modèle.
 
-| Field      | Type     | Note                                                        |
-| ---------- | -------- | ----------------------------------------------------------- |
-| id         | uuid     | PK, cryptographically random — doubles as the session token |
-| user_id    | uuid     | FK → Users                                                  |
-| expires_at | datetime | fixed at creation (30 days), not sliding                    |
+**Supprimé par la carte** (à faire au backlog) : la table `Task` que personne ne lit, `Users.status` et `Projects.status` jamais écrits, le rôle par adhésion et par invitation (le compte suffit), les connexions par projet (remplacées par les connexions du développeur).
 
-### Relations
+## Pile technique
 
-```
-USERS  ||--o{  PROJECT_MEMBERS
-USERS  ||--o{  SESSIONS
-PROJECTS  ||--o{  PROJECT_MEMBERS
-PROJECTS  ||--o{  INVITATIONS
-PROJECTS  ||--o{  TASKS
-USERS  ||--o{  TASKS          (assignment)
-```
+- `apps/web` : Next.js, App Router, Tailwind, shadcn/ui, next-intl (site en français et en anglais).
+- `apps/api` : NestJS, Prisma, PostgreSQL. Génération IA par opérations durables, fournisseur interchangeable (Anthropic en premier).
+- Fichiers dans R2. Emails par Resend.
+- Hébergement : Railway pour l'API et Postgres. **Un seul nom de domaine** pour le site et l'API ; l'hébergement du site, la forme (sous-domaines ou `/api`) et le nom de domaine se tranchent au déploiement ([ticket](https://github.com/JSharles/diaphane/issues/51)).
 
----
+## Hors périmètre du MVP
 
-## Business rules to respect
+- **Les résumés automatiques de réunion** : aucune voie n'est automatique sans contrainte pour plusieurs développeurs (Google payant par développeur, ou bot à admettre à chaque réunion). Faits et recommandation de repli sur le [ticket](https://github.com/JSharles/diaphane/issues/55).
+- **Plusieurs développeurs par projet, et la passation** d'un projet à un autre développeur.
+- Le Markdown du dépôt GitHub et les issues GitHub comme entrées de la base documentaire.
+- Toute intégration au-delà de GitHub Projects et Notion (Jira, Linear, Trello, Google).
+- Un chat IA avec le client, l'escalade automatique des questions au développeur.
+- Facturation, devis, notifications autres que l'email d'invitation.
+- L'audit de sécurité : effort à part, sur le code d'après les coupes.
 
-These rules follow from structural decisions. Not all of them are expressible in the schema — several must be enforced in code.
+## À revoir après le premier projet
 
-### Security and privacy
+- Donner à la vulgarisation de la tâche en cours la roadmap ou le document de référence, pour situer la tâche dans son chantier.
+- Ce qui coince à la relecture du document de référence et des rubriques.
+- La surveillance automatique des pages Notion, après l'itération à bouton.
 
-**No client directory.** A developer must never be able to search, list, or discover users who are not members of their own projects. Exposing a global list would leak other developers' client base.
+## Identité visuelle
 
-**An invitation must not reveal whether an account exists.** The API response must be identical whether the invited email already exists in the database or not. Otherwise the directory comes back through enumeration: a developer could probe addresses to find out who's a client.
-
-**The invitation token must be cryptographically random.** Never a sequential or predictable id — possessing the token is the only proof of legitimacy for an invitee who doesn't have an account yet.
-
-### Integrity
-
-**A project must always have at least one admin.** Prevent removing or demoting the last admin, otherwise the project becomes orphaned: no one can invite or manage it anymore.
-
-**A task's assignee must be a member of the project.** The foreign key points to `Users`, not to _this_ project's members — the schema can't enforce that, the code must check it.
-
-**Role is a security field.** It determines permissions. The enum must be enforced both in TypeScript and as a database constraint. An unexpected value would send the person down an unhandled branch of the code.
-
-### Access
-
-- A `client` views the project and its tasks. They don't create or edit tasks.
-- A `contributor` manages the project and its tasks.
-- `is_admin` is an **independent** dimension from role: it governs inviting and managing members.
-
-### Ownership & handoff
-
-**The client who commissions a project should be invited as admin (`is_admin = true`) by default**, on top of their `client` role. This does not grant them any content rights — `role` still governs tasks, so an admin client still can't create or edit tasks. It grants them member-management rights only.
-
-**Why:** without this, a project can only ever be managed by the developer who created it. If that developer becomes unresponsive, nobody can invite a replacement — the client is stuck depending on someone who has no obligation to act. Since it's the client's engagement (they're the one paying, and they can already work with several developers over time per the data model), they should be able to unilaterally invite a new developer and remove the old one, without needing the original developer's cooperation. This works purely through the existing `is_admin` flag — no new mechanism needed, it's the reason `is_admin` was made independent of `role` in the first place.
-
-This makes `is_admin` set at invitation time (see `Invitations.is_admin` above), decided by whoever sends the invite. A developer inviting the first client to a brand-new project should default to checking it; subsequent client invitations (e.g. a colleague added later) don't need to.
-
-**Under reconsideration (see Open decisions):** whether this broad "admin manages all members" model is even the right shape, versus a narrower, purpose-built capability — a client can always initiate transferring project ownership to a new developer, who must accept before it takes effect (never unilateral). The rationale above (client shouldn't be stuck if the developer disappears) stays the same either way; what's being reconsidered is whether that's best served by the general `is_admin` flag or a dedicated handoff action.
-
-### Authentication
-
-**Server-side sessions, not JWT**, for both account kinds. On successful authentication (however it happened — see below), the API creates a row in `Sessions` and sends its id to the browser as an `httpOnly` cookie (`SameSite=Lax`, 30-day fixed expiry, `Secure` in production). Every request looks the session up in Postgres; logout deletes the row.
-
-**Developers authenticate via GitHub OAuth exclusively** (specs/009-developer-github-oauth) — a "Continue with GitHub" action creates or logs into a developer account from their GitHub identity; `Users.password_hash` is `null` for every GitHub-authenticated developer. This is a deliberate reversal of the original MVP decision (below) to also offer email/password to developers — kept exclusively GitHub for this first version, not offered alongside it.
-
-**Clients still sign up and log in with email + password** (Argon2id hash, `Users.password_hash`), unchanged. `/login` and `/signup` each show a Developer/Client toggle (`AuthGateway`, defaulting to Developer): choosing "Client" reveals the same email/password form clients have always used, in place, on the same page — no separate route to remember. A client's actual first-time entry is still the invitation-acceptance flow (`/invite/[token]`), untouched by this feature; the toggle only matters for a _returning_ client logging back in.
-
-**Why not JWT:** a bare JWT (no refresh token, what was used on past projects) can't be revoked before it expires — if a client removes a developer's access (see "Ownership & handoff" above), that developer's token would stay valid regardless. A refresh-token setup fixes that but adds real complexity (rotation, replay detection) for a team still building auth fundamentals. Sessions give instant, unconditional revocation for free, at negligible DB cost at this scale.
-
-**Why not an auth library (Better Auth, etc.):** those are built to run inside a JS frontend framework (chiefly Next.js). This project deliberately keeps `apps/api` (NestJS) as the single source of truth for identity and authorization — introducing a frontend-side auth library would split that across two systems. Revisit if the architecture ever collapses into a single Next.js fullstack app. The GitHub OAuth exchange itself is two plain HTTP calls made directly from `apps/api`, not a frontend-side OAuth library, for the same reason.
-
-Google OAuth (or any provider beyond GitHub) remains a possible later addition, not decided.
-
----
-
-## Reasoning behind the model
-
-Context is useful to avoid "fixing" the schema in the wrong direction.
-
-**Why no `developer_id` on the client?** A client can work with several developers, on different projects. Attaching a client to a single developer would force them to exist as duplicates. The developer ↔ client relationship goes through the project: "my clients" is a query, not a column.
-
-**Why a single `Users` table?** A project can bring together several kinds of participants, not necessarily developers. What distinguishes people is not their nature but their role on a given project. Two separate tables would prevent someone from being a client on one project and a contributor on another.
-
-**Why is role on `ProjectMembers` and not on `Users`?** Same reason: role depends on the project.
-
-**Why `is_admin` on `ProjectMembers` and not an array on `Projects`?** An array carries no foreign key: nothing would prevent it from containing the id of an admin who isn't even a project member. On the pivot table, the flag can't exist without the membership row.
-
-**Why is `assignee_id` nullable?** A roadmap identifies work before it's distributed. Forcing assignment would make that view impossible. "Unassigned" is a state in its own right in the UI, not an empty value.
-
----
-
-## Open decisions
-
-**Don't decide alone. Ask before implementing.**
-
-- [ ] **`Tasks.status` values**: TBD
-- [ ] **`Projects.status` values**: TBD — still free-text/unset in the DB column itself; the status pill now shown on the dashboard project card is a separate, computed label (see below), not this field.
-- [x] **`progress_percentage`**: resolved 2026-08-09 — computed, not manual. A solo freelancer rarely fills in per-task time estimates, so progress is derived from the connected GitHub board's own Status column instead: `done` / `total` triaged items (an item with no Status set yet doesn't count toward `total`), refreshed on the same 5-minute sweep as the current-task feature (`TaskVulgarizationService`). Null (not 0%) when nothing has been triaged. The dashboard card's status pill ("Not started"/"In progress"/"Complete") is a frontend-only label derived from this same percentage, not its own stored field.
-- [ ] **Can a project exist without a client attached** (preparation phase)?
-- [ ] **Can a task have multiple assignees?** (a single `assignee_id` is enough for the MVP; otherwise a join table is needed)
-- [ ] **Email delivery**: which service for invitations?
-- [ ] **`Users.status`**: what does this field actually represent?
-- [ ] **Which board/tracker(s) to support first for the fetch layer** (Jira, Linear, GitHub Issues, Trello...), and how auth/sync would work — full-vision item, not MVP.
-- [ ] **Should "developer" vs "client" move fully onto the `User` account, replacing `ProjectMembers.role`?** Surfaced while specifying the account-kind feature (`specs/004-account-kind`): since developer and client are being treated as two non-overlapping audiences (a developer never needs to _be_ a client, or vice versa — see Positioning), keeping the distinction in two places (an account-level kind and a per-project role that could in theory diverge) may be redundant. Merging them onto `User` would simplify the model but requires revisiting the already-shipped per-project role gating (`specs/003-rich-project-view`). Not decided.
-- [ ] **Are per-project permission roles (`is_admin`) still needed at all, or does only one capability matter — a client-initiated ownership transfer to a new developer, which the new developer must accept (never unilateral)?** This would replace the current broad "admin manages all members" model with a single, narrower handoff mechanism purpose-built for the "developer disappeared" scenario (see "Ownership & handoff" below). Not decided.
-- [ ] **What happens to project settings (board connections, uploaded documentation) when project ownership transfers to a new developer?** Working hypothesis, not yet designed: personal credentials (OAuth tokens, board API keys) belong to the developer who connected them and would need to be reconnected by the new developer; project content (uploaded docs, written documentation) belongs to the project and would carry over. The Project Settings screen itself now exists (`specs/012-project-settings` — GitHub board connection and Notion connection management, at `/projects/[id]/settings`), but this specific question (behavior on ownership transfer) is still undecided.
-- [x] **AI resource categorization — category lifecycle and data model**: resolved in two passes. specs/014-category-sections (2026-08-09) settled the taxonomy: freeform per-project categories were tried in specs/013 and failed — reusing a project's existing categories turned into a feedback loop that converged on a handful of generic labels, so every client tab listed the same documents. The answer is a **fixed product-wide list of four**, with the AI extracting per-category content rather than labelling whole documents. That part stands.
-
-  What 014 got wrong was the **unit**: one section per (document, category). It broke in real use on the second document, which was appended as a separate block rather than merged. specs/015 made the category the unit, and specs/016 (2026-08-11) built a canonical source under it.
-
-  **Both the fixed list and the canonical source are gone** (specs/017, then specs/018 on 2026-08-13). The developer names their own rubriques, because a fixed list of four could not describe every project and the taxonomy was never the hard part. And the fact base underneath was machinery bought for a scale this product does not have — the reference document is now written from the documents in one call. What survives from 013/014 is the finding that produced them: reusing a project's own labels converged on generic ones, and per-document publication leaves the client reconciling several passages about the same thing. A document is an input, not something a client reads.
-
----
-
-## Product Principles
-
-- **Never fabricate.** Everything the client sees traces back to real, existing content — the foundational constraint the product is named for (see "Product principles (locked)" above).
-- **Zero added process.** Diaphane must not force the developer to adopt a new methodology, board, or tool just to use it — today that means manual entry; the full vision fetches from their existing tool instead of replacing it (see Positioning, Operating Context).
-- **Translation, not replacement.** The client-facing view reworks real technical content into plain language; it never invents or tidies up beyond what's true.
-- **Escalate rather than guess.** Missing or ambiguous information routes to the developer instead of being improvised.
-- **MVP scope guides what's built; full vision guides how it's architected.** Don't build the fetch/AI layer ahead of schedule, but don't foreclose it either.
-
----
-
-## Working notes
-
-- Full project context, decisions made with the alternatives that were ruled out, and the data model diagrams are documented in Notion.
-- This file describes the MVP. AI features are deliberately absent: don't build ahead of them in code, but don't close the door on them architecturally either.
-- **Idea, not yet scoped**: a meeting/discussion-summary feature — a permanent, clickable Gmeet link on the project page, with each meeting summarized and viewable from within Diaphane. Surfaced while discussing `specs/007-current-task-vulgarization`'s future context needs, as a natural future source of context (alongside docs, audit findings, tech stack) for the eventual document-vulgarization/RAG layer described in Positioning. Not designed, not decided — captured here so it isn't lost.
-- **Idea, not yet scoped**: a richer, structured client-facing "Current Task" card (`specs/007-current-task-vulgarization`/`specs/008-current-task-progress`'s `CurrentTaskCard`) — instead of just a vulgarized title/status, break the task down into named sections a non-technical client can scan: what's being done, why it's necessary (the risk/motivation), the impact for them (usually "nothing changes day to day"), and the current state in plain language (e.g. "a first version was built, it's under review"). Example sketched by the user for a "refonte de l'authentification" task:
-  - **En cours** — Refonte de l'authentification
-  - **Pourquoi c'est nécessaire** — le système actuel présente un risque : certains accès peuvent rester valides pendant un certain temps après leur suppression.
-  - **Impact pour vous** — aucun changement visible prévu dans l'utilisation quotidienne ; ça concerne surtout la sécurité du produit.
-  - **État** — une première version a été développée, elle est actuellement en validation.
-  Ideally each section stays traceable to real source material (e.g. "Source : issue #42 + PR #47 + documentation Authentication") rather than reading as an unsourced AI paraphrase — consistent with the "Never fabricate" principle above. Would need: (1) the vulgarization prompt/output schema restructured into these named fields instead of one free-text blob, (2) a way to resolve which issue/PR/doc a task's write-up actually traces back to (not obviously available from the board data `specs/006-current-task-fetch` fetches today). Not designed, not decided — captured here so it isn't lost.
+Un seul thème sombre, éditorial : noir, blanc, et une lumière signature (`#C8EBFD`) rare, jamais en aplat. Le détail des tokens vit dans `apps/web/DESIGN.md`. Aucun contenu marketing ne doit inventer de clients, de chiffres ou de témoignages tant qu'il n'y en a pas.
