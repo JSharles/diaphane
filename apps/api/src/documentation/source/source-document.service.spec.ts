@@ -330,6 +330,204 @@ describe('SourceDocumentService', () => {
     ).rejects.toThrow('network');
   });
 
+  describe('Mettre à jour', () => {
+    const pageOne = {
+      title: 'Cadrage',
+      url: 'https://notion.so/Cadrage-page1',
+      content: 'Le lancement est en avril.',
+    };
+    const pageTwo = {
+      title: 'Budget',
+      url: 'https://notion.so/Budget-page2',
+      content: 'Dix jours.',
+    };
+
+    // The fingerprint a racine was stored with is what its own addition
+    // computed, so a re-read of the same content compares equal to it.
+    async function storedFingerprint(page: typeof pageOne): Promise<string> {
+      prisma.sourceDocument.findFirst.mockResolvedValueOnce(null);
+      notionClient.fetchPage.mockResolvedValueOnce(page);
+      await service.addNotionRoot(userId, projectId, 'page-x');
+      const call = prisma.sourceDocument.create.mock.calls.at(-1)?.[0] as {
+        data: { contentSha256: string };
+      };
+      prisma.sourceDocument.create.mockClear();
+      notionClient.fetchPage.mockClear();
+      storage.put.mockClear();
+      reference.write.mockClear();
+      prisma.project.update.mockClear();
+      return call.data.contentSha256;
+    }
+
+    function root(
+      id: string,
+      pageId: string,
+      contentSha256: string,
+    ): SourceDocument {
+      return sourceDocument({
+        id,
+        kind: 'notion',
+        title: 'Old title',
+        originalFileName: null,
+        originalMimeType: 'application/json',
+        storedObjectKey: `documentation/${projectId}/${id}/notion-snapshot.json`,
+        externalUrl: 'https://notion.so/old',
+        notionPageId: pageId,
+        contentSha256,
+      });
+    }
+
+    it('re-reads every racine, replaces the ones whose content changed, rewrites the reference once', async () => {
+      const unchanged = root(
+        'doc-1',
+        'page-1',
+        await storedFingerprint(pageOne),
+      );
+      const changed = root('doc-2', 'page-2', 'b'.repeat(64));
+      prisma.sourceDocument.findMany.mockResolvedValue([unchanged, changed]);
+      notionClient.fetchPage
+        .mockResolvedValueOnce(pageOne)
+        .mockResolvedValueOnce(pageTwo);
+      prisma.sourceDocument.update.mockResolvedValue({
+        ...changed,
+        title: 'Budget',
+        version: 2,
+      });
+
+      const result = await service.updateNotionRoots(userId, projectId, 'fr');
+
+      expect(notionClient.fetchPage).toHaveBeenCalledTimes(2);
+      expect(storage.put).toHaveBeenCalledTimes(1);
+      expect(storage.put).toHaveBeenCalledWith(
+        changed.storedObjectKey,
+        expect.any(Buffer),
+        'application/json',
+      );
+      expect(
+        JSON.parse(storage.put.mock.calls[0][1].toString('utf8')),
+      ).toMatchObject({
+        pageId: 'page-2',
+        title: 'Budget',
+        content: 'Dix jours.',
+      });
+      expect(prisma.sourceDocument.update).toHaveBeenCalledTimes(1);
+      expect(prisma.sourceDocument.update).toHaveBeenCalledWith({
+        where: { id: 'doc-2' },
+        data: expect.objectContaining({
+          title: 'Budget',
+          externalUrl: 'https://notion.so/Budget-page2',
+          contentSha256: expect.not.stringMatching(/^b+$/u),
+          version: { increment: 1 },
+        }),
+      });
+      expect(reference.write).toHaveBeenCalledTimes(1);
+      expect(reference.write).toHaveBeenCalledWith(userId, projectId, 'fr');
+      expect(result).toEqual({
+        replaced: [
+          expect.objectContaining({ id: 'doc-2', title: 'Budget', version: 2 }),
+        ],
+        unchanged: 1,
+        referenceRewritten: true,
+      });
+    });
+
+    it('owes the rewrite before the first snapshot moves, and says so when the write could not run now', async () => {
+      const changed = root('doc-2', 'page-2', 'b'.repeat(64));
+      prisma.sourceDocument.findMany.mockResolvedValue([changed]);
+      notionClient.fetchPage.mockResolvedValue(pageTwo);
+      prisma.sourceDocument.update.mockResolvedValue({
+        ...changed,
+        version: 2,
+      });
+      reference.write.mockRejectedValue(
+        new ConflictException({ code: 'REFERENCE_WRITING' }),
+      );
+
+      const result = await service.updateNotionRoots(userId, projectId, 'fr');
+
+      expect(result.referenceRewritten).toBe(false);
+      expect(prisma.project.update).toHaveBeenCalledWith({
+        where: { id: projectId },
+        data: { referenceNeedsRewrite: true },
+      });
+      expect(prisma.project.update.mock.invocationCallOrder[0]).toBeLessThan(
+        storage.put.mock.invocationCallOrder[0],
+      );
+    });
+
+    it('reports a rate limit the client could not wait out as such, not as a page refused', async () => {
+      prisma.sourceDocument.findMany.mockResolvedValue([
+        root('doc-1', 'page-1', 'b'.repeat(64)),
+      ]);
+      notionClient.fetchPage.mockRejectedValue(
+        new NotionAccessError('rate limited', 429),
+      );
+
+      await expect(
+        service.updateNotionRoots(userId, projectId, 'fr'),
+      ).rejects.toMatchObject({
+        response: expect.objectContaining({
+          message: expect.stringContaining('Try again'),
+        }),
+      });
+    });
+
+    it('says nothing new when no racine changed, and rewrites nothing', async () => {
+      const fingerprint = await storedFingerprint(pageOne);
+      prisma.sourceDocument.findMany.mockResolvedValue([
+        root('doc-1', 'page-1', fingerprint),
+        root('doc-2', 'page-2', fingerprint),
+      ]);
+      notionClient.fetchPage.mockResolvedValue(pageOne);
+
+      const result = await service.updateNotionRoots(userId, projectId, 'fr');
+
+      expect(result).toEqual({
+        replaced: [],
+        unchanged: 2,
+        referenceRewritten: false,
+      });
+      expect(storage.put).not.toHaveBeenCalled();
+      expect(prisma.sourceDocument.update).not.toHaveBeenCalled();
+      expect(prisma.project.update).not.toHaveBeenCalled();
+      expect(reference.write).not.toHaveBeenCalled();
+    });
+
+    it('reads every racine before replacing any: a page Notion refuses leaves the project as it was', async () => {
+      prisma.sourceDocument.findMany.mockResolvedValue([
+        root('doc-1', 'page-1', 'b'.repeat(64)),
+        root('doc-2', 'page-2', 'b'.repeat(64)),
+      ]);
+      notionClient.fetchPage
+        .mockResolvedValueOnce(pageOne)
+        .mockRejectedValueOnce(new NotionAccessError('forbidden', 403));
+
+      await expect(
+        service.updateNotionRoots(userId, projectId, 'fr'),
+      ).rejects.toMatchObject({
+        response: expect.objectContaining({
+          message: expect.stringContaining('Old title'),
+        }),
+      });
+      expect(storage.put).not.toHaveBeenCalled();
+      expect(prisma.sourceDocument.update).not.toHaveBeenCalled();
+      expect(reference.write).not.toHaveBeenCalled();
+    });
+
+    it('has nothing to read on a project without racines', async () => {
+      prisma.sourceDocument.findMany.mockResolvedValue([]);
+
+      const result = await service.updateNotionRoots(userId, projectId, 'fr');
+
+      expect(result).toEqual({
+        replaced: [],
+        unchanged: 0,
+        referenceRewritten: false,
+      });
+      expect(notionConnection.withToken).not.toHaveBeenCalled();
+    });
+  });
+
   it('lists the pages the developer ticked, marking those already read by a racine here', async () => {
     notionClient.listSharedPages.mockResolvedValue([
       {

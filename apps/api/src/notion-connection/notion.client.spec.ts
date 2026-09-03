@@ -5,17 +5,38 @@ describe('NotionClient', () => {
   let fetchMock: jest.Mock;
 
   beforeEach(() => {
+    // The client paces its requests on the clock; the clock is fake here so a
+    // test decides how much of it passes.
+    jest.useFakeTimers();
     client = new NotionClient();
     fetchMock = jest.fn();
     global.fetch = fetchMock;
   });
 
-  function jsonResponse(body: unknown, ok = true, status = 200) {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  function jsonResponse(
+    body: unknown,
+    ok = true,
+    status = 200,
+    headers: Record<string, string> = {},
+  ) {
     return {
       ok,
       status,
+      headers: new Headers(headers),
       json: () => Promise.resolve(body),
     } as Response;
+  }
+
+  // Runs a paced call to its end: every request after the first waits for its
+  // slot, and on a fake clock that wait only passes when told to.
+  async function paced<T>(work: Promise<T>): Promise<T> {
+    work.catch(() => undefined);
+    await jest.runAllTimersAsync();
+    return work;
   }
 
   function richText(text: string) {
@@ -36,7 +57,7 @@ describe('NotionClient', () => {
         jsonResponse({ results: [], has_more: false, next_cursor: null }),
       );
 
-    const result = await client.fetchPage('token-1', 'page-1');
+    const result = await paced(client.fetchPage('token-1', 'page-1'));
 
     expect(result.title).toBe('Architecture overview');
   });
@@ -50,7 +71,7 @@ describe('NotionClient', () => {
         jsonResponse({ results: [], has_more: false, next_cursor: null }),
       );
 
-    const result = await client.fetchPage('token-1', 'page-1');
+    const result = await paced(client.fetchPage('token-1', 'page-1'));
 
     expect(result.title).toBe('Untitled Notion page');
   });
@@ -83,7 +104,7 @@ describe('NotionClient', () => {
         }),
       );
 
-    const result = await client.fetchPage('token-1', 'page-1');
+    const result = await paced(client.fetchPage('token-1', 'page-1'));
 
     expect(result.content).toBe('Overview\n\nThis system does X.');
   });
@@ -124,7 +145,7 @@ describe('NotionClient', () => {
         }),
       );
 
-    const result = await client.fetchPage('token-1', 'page-1');
+    const result = await paced(client.fetchPage('token-1', 'page-1'));
 
     expect(result.content).toBe('Details\n\nNested content.');
   });
@@ -165,7 +186,7 @@ describe('NotionClient', () => {
         }),
       );
 
-    const result = await client.fetchPage('token-1', 'page-1');
+    const result = await paced(client.fetchPage('token-1', 'page-1'));
 
     expect(result.content).toBe('Page 1.\n\nPage 2.');
     expect(fetchMock).toHaveBeenCalledTimes(3);
@@ -176,9 +197,9 @@ describe('NotionClient', () => {
   it('throws NotionAccessError for an invalid token or inaccessible page', async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({}, false, 401));
 
-    await expect(client.fetchPage('bad-token', 'page-1')).rejects.toThrow(
-      NotionAccessError,
-    );
+    await expect(
+      paced(client.fetchPage('bad-token', 'page-1')),
+    ).rejects.toThrow(NotionAccessError);
   });
 
   it('skips blocks whose type has no rich_text content', async () => {
@@ -204,7 +225,7 @@ describe('NotionClient', () => {
         }),
       );
 
-    const result = await client.fetchPage('token-1', 'page-1');
+    const result = await paced(client.fetchPage('token-1', 'page-1'));
 
     expect(result.content).toBe('Text after image.');
   });
@@ -258,7 +279,7 @@ describe('NotionClient', () => {
           }),
         );
 
-      const pages = await client.listSharedPages('token-1');
+      const pages = await paced(client.listSharedPages('token-1'));
 
       expect(pages).toEqual([
         {
@@ -301,5 +322,51 @@ describe('NotionClient', () => {
       expect(error).toBeInstanceOf(NotionAccessError);
       expect((error as NotionAccessError).status).toBe(401);
     });
+  });
+
+  it('spaces its requests so no more than three go out per second', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({ results: [], has_more: true, next_cursor: 'c2' }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({ results: [], has_more: false, next_cursor: null }),
+      );
+
+    const work = client.listSharedPages('token-1');
+    await jest.advanceTimersByTimeAsync(0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await jest.advanceTimersByTimeAsync(300);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await jest.advanceTimersByTimeAsync(40);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await expect(work).resolves.toEqual([]);
+  });
+
+  it('waits the Retry-After of a 429, then retries the same request', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        jsonResponse({}, false, 429, { 'Retry-After': '2' }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({ results: [], has_more: false, next_cursor: null }),
+      );
+
+    const work = client.listSharedPages('token-1');
+    await jest.advanceTimersByTimeAsync(1999);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await jest.advanceTimersByTimeAsync(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][0]).toBe(fetchMock.mock.calls[0][0]);
+    await expect(work).resolves.toEqual([]);
+  });
+
+  it('gives the rate limit up as a 429 after three retries', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({}, false, 429));
+
+    await expect(
+      paced(client.listSharedPages('token-1')),
+    ).rejects.toMatchObject({ status: 429 });
+    expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 });

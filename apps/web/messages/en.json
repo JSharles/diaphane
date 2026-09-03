@@ -504,7 +504,9 @@
         "pickerLoadError": "Notion could not list your pages. Try again.",
         "add": "Add",
         "adding": "Adding…",
-        "added": "Added"
+        "added": "Added",
+        "update": "Update",
+        "updating": "Updating…"
       }
     },
     "TeamSummaryCard": {
@@ -672,7 +674,10 @@
       },
       "Toasts": {
         "documentAdded": "Document added. Its analysis is queued — this page updates itself.",
-        "documentRemoved": "Document removed. The source was rebuilt without it."
+        "documentRemoved": "Document removed. The source was rebuilt without it.",
+        "notionRootsUpdated": "{count, plural, =1 {One page changed} other {# pages changed}} — the reference document is being rewritten.",
+        "notionNothingNew": "Nothing new in your Notion pages.",
+        "notionRootsUpdatedRewriteOwed": "{count, plural, =1 {One page changed} other {# pages changed}} — a reference document write is already running, write it again afterwards."
       }
     }
   },

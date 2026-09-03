@@ -3,10 +3,12 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DocumentAcknowledgement } from "schemas";
+import { toast } from "sonner";
 import {
   getDocument,
   listDocuments,
   uploadDocument,
+  updateNotionRoots,
   listSections,
   createSection,
   updateSection,
@@ -23,11 +25,13 @@ import {
   removeNote,
 } from "./api";
 import {
+  documentationKey,
   documentKey,
   documentsKey,
   useDocumentationDocuments,
   useSourceDocument,
   useUploadDocument,
+  useUpdateNotionRoots,
   sectionsKey,
   sectionProposalKey,
   useSections,
@@ -56,6 +60,7 @@ vi.mock("./api", () => ({
   uploadDocument: vi.fn(),
   addNotionRoot: vi.fn(),
   listNotionPages: vi.fn(),
+  updateNotionRoots: vi.fn(),
   proposeWorkingLanguage: vi.fn(),
   confirmWorkingLanguage: vi.fn(),
   listSections: vi.fn(),
@@ -80,6 +85,8 @@ vi.mock("./api", () => ({
   previewDocumentRemoval: vi.fn(),
   confirmDocumentRemoval: vi.fn(),
 }));
+
+vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 function wrapper() {
   const queryClient = new QueryClient({
@@ -252,6 +259,89 @@ describe("documentation hooks", () => {
     // the whole corpus rather than what happens to be loaded.
     expect(result.current.data?.total).toBe(2);
     expect(result.current.hasNextPage).toBe(false);
+  });
+
+  describe("« Mettre à jour »", () => {
+    it("says nothing new and refetches nothing when no racine changed", async () => {
+      vi.mocked(updateNotionRoots).mockResolvedValue({
+        replaced: [],
+        unchanged: 2,
+        referenceRewritten: false,
+      });
+      const { queryClient, Wrapper } = wrapper();
+      const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+
+      const update = renderHook(() => useUpdateNotionRoots("project-1"), {
+        wrapper: Wrapper,
+      });
+      await act(async () => {
+        await update.result.current.mutateAsync();
+      });
+
+      expect(toast.success).toHaveBeenCalledWith("notionNothingNew");
+      expect(invalidate).not.toHaveBeenCalled();
+    });
+
+    it("refetches everything read from the documentation once a racine was replaced", async () => {
+      vi.mocked(updateNotionRoots).mockResolvedValue({
+        replaced: [
+          {
+            id: "doc-1",
+            kind: "notion",
+            status: "incorporated",
+            version: 2,
+            title: "Budget",
+            failureCode: null,
+            createdAt: "2026-08-11T10:00:00.000Z",
+          },
+        ],
+        unchanged: 1,
+        referenceRewritten: true,
+      });
+      const { queryClient, Wrapper } = wrapper();
+      const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+
+      const update = renderHook(() => useUpdateNotionRoots("project-1"), {
+        wrapper: Wrapper,
+      });
+      await act(async () => {
+        await update.result.current.mutateAsync();
+      });
+
+      expect(toast.success).toHaveBeenCalledWith("notionRootsUpdated");
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: documentationKey("project-1") });
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: publicClientSectionsKey("project-1"),
+      });
+    });
+
+    it("says the rewrite is still owed when it could not run now", async () => {
+      vi.mocked(updateNotionRoots).mockResolvedValue({
+        replaced: [
+          {
+            id: "doc-1",
+            kind: "notion",
+            status: "incorporated",
+            version: 2,
+            title: "Budget",
+            failureCode: null,
+            createdAt: "2026-08-11T10:00:00.000Z",
+          },
+        ],
+        unchanged: 0,
+        referenceRewritten: false,
+      });
+      const { Wrapper } = wrapper();
+
+      const update = renderHook(() => useUpdateNotionRoots("project-1"), {
+        wrapper: Wrapper,
+      });
+      await act(async () => {
+        await update.result.current.mutateAsync();
+      });
+
+      expect(toast.success).toHaveBeenCalledWith("notionRootsUpdatedRewriteOwed");
+    });
   });
 
   describe("sections", () => {

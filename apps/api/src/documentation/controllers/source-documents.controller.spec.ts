@@ -15,7 +15,12 @@ describe('SourceDocumentsController', () => {
   let service: jest.Mocked<
     Pick<
       SourceDocumentService,
-      'addUpload' | 'addNotionRoot' | 'listNotionPages' | 'list' | 'detail'
+      | 'addUpload'
+      | 'addNotionRoot'
+      | 'listNotionPages'
+      | 'updateNotionRoots'
+      | 'list'
+      | 'detail'
     >
   >;
   let controller: SourceDocumentsController;
@@ -26,6 +31,7 @@ describe('SourceDocumentsController', () => {
       addUpload: jest.fn(),
       addNotionRoot: jest.fn(),
       listNotionPages: jest.fn(),
+      updateNotionRoots: jest.fn(),
       list: jest.fn(),
       detail: jest.fn(),
     };
@@ -60,6 +66,21 @@ describe('SourceDocumentsController', () => {
       null,
     );
     expect(service.listNotionPages).toHaveBeenCalledWith('user-1', 'project-1');
+  });
+
+  it('« Mettre à jour » re-reads the racines in the language of the request', async () => {
+    const outcome = { replaced: [], unchanged: 2, referenceRewritten: false };
+    service.updateNotionRoots.mockResolvedValue(outcome);
+
+    await expect(
+      controller.updateNotionRoots(user, 'project-1', 'fr'),
+    ).resolves.toEqual(outcome);
+
+    expect(service.updateNotionRoots).toHaveBeenCalledWith(
+      'user-1',
+      'project-1',
+      'fr',
+    );
   });
 
   it('passes cursor access and document identity without leaking access decisions', async () => {

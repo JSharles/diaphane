@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useConnections } from "@/shared/hooks/use-connections";
-import { useDocumentationDocuments } from "../hooks";
+import { useDocumentationDocuments, useUpdateNotionRoots } from "../hooks";
 import { NotionRootsCard } from "./notion-roots-card";
 
 vi.mock("@/shared/hooks/use-connections", async (importOriginal) => ({
@@ -12,6 +12,7 @@ vi.mock("@/shared/hooks/use-connections", async (importOriginal) => ({
 
 vi.mock("../hooks", () => ({
   useDocumentationDocuments: vi.fn(),
+  useUpdateNotionRoots: vi.fn(),
 }));
 
 vi.mock("@/i18n/navigation", () => ({
@@ -63,11 +64,22 @@ function documents(
   return fetchNextPage;
 }
 
+function update(isPending = false) {
+  const mutate = vi.fn();
+  vi.mocked(useUpdateNotionRoots).mockReturnValue({
+    mutate,
+    isPending,
+  } as unknown as ReturnType<typeof useUpdateNotionRoots>);
+  return mutate;
+}
+
 const CONNECTED: Notion = { connected: true, needsReconnect: false, workspaceName: "Acme" };
+const ROOT = { id: "doc-1", kind: "notion", status: "incorporated", title: "Cadrage" };
 
 describe("NotionRootsCard", () => {
   beforeEach(() => {
     documents([]);
+    update();
   });
 
   it("shows a skeleton and no control while pending", () => {
@@ -135,6 +147,30 @@ describe("NotionRootsCard", () => {
     expect(screen.queryByText("Old")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "removeRoot" }));
     expect(screen.getByTestId("removal")).toHaveTextContent("open:doc-1");
+  });
+
+  it("offers « Mettre à jour » only once there is a racine to re-read", async () => {
+    notion(CONNECTED);
+    const mutate = update();
+    const user = userEvent.setup();
+
+    const { rerender } = render(<NotionRootsCard projectId="project-1" />);
+    expect(screen.queryByRole("button", { name: "update" })).not.toBeInTheDocument();
+
+    documents([ROOT]);
+    rerender(<NotionRootsCard projectId="project-1" />);
+    await user.click(screen.getByRole("button", { name: "update" }));
+    expect(mutate).toHaveBeenCalledTimes(1);
+  });
+
+  it("holds the button while the racines are being re-read", () => {
+    notion(CONNECTED);
+    documents([ROOT]);
+    update(true);
+
+    render(<NotionRootsCard projectId="project-1" />);
+
+    expect(screen.getByRole("button", { name: "updating" })).toBeDisabled();
   });
 
   it("reads the document list to its end, so a racine on a later page is not missed", () => {

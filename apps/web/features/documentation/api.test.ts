@@ -3,6 +3,7 @@ import { apiFetch } from "@/shared/lib/api-client";
 import {
   addNotionRoot,
   listNotionPages,
+  updateNotionRoots,
   addNote,
   confirmDocumentRemoval,
   getDocument,
@@ -60,6 +61,7 @@ describe("documentation api", () => {
 
     await listNotionPages("project-1");
     await addNotionRoot("project-1", { pageId: "page-1" });
+    await updateNotionRoots("project-1");
 
     expect(mockedApiFetch).toHaveBeenCalledWith(
       "/projects/project-1/documentation/documents/notion/pages",
@@ -67,6 +69,10 @@ describe("documentation api", () => {
     expect(mockedApiFetch).toHaveBeenCalledWith(
       "/projects/project-1/documentation/documents/notion",
       { method: "POST", body: { pageId: "page-1" } },
+    );
+    expect(mockedApiFetch).toHaveBeenCalledWith(
+      "/projects/project-1/documentation/documents/notion/update",
+      { method: "POST" },
     );
   });
 

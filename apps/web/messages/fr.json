@@ -504,7 +504,9 @@
         "pickerLoadError": "Notion n’a pas pu lister vos pages. Réessayez.",
         "add": "Ajouter",
         "adding": "Ajout…",
-        "added": "Ajoutée"
+        "added": "Ajoutée",
+        "update": "Mettre à jour",
+        "updating": "Mise à jour…"
       }
     },
     "TeamSummaryCard": {
@@ -672,7 +674,10 @@
       },
       "Toasts": {
         "documentAdded": "Document ajouté. Son analyse est en file — la page se met à jour toute seule.",
-        "documentRemoved": "Document supprimé. La source a été reconstruite sans lui."
+        "documentRemoved": "Document supprimé. La source a été reconstruite sans lui.",
+        "notionRootsUpdated": "{count, plural, =1 {Une page a changé} other {# pages ont changé}} — le document de référence est réécrit.",
+        "notionNothingNew": "Rien de nouveau dans vos pages Notion.",
+        "notionRootsUpdatedRewriteOwed": "{count, plural, =1 {Une page a changé} other {# pages ont changé}} — une écriture du document de référence est déjà en cours, relancez-la ensuite."
       }
     }
   },

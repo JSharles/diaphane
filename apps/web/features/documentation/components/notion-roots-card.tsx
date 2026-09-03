@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, NotebookText, Trash2, TriangleAlert } from "lucide-react";
+import { CheckCircle2, NotebookText, RefreshCw, Trash2, TriangleAlert } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
@@ -10,7 +10,7 @@ import { SetupBlock, type SetupTone } from "@/shared/components/setup-block";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { connectionTone, useConnections } from "@/shared/hooks/use-connections";
-import { useDocumentationDocuments } from "../hooks";
+import { useDocumentationDocuments, useUpdateNotionRoots } from "../hooks";
 import { NotionRootPickerDialog } from "./notion-root-picker-dialog";
 import { RemoveDocumentDialog } from "./remove-document-dialog";
 
@@ -25,6 +25,7 @@ export function NotionRootsCard({ projectId }: { projectId: string }) {
   const locale = useLocale();
   const { data: connections, isPending } = useConnections();
   const documents = useDocumentationDocuments(projectId);
+  const update = useUpdateNotionRoots(projectId);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [removalDocumentId, setRemovalDocumentId] = useState<string | null>(null);
 
@@ -114,6 +115,18 @@ export function NotionRootsCard({ projectId }: { projectId: string }) {
             <Button type="button" variant="outline" size="sm" onClick={() => setPickerOpen(true)}>
               {t("chooseRoots")}
             </Button>
+            {roots.length > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={update.isPending}
+                onClick={() => update.mutate()}
+              >
+                <RefreshCw className={update.isPending ? "animate-spin" : undefined} />
+                {update.isPending ? t("updating") : t("update")}
+              </Button>
+            )}
             <Button asChild variant="ghost" size="sm">
               <a href={connectHref}>{t("tickMorePages")}</a>
             </Button>
