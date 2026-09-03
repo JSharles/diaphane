@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiFetch } from "@/shared/lib/api-client";
-import { connectBoard, disconnectBoard, getBoardConnection, listAvailableBoards } from "./api";
+import {
+  connectBoard,
+  disconnectBoard,
+  getBoardConnection,
+  listAvailableBoards,
+  updateBoardConnection,
+} from "./api";
 
 vi.mock("@/shared/lib/api-client", () => ({
   apiFetch: vi.fn(),
@@ -47,6 +53,17 @@ describe("features/board-connections/api", () => {
     expect(mockedApiFetch).toHaveBeenCalledWith("/projects/project-1/board-connection", {
       method: "POST",
       body: data,
+    });
+  });
+
+  it("updateBoardConnection patches the estimate unit to /projects/:id/board-connection", async () => {
+    mockedApiFetch.mockResolvedValue({ provider: "github", estimateUnit: "hours" });
+
+    await updateBoardConnection("project-1", { estimateUnit: "hours" });
+
+    expect(mockedApiFetch).toHaveBeenCalledWith("/projects/project-1/board-connection", {
+      method: "PATCH",
+      body: { estimateUnit: "hours" },
     });
   });
 

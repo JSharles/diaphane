@@ -103,6 +103,38 @@ export class BoardConnectionsService {
   ): Promise<BoardConnectionDetails | null> {
     await this.assertIsDeveloper(userId, projectId);
 
+    return this.readForProject(projectId);
+  }
+
+  // Changes how the board's numeric "Estimate" is read, and nothing else:
+  // the board stays chosen, GitHub is not asked again. The next sweep of the
+  // board recomputes the estimated completion dates with the new unit.
+  async updateEstimateUnit(
+    userId: string,
+    projectId: string,
+    estimateUnit: EstimateUnit,
+  ): Promise<BoardConnectionDetails> {
+    await this.assertIsDeveloper(userId, projectId);
+
+    const current = await this.readForProject(projectId);
+    if (!current) {
+      throw new NotFoundException('No board is connected to this project');
+    }
+
+    const connection = await this.prisma.boardConnection.update({
+      where: { projectId },
+      data: { estimateUnit },
+    });
+
+    return {
+      ...this.toDetails(connection),
+      needsReconnect: current.needsReconnect,
+    };
+  }
+
+  private async readForProject(
+    projectId: string,
+  ): Promise<BoardConnectionDetails | null> {
     const connection = await this.prisma.boardConnection.findUnique({
       where: { projectId },
       include: {

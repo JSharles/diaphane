@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { SessionGuard } from '../auth/session.guard';
 import { BoardConnectionsService } from './board-connections.service';
 import { CreateBoardConnectionDto } from './dto/create-board-connection.dto';
+import { UpdateBoardConnectionDto } from './dto/update-board-connection.dto';
 
 // The project's board choice. No token travels through here: the boards are
 // listed and read with the GitHub connection the developer gave at login.
@@ -46,6 +48,21 @@ export class BoardConnectionsController {
       number: dto.number,
       estimateUnit: dto.estimateUnit,
     });
+  }
+
+  // The estimate unit is a reading of the board, not part of choosing it: it
+  // changes here, in place, and takes effect at the next sweep.
+  @Patch()
+  update(
+    @CurrentUser() user: User,
+    @Param('projectId') projectId: string,
+    @Body() dto: UpdateBoardConnectionDto,
+  ) {
+    return this.boardConnectionsService.updateEstimateUnit(
+      user.id,
+      projectId,
+      dto.estimateUnit,
+    );
   }
 
   @Delete()

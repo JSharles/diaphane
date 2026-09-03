@@ -19,8 +19,9 @@ import { SetupBlock, type SetupTone } from "@/shared/components/setup-block";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ApiError } from "@/shared/lib/api-client";
-import { useBoardConnection, useDisconnectBoard } from "../hooks";
+import { useBoardConnection, useDisconnectBoard, useUpdateBoardConnection } from "../hooks";
 import { ConnectBoardDialog } from "./connect-board-dialog";
+import { EstimateUnitField, type EstimateUnit } from "./estimate-unit-field";
 
 function errorMessage(error: unknown, generic: string): string {
   return error instanceof ApiError ? error.message : generic;
@@ -31,6 +32,7 @@ export function BoardConnectionCard({ projectId }: { projectId: string }) {
   const [confirmDisconnectOpen, setConfirmDisconnectOpen] = useState(false);
   const { data: connection, isPending } = useBoardConnection(projectId);
   const disconnect = useDisconnectBoard(projectId);
+  const update = useUpdateBoardConnection(projectId);
   const t = useTranslations("Projects.BoardConnectionCard");
   const tToasts = useTranslations("Toasts");
 
@@ -47,6 +49,13 @@ export function BoardConnectionCard({ projectId }: { projectId: string }) {
   function handleDisconnect(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
     disconnect.mutate(undefined, { onSuccess: () => setConfirmDisconnectOpen(false) });
+  }
+
+  // The unit is a reading of the connected board, changed here beside it —
+  // the board stays chosen. Re-clicking the unit in place sends nothing.
+  function handleEstimateUnitChange(unit: EstimateUnit) {
+    if (!connection || unit === connection.estimateUnit) return;
+    update.mutate({ estimateUnit: unit });
   }
 
   // The board is the project's other input, and it states what it feeds. A
@@ -75,15 +84,27 @@ export function BoardConnectionCard({ projectId }: { projectId: string }) {
               {t("needsReconnect")}
             </span>
           ) : connection ? (
-            <a
-              href={connection.boardUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1.5 hover:text-foreground hover:underline"
-            >
-              {t("connectedTo", { title: connection.boardTitle })}
-              <ExternalLink className="size-3.5 shrink-0" />
-            </a>
+            <div className="flex flex-col gap-3">
+              <a
+                href={connection.boardUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 hover:text-foreground hover:underline"
+              >
+                {t("connectedTo", { title: connection.boardTitle })}
+                <ExternalLink className="size-3.5 shrink-0" />
+              </a>
+              <EstimateUnitField
+                value={connection.estimateUnit}
+                onChange={handleEstimateUnitChange}
+                disabled={update.isPending}
+              />
+              {update.isError && (
+                <p className="text-sm text-destructive">
+                  {errorMessage(update.error, tToasts("genericError"))}
+                </p>
+              )}
+            </div>
           ) : (
             <span className="flex items-center gap-1.5">
               <KanbanSquare className="size-3.5 shrink-0" />

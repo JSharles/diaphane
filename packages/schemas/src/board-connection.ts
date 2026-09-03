@@ -22,6 +22,13 @@ export const CreateBoardConnectionRequestSchema = z.object({
 });
 export type CreateBoardConnectionRequest = z.infer<typeof CreateBoardConnectionRequestSchema>;
 
+// The one thing a project changes on its board without choosing it again:
+// how the board's numeric "Estimate" reads as a duration.
+export const UpdateBoardConnectionRequestSchema = z.object({
+  estimateUnit: z.enum(['days', 'hours']),
+});
+export type UpdateBoardConnectionRequest = z.infer<typeof UpdateBoardConnectionRequestSchema>;
+
 // The project's board choice, as the developer sees it.
 export const BoardConnectionSchema = z.object({
   provider: z.literal('github'),

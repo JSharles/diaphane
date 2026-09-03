@@ -267,6 +267,77 @@ describe('BoardConnectionsService', () => {
     });
   });
 
+  describe('updateEstimateUnit', () => {
+    it('changes how the board’s Estimate is read without touching the board choice or calling GitHub', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
+      prisma.boardConnection.findUnique.mockResolvedValue({
+        ...storedConnection,
+        connectedBy: { githubConnection: { needsReconnect: false } },
+      });
+      prisma.boardConnection.update.mockResolvedValue({
+        ...storedConnection,
+        estimateUnit: 'hours',
+      });
+
+      const result = await service.updateEstimateUnit(
+        'user-1',
+        'project-1',
+        'hours',
+      );
+
+      expect(prisma.boardConnection.update).toHaveBeenCalledWith({
+        where: { projectId: 'project-1' },
+        data: { estimateUnit: 'hours' },
+      });
+      expect(githubClient.verifyBoardAccess).not.toHaveBeenCalled();
+      expect(githubConnections.getToken).not.toHaveBeenCalled();
+      expect(result).toMatchObject({
+        boardTitle: 'Roadmap',
+        estimateUnit: 'hours',
+        needsReconnect: false,
+      });
+    });
+
+    it('keeps saying reconnect when the chooser’s GitHub connection is cut: the unit is stored, the board still is not read', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
+      prisma.boardConnection.findUnique.mockResolvedValue({
+        ...storedConnection,
+        connectedBy: { githubConnection: null },
+      });
+      prisma.boardConnection.update.mockResolvedValue({
+        ...storedConnection,
+        estimateUnit: 'hours',
+      });
+
+      const result = await service.updateEstimateUnit(
+        'user-1',
+        'project-1',
+        'hours',
+      );
+
+      expect(result.needsReconnect).toBe(true);
+    });
+
+    it('is a 404 when no board is connected', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
+      prisma.boardConnection.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.updateEstimateUnit('user-1', 'project-1', 'hours'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prisma.boardConnection.update).not.toHaveBeenCalled();
+    });
+
+    it('hides the project from a client member', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(clientMembership);
+
+      await expect(
+        service.updateEstimateUnit('user-1', 'project-1', 'hours'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prisma.boardConnection.update).not.toHaveBeenCalled();
+    });
+  });
+
   describe('disconnect', () => {
     it('deletes the choice, and is a no-op when there is none', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
