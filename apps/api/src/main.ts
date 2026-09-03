@@ -19,6 +19,10 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
+  // Without this, SIGTERM (a Railway redeploy) kills the process before
+  // PrismaService.onModuleDestroy runs and the pool is left to time out.
+  app.enableShutdownHooks();
+
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();

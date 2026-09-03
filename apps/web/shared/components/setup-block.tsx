@@ -18,7 +18,7 @@ const TONE_ICON = {
   unknown: HelpCircle,
 } as const;
 
-// specs/021: an empty input says what stays blocked, not that it is empty.
+// An empty input says what stays blocked, not that it is empty.
 // A void is a state and carries no priority; the same row naming what it feeds
 // does — which is what makes one block obviously first without an accent
 // colour, a badge or a step number anywhere on the screen.

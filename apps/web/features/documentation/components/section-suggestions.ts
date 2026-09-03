@@ -5,7 +5,7 @@
 // The line that must not be crossed: nothing here is ever persisted, and no
 // section records which suggestion it came from. The moment a section knows its
 // preset, the product has a fixed taxonomy again — recorded, queryable, and
-// eventually reasoned about — which is exactly what specs/017 removes.
+// eventually reasoned about — exactly what author-defined sections remove.
 //
 // The real payload of a prose suggestion is its description, not its title. A
 // contributor's instructions are the only expression of what a section should

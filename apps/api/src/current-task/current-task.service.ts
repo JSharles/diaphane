@@ -14,9 +14,8 @@ export class CurrentTaskService {
     private readonly taskVulgarizationService: TaskVulgarizationService,
   ) {}
 
-  // Open to any project member, not contributor-only (specs/006-current-task-fetch
-  // research.md Decision 5). Never touches GitHub or the LLM (FR-003/FR-010,
-  // specs/007-current-task-vulgarization) — reads only what
+  // Open to any project member, not contributor-only. Never touches GitHub or
+  // the LLM — reads only what
   // TaskVulgarizationService's scheduled sweep has already persisted.
   async getCurrentTask(
     userId: string,

@@ -82,7 +82,7 @@ interface SearchResponse {
   next_cursor: string | null;
 }
 
-// specs/011-project-resources research.md Decision 5: Notion content is
+// Notion content is
 // fetched as plain text only — no image blocks are forwarded to Claude's
 // vision input for v1 (Notion's own image URLs are short-lived presigned
 // links, real fetch-timing complexity for a P2 path). Block children are

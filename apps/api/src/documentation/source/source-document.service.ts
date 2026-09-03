@@ -457,7 +457,7 @@ export class SourceDocumentService {
   // notes are the other half of this rule and behave differently on purpose:
   // they accumulate behind a button, because answering five points in a row
   // would otherwise pay for five writes and move the document while it is being
-  // read (specs/018, FR-006).
+  // read.
   private async writeReference(
     userId: string,
     projectId: string,

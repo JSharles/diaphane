@@ -23,7 +23,7 @@ const DROPPED_ACCEPTANCE_AFTER_MS = 120_000;
 //
 // `currentMilestoneId` is read live off the section rather than baked into the
 // release, because the developer moves it without composing, approving or
-// publishing anything (specs/020 FR-007).
+// publishing anything.
 // FR-023 applied to a roadmap: a frise with no milestones is a section with no
 // published content, and one of those is absent from the client's tabs rather
 // than present and empty. Approving an empty roadmap is refused upstream; this

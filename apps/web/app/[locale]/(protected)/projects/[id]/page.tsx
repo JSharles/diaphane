@@ -94,7 +94,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       </div>
 
       {isContributor ? (
-        // The order is the hierarchy (specs/021+022, revised 2026-08-29 when
+        // The order is the hierarchy (revised 2026-08-29 when
         // the documents left for the documentation's own step and made a
         // separate setup route more address than content): the work first,
         // then access, then the wiring at the foot. The connection blocks say

@@ -9,27 +9,27 @@ datasource db {
 }
 
 // Single value today — sized so a future provider (e.g. Notion) adds a value
-// rather than reshaping this table. See specs/005-github-project-connection.
+// rather than reshaping this table.
 enum BoardProvider {
   github
 }
 
 // How the board's own numeric "Estimate" field converts to a duration when
-// used as a fallback for the estimated completion date (specs/008, FR-005b).
+// used as a fallback for the estimated completion date.
 enum EstimateUnit {
   days
   hours
 }
 
 // The AI's own judgment of a task's complexity, from its title/description —
-// one input to the confidence matrix (specs/008, FR-003a).
+// one input to the confidence matrix.
 enum TaskComplexity {
   simple
   complex
 }
 
 // Which tier ultimately supplied a task's estimated completion date — the
-// other input to the confidence matrix (specs/008, FR-003a).
+// other input to the confidence matrix.
 enum EstimateSource {
   board
   ai
@@ -69,8 +69,7 @@ enum SourceDocumentKind {
 
 // A document is stored, read once to check it can be read at all, and then it
 // is part of the corpus. Nothing else happens to it: every reference write
-// re-reads the originals, so there is no pipeline behind a document any more
-// (specs/018).
+// re-reads the originals, so there is no pipeline behind a document any more.
 enum SourceDocumentStatus {
   received
   incorporated
@@ -176,7 +175,7 @@ model User {
   firstName    String      @map("first_name")
   lastName     String      @map("last_name")
   email        String      @unique
-  // Nullable: a developer created via GitHub OAuth (specs/009) never has a
+  // Nullable: a developer created via GitHub OAuth never has a
   // password. Client accounts (still email/password) always set this.
   passwordHash String?     @map("password_hash")
   accountKind  AccountKind @map("account_kind")
@@ -189,7 +188,7 @@ model User {
   // authentication — do not conflate with githubId below.
   github       String?
   // GitHub's stable numeric account id (as a string), set on first GitHub
-  // OAuth login (specs/009-developer-github-oauth). Null for client accounts
+  // OAuth login. Null for client accounts
   // and for any developer account never authenticated via GitHub.
   githubId     String?     @unique @map("github_id")
   socials      String?
@@ -203,8 +202,7 @@ model User {
   roleTitle    String?     @map("role_title")
   // Which language this person reads the product in. Not a setting they fill:
   // the interface already knows it on every request and writes it here, so
-  // background work — which has no browser — can still address them in it
-  // (specs/018, FR-023).
+  // background work — which has no browser — can still address them in it.
   locale       String?     @db.VarChar(8)
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -409,7 +407,7 @@ model SourceDocument {
   @@map("source_documents")
 }
 
-// ─── The reference document (specs/018-canonical-source-reading) ──────────────
+// ─── The reference document ──────────────────────────────────────────────────
 //
 // One written document per project, produced from the canonical source for the
 // developer to read. Nothing reads it back: composition still draws only on the
@@ -432,7 +430,7 @@ enum ReferenceDocumentOutcome {
 
 // One sentence the developer added — an answer to a point, or a correction.
 // The two are the same thing: something true that their documents do not say,
-// replayed on every write (specs/018, FR-012).
+// replayed on every write.
 model Note {
   id         String    @id @default(uuid()) @db.Uuid
   projectId  String    @map("project_id") @db.Uuid
@@ -487,7 +485,7 @@ model ReferenceDocument {
   @@map("reference_documents")
 }
 
-// ─── Author-defined client sections (specs/017-documentation-review-journey) ───
+// ─── Author-defined client sections ───────────────────────────────────────────
 //
 // A section is a heading its contributor created, not one the product chose.
 // The four fixed categories this replaced are gone, along with everything that
@@ -519,7 +517,7 @@ model ClientSection {
   // Prose or a roadmap, decided at creation. A roadmap has no brief and no
   // register — its brief is fixed and a milestone date has no tone — so the
   // five columns below are null on one, rather than holding a default nobody
-  // chose that the derivation prompt would then read (specs/020).
+  // chose that the derivation prompt would then read.
   kind                 ClientSectionKind          @default(prose)
   // What composition should look for in the canonical source. The field the
   // whole feature's output quality rests on.
@@ -792,8 +790,7 @@ model NotionConnection {
   @@map("notion_connections")
 }
 
-// One row per (project, GitHub board item, app locale) — see
-// specs/007-current-task-vulgarization data-model.md. `original*` and
+// One row per (project, GitHub board item, app locale). `original*` and
 // `vulgarized*` are only ever written together, atomically, on a successful
 // vulgarization call; a failed attempt leaves the row untouched (research.md
 // Decision 4) so the next sweep keeps retrying rather than silently freezing
@@ -829,8 +826,7 @@ model VulgarizedTask {
 }
 
 // One row per (project, GitHub board item) — locale-independent, unlike
-// VulgarizedTask, since none of this data varies by language
-// (specs/008-current-task-progress research.md Decision 1).
+// VulgarizedTask, since none of this data varies by language.
 model TaskProgress {
   id        String  @id @default(uuid()) @db.Uuid
   projectId String  @map("project_id") @db.Uuid

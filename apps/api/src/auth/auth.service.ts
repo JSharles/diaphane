@@ -18,7 +18,7 @@ export class AuthService {
   async login(dto: LoginDto): Promise<{ user: User; sessionId: string }> {
     const email = dto.email.toLowerCase();
     const user = await this.prisma.user.findUnique({ where: { email } });
-    // A GitHub-only developer account (specs/009) has no password to check
+    // A GitHub-only developer account has no password to check
     // against — reject exactly like a wrong password, not a crash.
     if (!user || !user.passwordHash) {
       throw new UnauthorizedException('Invalid credentials');
@@ -33,7 +33,7 @@ export class AuthService {
     return { user, sessionId: session.id };
   }
 
-  // specs/009-developer-github-oauth: finds the developer account already
+  // Finds the developer account already
   // linked to this GitHub identity, or creates one — the single entry point
   // both GET /auth/github/callback branches (new vs. returning developer)
   // resolve to (FR-001/FR-003/FR-004).
@@ -126,7 +126,7 @@ export class AuthService {
 
   // The language a person reads the product in, learned from the interface
   // rather than asked for. Background work — writing the reference document,
-  // raising a point to clarify — has no browser to ask (specs/018, FR-024).
+  // raising a point to clarify — has no browser to ask.
   async rememberLocale(userId: string, locale: string): Promise<void> {
     await this.prisma.user.update({ where: { id: userId }, data: { locale } });
   }

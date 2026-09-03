@@ -10,8 +10,7 @@ export interface ClientDerivationEditorial {
 
 // Register is stated per section rather than per project: one section answers a
 // budget question and another explains an architecture, and a single project-wide
-// voice stopped meaning anything once its author chose the headings
-// (specs/017 research Decision 6).
+// voice stopped meaning anything once its author chose the headings.
 export function buildClientDerivationPrompt(input: {
   sectionName: string;
   locale: string;

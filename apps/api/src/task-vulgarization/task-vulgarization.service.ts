@@ -18,7 +18,7 @@ import { AnthropicVulgarizationClient } from './anthropic-vulgarization.client';
 import { Locale, SUPPORTED_LOCALES } from './locale';
 
 // The public shape served to the frontend — no `id` (internal-only, see
-// InProgressItem) and no `url` (dead since specs/006's own feedback round;
+// InProgressItem) and no `url` (the client is never sent to GitHub;
 // see packages/schemas/src/current-task.ts). why/impact/status: 2026-08-09,
 // replaces the old single `description` blob — see docs/PRODUCT.md
 // "Working notes".
@@ -33,7 +33,7 @@ export interface CurrentTaskItem {
   estimateConfidence: 'high' | 'medium' | 'low' | null;
 }
 
-// specs/008-current-task-progress FR-003a's fixed confidence matrix, as a
+// The fixed confidence matrix, as a
 // pure function — one tested place, not re-derived at each call site
 // (data-model.md). Board-sourced estimates read as more trustworthy than an
 // AI guess regardless of complexity; within each source, a complex task's
@@ -148,7 +148,7 @@ export class TaskVulgarizationService {
     // vulgarized_tasks/task_progress and keep showing to the client forever,
     // since nothing else ever clears a row. Prisma's `notIn: []` matches
     // every row, so this correctly clears everything when nothing is in
-    // progress anymore (specs/008 research.md Decision 7).
+    // progress anymore.
     const currentItemIds = items.map((item) => item.id);
     await this.prisma.vulgarizedTask.deleteMany({
       where: {
@@ -164,8 +164,8 @@ export class TaskVulgarizationService {
     });
 
     for (const item of items) {
-      // Once per item, not once per locale (specs/008 research.md Decision
-      // 1) — start date/estimate/complexity are locale-independent.
+      // Once per item, not once per locale — start date/estimate/complexity
+      // are locale-independent.
       await this.processTaskProgress(connection, item);
 
       for (const locale of SUPPORTED_LOCALES) {
@@ -196,8 +196,7 @@ export class TaskVulgarizationService {
       : detectedStartedAt;
 
     // Only re-call the AI when the task's own content actually changed
-    // (specs/008 research.md Decision 6) — a snapshot independent of
-    // VulgarizedTask's own per-locale copies (research.md Decision 1).
+    // — a snapshot independent of VulgarizedTask's own per-locale copies.
     const contentChanged =
       !existing ||
       existing.lastEstimatedTitle !== item.title ||
@@ -220,8 +219,8 @@ export class TaskVulgarizationService {
         lastEstimatedTitle = item.title;
         lastEstimatedDescription = item.description;
       } catch (error) {
-        // Mirrors VulgarizedTask's failure semantics (specs/007 research.md
-        // Decision 4): leave everything untouched so the next sweep retries
+        // Mirrors VulgarizedTask's failure semantics: leave everything
+        // untouched so the next sweep retries
         // against the same baseline, instead of silently freezing on a
         // stale AI estimate under content that no longer matches it.
         this.logger.warn(
@@ -367,7 +366,7 @@ export class TaskVulgarizationService {
 
   // The only method current-task's read path calls — never touches GitHub
   // or the LLM (FR-003). Progress data was already resolved and persisted
-  // during the sweep (specs/008 research.md Decision 4) — this is a pure
+  // during the sweep — this is a pure
   // DB read, same guarantee as the vulgarized text itself.
   async getVulgarizedCurrentTask(
     projectId: string,

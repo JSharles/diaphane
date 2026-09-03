@@ -73,7 +73,7 @@ export interface VulgarizationInput {
   locale: Locale;
 }
 
-// specs/008-current-task-progress research.md Decision 2/3: a separate call
+// A separate call
 // from vulgarize() — this judgment is locale-independent (asked once per
 // item, not once per locale, research.md Decision 1) and must never receive
 // or return an absolute date, only a duration, to avoid LLM date-arithmetic

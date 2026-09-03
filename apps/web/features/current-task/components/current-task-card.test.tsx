@@ -267,7 +267,7 @@ describe("CurrentTaskCard", () => {
     expect(screen.getByText(/timeline/)).toBeInTheDocument();
   });
 
-  // specs/008-current-task-progress FR-008: no progress bar / no estimate
+  // No progress bar / no estimate
   // text at all when there's no estimate — never a misleading 0%/broken bar.
   it("shows no progress bar and no estimate text when estimatedCompletionAt is null", () => {
     mockedUseCurrentTask.mockReturnValue({

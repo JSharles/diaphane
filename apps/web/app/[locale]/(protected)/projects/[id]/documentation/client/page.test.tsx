@@ -12,8 +12,8 @@ vi.mock("@/features/documentation/hooks", () => ({
   useClientContentPreview: vi.fn(),
 }));
 
-// The mirror is the very component the client's page renders (specs/020
-// T024b) — mocked here; what this page owns is the frame around it.
+// The mirror is the very component the client's page renders — mocked here;
+// what this page owns is the frame around it.
 vi.mock("../../client-main-tabs", () => ({
   ClientMainTabs: ({ projectId }: { projectId: string }) => (
     <div>client-main-tabs:{projectId}</div>

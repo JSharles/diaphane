@@ -54,8 +54,8 @@ describe("ClientMainTabs", () => {
     expect(screen.queryAllByRole("tab")).toHaveLength(1);
   });
 
-  // specs/015 US3, and the defect that feature existed to remove: a tab is ONE
-  // continuous text. Under 014 the document was the unit, so a tab stacked
+  // The defect the sections feature existed to remove: a tab is ONE
+  // continuous text. Before, the document was the unit, so a tab stacked
   // several blocks about the same subject and left the client to reconcile them.
   it("shows one continuous text per section tab", async () => {
     withContent([overview, planning]);
@@ -71,7 +71,7 @@ describe("ClientMainTabs", () => {
     expect(screen.getByText("Delivery is planned for March.")).toBeInTheDocument();
   });
 
-  // specs/017: the heading a client reads is the one their contributor wrote,
+  // The heading a client reads is the one their contributor wrote,
   // not a label the product chose, and it is shown untranslated because the
   // system cannot translate what it did not author (research Decision 7).
   it("labels each tab with the name its author gave it", () => {

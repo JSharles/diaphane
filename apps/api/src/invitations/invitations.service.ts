@@ -282,7 +282,7 @@ export class InvitationsService {
       // creation, the answer told the inviter an account existed (decision
       // #49). Here only the holder of the link learns it, about their own
       // email. Checked before the password verify below: a GitHub-only
-      // developer account (specs/009-developer-github-oauth) has no
+      // developer account has no
       // passwordHash at all, so this order also avoids ever calling
       // argon2.verify with null.
       if (user.accountKind === 'developer') {

@@ -129,7 +129,7 @@ export function getPublicClientSections(projectId: string) {
   );
 }
 
-// Step 4's frame (specs/022): the current release as the client reads it —
+// Step 4's frame: the current release as the client reads it —
 // sections plus publishedAt — and the pending one when a newer version is
 // approved but not yet live. Contributor-only server-side.
 export function getClientContentPreview(projectId: string) {
@@ -155,7 +155,7 @@ export function confirmDocumentRemoval(
   );
 }
 
-// ─── Author-defined client sections (specs/017) ───────────────────────────────
+// ─── Author-defined client sections ──────────────────────────────────────────
 
 export function listSections(projectId: string) {
   return apiFetch<{ sections: SectionView[] }>(
@@ -249,7 +249,7 @@ export function approveSectionProposal(
   );
 }
 
-// ─── The reference document (specs/018) ───────────────────────────────────────
+// ─── The reference document ──────────────────────────────────────────────────
 
 export function getReferenceSummary(projectId: string) {
   return apiFetch<ReferenceSummary>(

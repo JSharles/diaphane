@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 import { SESSION_COOKIE_NAME } from './session-cookie';
 
 // Kept deliberately short: an unknown or malformed value is ignored rather than
-// stored, and generation falls back to English (specs/018, FR-025).
+// stored, and generation falls back to English.
 const SUPPORTED_LOCALES = ['fr', 'en'];
 
 @Injectable()

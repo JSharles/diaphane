@@ -50,7 +50,7 @@ export class ProjectsService {
   // role. Both rows are created in one transaction so a project never briefly
   // exists without a member able to manage it.
   //
-  // A client-kind account can never create a project (specs/004-account-kind)
+  // A client-kind account can never create a project
   // — developer and client are non-overlapping audiences by design, so this
   // is rejected at the API level, not merely hidden in the UI.
   async create(

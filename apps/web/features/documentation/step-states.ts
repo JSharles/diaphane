@@ -1,6 +1,6 @@
 import type { DocumentationWorkspace, ReferenceSummary } from "schemas";
 
-// The four places of the documentary feature (specs/022). The keys are the
+// The four places of the documentary feature. The keys are the
 // route segments under /projects/[id]/documentation — order is the order of
 // the chain, and it never changes (FR-003).
 export const STEP_KEYS = ["sources", "reference", "sections", "client"] as const;

@@ -7,7 +7,7 @@ import { cn } from "@/shared/lib/utils";
 
 // A document is read once at upload and then it is in. There is no pipeline
 // behind it any more, so there is no "processing for six hours" to explain and
-// no spinner to hold (specs/018).
+// no spinner to hold.
 export function DocumentStatus({
   status,
   className,

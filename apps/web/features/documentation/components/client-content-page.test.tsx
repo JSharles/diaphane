@@ -170,6 +170,6 @@ describe("ClientContentPage", () => {
     );
   });
 
-  // The contributor gate moved to the documentation layout (specs/022) —
+  // The contributor gate moved to the documentation layout —
   // covered in layout.test.tsx; the API refuses independently either way.
 });

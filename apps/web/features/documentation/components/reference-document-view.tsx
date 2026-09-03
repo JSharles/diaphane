@@ -26,7 +26,7 @@ import {
 
 // The one way to tell Diaphane something. Answering an open point and
 // correcting a paragraph are the same act, so they are the same component:
-// what was on screen travels with the note as its context (specs/018, FR-012).
+// what was on screen travels with the note as its context.
 function NoteComposer({
   projectId,
   context,
