@@ -358,8 +358,7 @@
           "substepTitleLabel": "Sub-step",
           "substepTitlePlaceholder": "Feature 1 — the basket",
           "substepWhenLabel": "When, for this sub-step",
-          "substepWhenPlaceholder": "No date",
-          "nothingYet": "Your client sees no step yet: the timeline is empty."
+          "substepWhenPlaceholder": "No date"
         }
       },
       "Reference": {

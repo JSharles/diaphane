@@ -1,6 +1,7 @@
 import {
   mergeRoadmapRecomposition,
   originAfterEdit,
+  roadmapAfterEdit,
   roadmapInPlaceForPrompt,
 } from './roadmap-recomposition';
 
@@ -449,5 +450,79 @@ describe('who owns a step after the developer edited it', () => {
     expect(originAfterEdit(read, { ...read, description: 'Ajout.' })).toBe(
       'developer',
     );
+  });
+});
+
+// The roadmap after the developer sent it back from the editor: every step
+// travels, ids are kept where an id was sent and minted where none was, and
+// both levels are reconciled the same way.
+describe('the roadmap after the developer edited it', () => {
+  const substep = {
+    id: 'sub-1',
+    when: null,
+    title: 'Feature 1',
+    description: null,
+    origin: 'document' as const,
+  };
+  const inPlace = [
+    {
+      id: 'm-1',
+      when: 'Q3 2026',
+      title: 'Recette',
+      description: null,
+      substeps: [substep],
+      origin: 'document' as const,
+    },
+  ];
+
+  it('keeps the ids sent back and mints one for a step sent without', () => {
+    const edited = roadmapAfterEdit(inPlace, [
+      { id: 'm-1', when: 'Q3 2026', title: 'Recette', substeps: [] },
+      { id: null, when: null, title: 'Mise en ligne' },
+    ]);
+
+    expect(edited.map((milestone) => milestone.id)).toEqual([
+      'm-1',
+      expect.any(String),
+    ]);
+    expect(edited[1].id).not.toBe('m-1');
+    expect(edited[1]).toMatchObject({
+      when: null,
+      description: null,
+      substeps: [],
+      origin: 'developer',
+    });
+  });
+
+  it('reconciles a sub-step the way it reconciles the step above it', () => {
+    const [milestone] = roadmapAfterEdit(inPlace, [
+      {
+        id: 'm-1',
+        when: ' Q3 2026 ',
+        title: 'Recette',
+        substeps: [
+          { id: 'sub-1', when: ' ', title: 'Feature 1 — le panier' },
+          { id: null, title: 'Feature 2' },
+        ],
+      },
+    ]);
+
+    // Words unchanged once trimmed, so still the document's.
+    expect(milestone.origin).toBe('document');
+    expect(milestone.substeps).toEqual([
+      {
+        id: 'sub-1',
+        when: null,
+        title: 'Feature 1 — le panier',
+        description: null,
+        origin: 'developer',
+      },
+      expect.objectContaining({ title: 'Feature 2', origin: 'developer' }),
+    ]);
+    expect(milestone.substeps[1].id).not.toBe('sub-1');
+  });
+
+  it('never revives a step that was not sent back', () => {
+    expect(roadmapAfterEdit(inPlace, [])).toEqual([]);
   });
 });

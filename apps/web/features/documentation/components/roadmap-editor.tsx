@@ -18,7 +18,6 @@ import {
   TimelineMarker,
   type MilestoneState,
 } from "@/shared/components/ui/timeline";
-import { ClientTimeline } from "@/shared/components/client-timeline";
 import { cn } from "@/shared/lib/utils";
 import { useReplaceMilestones, useSetCurrentMilestone } from "../hooks";
 import { ROADMAP_PHASE_IDS } from "./roadmap-phases";
@@ -84,53 +83,37 @@ function blankSubstep(): SubstepDraftRow {
 const fieldClass =
   "w-full rounded-md border border-transparent bg-transparent px-2 py-1 outline-none transition-colors hover:border-border focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
+// The roadmap is always the form, published or not (docs/PRODUCT.md « La
+// roadmap »): a correction to the published one is saved against the approved
+// proposal, and the API turns it into a proposal of its own to approve.
 export function RoadmapEditor({
   projectId,
   section,
   milestones,
+  proposalId,
   proposalVersion,
-  editable,
 }: {
   projectId: string;
   section: SectionView;
   milestones: ReadMilestone[];
-  /** Absent when the roadmap on screen is the published one, which is read
-   *  only — everything except where the project stands. */
-  proposalVersion?: number;
-  editable: boolean;
+  /** The proposal the roadmap on screen belongs to: the one under review, or
+   *  else the one last approved, which is what the client reads. */
+  proposalId: string;
+  proposalVersion: number;
 }) {
   const t = useTranslations("Projects.Documentation.Sections.Roadmap");
   const save = useReplaceMilestones(projectId, section.id);
   const move = useSetCurrentMilestone(projectId, section.id);
 
-  // Keyed on the version so a fresh composition replaces the draft instead of
-  // being masked by edits made against the previous one.
-  const [revision, setRevision] = useState(proposalVersion);
+  // Keyed on the proposal and its version, so a fresh composition — or the
+  // proposal a correction to the published roadmap just opened — replaces the
+  // draft instead of being masked by edits made against the previous one.
+  const key = `${proposalId}:${proposalVersion}`;
+  const [revision, setRevision] = useState(key);
   const [draft, setDraft] = useState<Draft[]>(() => milestones.map(toDraft));
-  if (revision !== proposalVersion) {
-    setRevision(proposalVersion);
+  if (revision !== key) {
+    setRevision(key);
     setDraft(milestones.map(toDraft));
-  }
-
-  // Nothing to edit means nothing to edit: what is shown is what the client
-  // reads, rendered by the client's own component so the two cannot drift.
-  // The marker stays a control, because where the project stands moves without
-  // composing, approving or publishing anything.
-  if (!editable) {
-    // A published roadmap with nothing in it is absent from the client's tabs,
-    // so saying "here is what they read" over a blank would be a lie.
-    if (milestones.length === 0) {
-      return <p className="text-sm text-muted-foreground">{t("nothingYet")}</p>;
-    }
-    return (
-      <ClientTimeline
-        milestones={milestones}
-        currentMilestoneId={section.currentMilestoneId}
-        onSelect={(milestoneId) =>
-          move.mutate({ milestoneId, expectedVersion: section.version })
-        }
-      />
-    );
   }
 
   const rows = draft;
@@ -580,7 +563,7 @@ export function RoadmapEditor({
                       description: substep.description?.trim() || null,
                     })),
                   })),
-                  expectedProposalVersion: proposalVersion!,
+                  expectedProposalVersion: proposalVersion,
                 })
               }
             >

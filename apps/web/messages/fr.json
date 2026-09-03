@@ -358,8 +358,7 @@
           "substepTitleLabel": "Sous-étape",
           "substepTitlePlaceholder": "Feature 1 — le panier",
           "substepWhenLabel": "Quand, pour cette sous-étape",
-          "substepWhenPlaceholder": "Sans date",
-          "nothingYet": "Votre client ne voit encore aucune étape : la frise est vide."
+          "substepWhenPlaceholder": "Sans date"
         }
       },
       "Reference": {

@@ -389,12 +389,15 @@ export function useReplaceMilestones(projectId: string, sectionId: string) {
     mutationFn: (body: ReplaceMilestonesRequest) =>
       replaceMilestones(projectId, sectionId, body),
     meta: { skipGlobalErrorToast: true, successMessage: t("milestonesSaved") },
-    onSuccess: (proposal) => {
+    onSuccess: async (proposal) => {
       queryClient.setQueryData(
         sectionProposalKey(projectId, sectionId),
         proposal,
       );
-      queryClient.invalidateQueries({ queryKey: sectionsKey(projectId) });
+      // Awaited: saving a correction to the published roadmap opens a
+      // proposal, which moves the section's version, and the markers send
+      // that version. A dot pressed before the list caught up was refused.
+      await queryClient.invalidateQueries({ queryKey: sectionsKey(projectId) });
     },
   });
 }
