@@ -579,10 +579,18 @@ model SectionProposal {
   version               Int                     @default(1)
   approvedAt            DateTime?               @map("approved_at")
   approvedByUserId      String?                 @map("approved_by_user_id") @db.Uuid
+  // The roadmap in place this one was recomposed from: the proposal whose
+  // milestones the model received next to the reference document, so that its
+  // developer-origin steps come through untouched. Null on a first composition
+  // and on prose, which starts from the document alone (docs/PRODUCT.md
+  // « La roadmap »).
+  basedOnProposalId     String?                 @map("based_on_proposal_id") @db.Uuid
   createdAt             DateTime                @default(now()) @map("created_at")
   updatedAt             DateTime                @updatedAt @map("updated_at")
 
   section              ClientSection          @relation("SectionProposals", fields: [sectionId], references: [id], onDelete: Cascade)
+  basedOn              SectionProposal?       @relation("SectionProposalBase", fields: [basedOnProposalId], references: [id], onDelete: SetNull)
+  recomposedInto       SectionProposal[]      @relation("SectionProposalBase")
   activeForSection     ClientSection?         @relation("SectionActiveProposal")
   referenceDocument    ReferenceDocument      @relation("SectionProposalReference", fields: [referenceDocumentId], references: [id], onDelete: Restrict)
   generationOperation  GenerationOperation    @relation("SectionProposalGenerationOperation", fields: [generationOperationId], references: [id], onDelete: Restrict)

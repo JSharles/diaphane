@@ -1,7 +1,17 @@
 import { z } from 'zod';
 
-export const ROADMAP_COMPOSITION_PROMPT_VERSION = 'roadmap-composition-v3';
-export const ROADMAP_COMPOSITION_OUTPUT_CONTRACT = 'roadmap-composition-v3';
+export const ROADMAP_COMPOSITION_PROMPT_VERSION = 'roadmap-composition-v4';
+export const ROADMAP_COMPOSITION_OUTPUT_CONTRACT = 'roadmap-composition-v4';
+
+// How the model names a step of the roadmap in place it keeps or corrects:
+// "M2" for a milestone, "M2.S1" for what sits inside one. Null on a step it
+// adds. The reference stands in for the id, which never reaches the model
+// (45a13ac); it is short enough to copy right and checked against the roadmap
+// in place before anything is written (roadmap-recomposition.ts).
+const RoadmapRefSchema = z
+  .string()
+  .regex(/^M[1-9]\d*(\.S[1-9]\d*)?$/)
+  .nullable();
 
 // What sits inside a long milestone, as the model returns it. Its "when" may be
 // null: a feature inside a phase often has no date of its own, and a model
@@ -12,18 +22,21 @@ export const ROADMAP_COMPOSITION_OUTPUT_CONTRACT = 'roadmap-composition-v3';
 // not to produce one.
 export const RoadmapSubstepOutputSchema = z
   .object({
+    ref: RoadmapRefSchema,
     when: z.string().trim().min(1).max(120).nullable(),
     title: z.string().trim().min(1).max(200),
     description: z.string().trim().max(2_000).nullable(),
   })
   .strict();
 
-// A milestone as the model returns it: when, what, optionally why it matters,
-// and optionally what sits inside it. No id — ids are minted server-side and
-// never asked of the model, which is the rule 45a13ac established after echoed
-// identifiers killed three stages by getting a character wrong.
+// A milestone as the model returns it: which step in place it is, if any,
+// when, what, optionally why it matters, and optionally what sits inside it.
+// No id — ids are minted server-side and never asked of the model, which is the
+// rule 45a13ac established after echoed identifiers killed three stages by
+// getting a character wrong.
 export const RoadmapMilestoneOutputSchema = z
   .object({
+    ref: RoadmapRefSchema,
     when: z.string().trim().min(1).max(120).nullable(),
     title: z.string().trim().min(1).max(200),
     description: z.string().trim().max(2_000).nullable(),
@@ -72,8 +85,9 @@ export const ROADMAP_COMPOSITION_JSON_SCHEMA: Record<string, unknown> = {
       items: {
         type: 'object',
         additionalProperties: false,
-        required: ['when', 'title', 'description', 'substeps'],
+        required: ['ref', 'when', 'title', 'description', 'substeps'],
         properties: {
+          ref: { type: ['string', 'null'] },
           when: { type: ['string', 'null'] },
           title: { type: 'string' },
           description: { type: ['string', 'null'] },
@@ -82,8 +96,9 @@ export const ROADMAP_COMPOSITION_JSON_SCHEMA: Record<string, unknown> = {
             items: {
               type: 'object',
               additionalProperties: false,
-              required: ['when', 'title', 'description'],
+              required: ['ref', 'when', 'title', 'description'],
               properties: {
+                ref: { type: ['string', 'null'] },
                 when: { type: ['string', 'null'] },
                 title: { type: 'string' },
                 description: { type: ['string', 'null'] },

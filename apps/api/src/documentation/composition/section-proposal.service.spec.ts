@@ -371,9 +371,94 @@ describe('SectionProposalService', () => {
       expect(generation.createInTransaction).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
-          outputContractVersion: 'roadmap-composition-v3',
+          outputContractVersion: 'roadmap-composition-v4',
         }),
       );
+    });
+
+    // Recomposing starts from the roadmap the developer has now, so their
+    // retouches travel into the next proposal rather than being lost.
+    describe('recomposing in place', () => {
+      const approvedId = '00000000-0000-4000-8000-00000000000c';
+      const heldId = '00000000-0000-4000-8000-00000000000d';
+
+      function pinned(prisma: ReturnType<typeof createPrismaMock>) {
+        const created = prisma.sectionProposal.create.mock.calls[0][0] as {
+          data: { basedOnProposalId: string | null };
+        };
+        const queued = prisma.sectionProposal.create.mock.calls.length;
+        return { basedOnProposalId: created.data.basedOnProposalId, queued };
+      }
+
+      it('starts from the proposal under review, edits included', async () => {
+        const { prisma, generation, service } = setup();
+        readyToCompose(prisma, {
+          kind: 'roadmap',
+          instructions: null,
+          activeProposalId: heldId,
+        });
+        prisma.sectionProposal.findFirst.mockResolvedValue({
+          id: heldId,
+          status: 'pending_review',
+        });
+        prisma.sectionProposal.updateMany.mockResolvedValue({ count: 1 });
+        prisma.sectionProposal.findUnique.mockResolvedValue({
+          id: heldId,
+          version: 7,
+        });
+
+        await service.compose(userId, projectId, sectionId);
+
+        expect(pinned(prisma).basedOnProposalId).toBe(heldId);
+        // Read after the supersede, at the version it then holds.
+        expect(prisma.sectionProposal.findUnique).toHaveBeenCalledWith(
+          expect.objectContaining({ where: { id: heldId } }),
+        );
+        expect(generation.createInTransaction).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            outputContractVersion: 'roadmap-composition-v4',
+          }),
+        );
+      });
+
+      it('starts from the roadmap last approved when nothing is under review', async () => {
+        const { prisma, service } = setup();
+        readyToCompose(prisma, { kind: 'roadmap', instructions: null });
+        prisma.sectionProposal.findFirst.mockResolvedValue({
+          id: approvedId,
+          version: 3,
+        });
+
+        await service.compose(userId, projectId, sectionId);
+
+        expect(prisma.sectionProposal.findFirst).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { sectionId, status: 'approved' },
+          }),
+        );
+        expect(pinned(prisma).basedOnProposalId).toBe(approvedId);
+      });
+
+      it('starts from nothing on a first composition', async () => {
+        const { prisma, service } = setup();
+        readyToCompose(prisma, { kind: 'roadmap', instructions: null });
+        prisma.sectionProposal.findFirst.mockResolvedValue(null);
+
+        await service.compose(userId, projectId, sectionId);
+
+        expect(pinned(prisma).basedOnProposalId).toBeNull();
+      });
+
+      it('never gives prose a roadmap to start from', async () => {
+        const { prisma, service } = setup();
+        readyToCompose(prisma);
+
+        await service.compose(userId, projectId, sectionId);
+
+        expect(prisma.sectionProposal.findFirst).not.toHaveBeenCalled();
+        expect(pinned(prisma).basedOnProposalId).toBeNull();
+      });
     });
 
     it('reads milestones back rather than blocks', async () => {
@@ -435,11 +520,63 @@ describe('SectionProposalService', () => {
       expect(written.data.structuredContent[0]).toMatchObject({
         id: milestoneId,
         when: 'mi-octobre',
-        // Corrected, not authored: the developer is fixing what was read.
-        origin: 'document',
+        // Retouched, so theirs from now on: the next recomposition hands it
+        // back untouched rather than letting the model revert the date.
+        origin: 'developer',
       });
       expect(written.data.structuredContent[1].id).not.toBe(milestoneId);
       expect(written.data.structuredContent[1].origin).toBe('developer');
+    });
+
+    // Reordering is not a retouch: a step sent back word for word stays what
+    // it was, and the model may still correct it against the document.
+    it('keeps a step the developer only moved as read from the document', async () => {
+      const { prisma, service } = setup();
+      const otherId = '00000000-0000-4000-8000-00000000000e';
+      pendingRoadmap(prisma, [
+        {
+          id: milestoneId,
+          when: 'Q3 2026',
+          title: 'Recette',
+          description: null,
+          substeps: [],
+          origin: 'document',
+        },
+        {
+          id: otherId,
+          when: null,
+          title: 'Mise en ligne',
+          description: null,
+          substeps: [],
+          origin: 'document',
+        },
+      ]);
+
+      await service.replaceMilestones(userId, projectId, sectionId, {
+        milestones: [
+          {
+            id: otherId,
+            when: null,
+            title: 'Mise en ligne',
+            description: null,
+          },
+          {
+            id: milestoneId,
+            when: 'Q3 2026',
+            title: 'Recette',
+            description: null,
+          },
+        ],
+        expectedProposalVersion: 3,
+      });
+
+      const written = prisma.sectionProposal.updateMany.mock.calls[0][0] as {
+        data: { structuredContent: { id: string; origin: string }[] };
+      };
+      expect(written.data.structuredContent.map((m) => m.origin)).toEqual([
+        'document',
+        'document',
+      ]);
     });
 
     it('refuses to edit milestones on a section that is not a roadmap', async () => {
@@ -573,9 +710,14 @@ describe('SectionProposalService', () => {
           id: substepId,
           when: 'juin',
           title: 'Feature 1 — le panier',
-          // Corrected, not authored.
-          origin: 'document',
+          // Retouched, so theirs: a recomposition hands it back untouched.
+          origin: 'developer',
         });
+        // The step around it was sent back word for word, so it is still the
+        // document's to correct.
+        expect(
+          (written.data.structuredContent[0] as { origin?: string }).origin,
+        ).toBe('document');
         expect(substeps[1].id).not.toBe(substepId);
         expect(substeps[1].origin).toBe('developer');
         // A step inside a phase often has no date of its own.
