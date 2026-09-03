@@ -13,6 +13,7 @@ import {
   sessionCookieOptions,
 } from '../auth/session-cookie';
 import { toPublicUser } from '../auth/to-public-user';
+import { SensitiveRateLimit } from '../rate-limit/sensitive-rate-limit.decorator';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { InvitationsService } from './invitations.service';
 
@@ -24,12 +25,14 @@ export class InvitationAcceptanceController {
   constructor(private readonly invitationsService: InvitationsService) {}
 
   @Get(':token')
+  @SensitiveRateLimit()
   getByToken(@Param('token') token: string) {
     return this.invitationsService.getByToken(token);
   }
 
   @Post(':token/accept')
   @HttpCode(200)
+  @SensitiveRateLimit()
   async accept(
     @Param('token') token: string,
     @Body() dto: AcceptInvitationDto,

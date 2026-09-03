@@ -14,11 +14,13 @@ import { NotionConnectionModule } from './notion-connection/notion-connection.mo
 import { ScheduleModule } from '@nestjs/schedule';
 import { GenerationModule } from './generation/generation.module';
 import { DocumentationModule } from './documentation/documentation.module';
+import { RateLimitModule } from './rate-limit/rate-limit.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
+    RateLimitModule,
     PrismaModule,
     AuthModule,
     ProjectsModule,
