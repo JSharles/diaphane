@@ -4,13 +4,16 @@ import {
   ForbiddenException,
   GoneException,
   Injectable,
+  Logger,
   NotFoundException,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Invitation, User } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { randomBytes } from 'crypto';
 import { AuthService } from '../auth/auth.service';
+import { MailerService } from '../mailer/mailer.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AcceptInvitationDto } from './dto/accept-invitation.dto';
 import { CreateInvitationDto } from './dto/create-invitation.dto';
@@ -26,9 +29,12 @@ export interface InvitationDetails {
 
 @Injectable()
 export class InvitationsService {
+  private readonly logger = new Logger(InvitationsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
+    private readonly mailer: MailerService,
   ) {}
 
   // Only a project admin can invite — is_admin is what governs member
@@ -78,20 +84,56 @@ export class InvitationsService {
       where: { projectId, email, status: 'invited' },
     });
 
-    if (existingInvitation) {
-      return this.extendInvitation(existingInvitation);
-    }
+    const invitation = existingInvitation
+      ? await this.extendInvitation(existingInvitation)
+      : await this.prisma.invitation.create({
+          data: {
+            projectId,
+            email,
+            isAdmin: false,
+            token: randomBytes(32).toString('hex'),
+            status: 'invited',
+            expiresAt: new Date(Date.now() + INVITATION_TTL_MS),
+          },
+        });
 
-    return this.prisma.invitation.create({
-      data: {
-        projectId,
-        email,
-        isAdmin: false,
-        token: randomBytes(32).toString('hex'),
-        status: 'invited',
-        expiresAt: new Date(Date.now() + INVITATION_TTL_MS),
-      },
+    await this.sendInvitationEmail(invitation);
+    return invitation;
+  }
+
+  // The invitation sends a real email (docs/PRODUCT.md « Les invitations et
+  // l'email »): the link to the invitation page, in the project's language,
+  // under the project's title. The row exists before the email leaves, so a
+  // mail outage is reported rather than hidden — the developer copies the
+  // link, or invites again, which sends again on the same invitation.
+  private async sendInvitationEmail(invitation: Invitation): Promise<void> {
+    const project = await this.prisma.project.findUnique({
+      where: { id: invitation.projectId },
+      select: { title: true, language: true },
     });
+    if (!project) throw new NotFoundException('Project not found');
+    // French is where a bare link lands too (apps/web/i18n/routing.ts).
+    const language = project.language ?? 'fr';
+    const link = new URL(
+      `/${language}/invite/${invitation.token}`,
+      process.env.WEB_ORIGIN ?? 'http://localhost:3000',
+    ).toString();
+
+    try {
+      await this.mailer.sendInvitation({
+        to: invitation.email,
+        projectTitle: project.title,
+        link,
+        language,
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Invitation email to ${invitation.email} not sent: ${String(error)}`,
+      );
+      throw new ServiceUnavailableException(
+        'The invitation was saved, but the email could not be sent',
+      );
+    }
   }
 
   // Pending-only (FR-018) — an invitation drops out once it's accepted,
@@ -144,7 +186,9 @@ export class InvitationsService {
       invitationId,
     );
 
-    return this.extendInvitation(invitation);
+    const extended = await this.extendInvitation(invitation);
+    await this.sendInvitationEmail(extended);
+    return extended;
   }
 
   private async findPendingInvitationOrThrow(

@@ -32,7 +32,9 @@ export function useCreateInvitation(projectId: string) {
   return useMutation({
     mutationFn: (data: CreateInvitationRequest) => createInvitation(projectId, data),
     meta: { skipGlobalErrorToast: true },
-    onSuccess: () => {
+    // Settled, not succeeded: the invitation is saved before its email leaves,
+    // so one whose email failed is in the list too, with its link to copy.
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: invitationsKey(projectId) });
     },
   });
@@ -54,7 +56,8 @@ export function useResendInvitation(projectId: string) {
 
   return useMutation({
     mutationFn: (invitationId: string) => resendInvitation(projectId, invitationId),
-    onSuccess: () => {
+    // Settled: the expiry is extended before the email leaves.
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: invitationsKey(projectId) });
     },
   });
