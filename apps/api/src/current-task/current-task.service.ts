@@ -15,8 +15,8 @@ export class CurrentTaskService {
   ) {}
 
   // Open to any project member, not contributor-only. Never touches GitHub or
-  // the LLM — reads only what
-  // TaskVulgarizationService's scheduled sweep has already persisted.
+  // the LLM — reads only what TaskVulgarizationService's scheduled sweep has
+  // already persisted.
   async getCurrentTask(
     userId: string,
     projectId: string,

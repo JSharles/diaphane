@@ -244,10 +244,11 @@ export class GithubProjectsClient {
     return items;
   }
 
-  // A separate round of GraphQL calls from fetchInProgressItems (same
-  // query, same board) rather than one fetch the two derive from — the two
-  // readers run at different moments of the sweep, and a cheap, infrequent
-  // (5-minute) extra read is not worth coupling them.
+  // The sweep calls this right after fetchInProgressItems on the same board,
+  // so the same pages are read twice. Kept as its own read rather than one
+  // fetch both derive from: the in-progress path feeds the client-facing
+  // current-task card and stays untouched, and the doubled read is cheap for
+  // a sweep that runs every five minutes.
   async fetchTaskCounts(
     token: string,
     ownerLogin: string,

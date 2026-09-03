@@ -1,9 +1,9 @@
 // The app's currently supported UI locales (apps/web/i18n/routing.ts) —
-// vulgarization only ever targets this fixed, small set (spec.md FR-006).
+// vulgarization only ever targets this fixed, small set.
 export const SUPPORTED_LOCALES = ['en', 'fr'] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
-// Matches apps/web/i18n/routing.ts's defaultLocale (research.md Decision 5).
+// Matches apps/web/i18n/routing.ts's defaultLocale.
 export const DEFAULT_LOCALE: Locale = 'fr';
 
 export function parseLocale(value: unknown): Locale {

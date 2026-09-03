@@ -11,7 +11,7 @@
 // contributor's instructions are the only expression of what a section should
 // hold, and a vague instruction produces a vague section that the system can
 // neither detect nor fix. A worked example shown at the moment of writing
-// teaches that far better than help text (research Decision 10).
+// teaches that far better than help text.
 //
 // The roadmap sits among them rather than below the line. It used to be offered
 // apart, next to "write my own title", while the list still carried a prose

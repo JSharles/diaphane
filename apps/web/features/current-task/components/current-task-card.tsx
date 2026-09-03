@@ -71,8 +71,8 @@ function LiveIndicator({ active }: { active: boolean }) {
 
 // Frontend-only relative-time formatting from the item's own `updatedAt`
 // (backend already tracks this via VulgarizedTask.updatedAt) — no new
-// backend contract to design,
-// just surfacing what was already persisted. Answers the critique finding
+// backend contract to design, just surfacing what was already persisted.
+// Answers the critique finding
 // that nothing on this page tells an anxious client whether "in progress"
 // means five minutes ago or three weeks ago.
 function formatRelativeTime(isoDate: string, locale: string): string {

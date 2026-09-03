@@ -33,9 +33,8 @@ export interface CurrentTaskItem {
   estimateConfidence: 'high' | 'medium' | 'low' | null;
 }
 
-// The fixed confidence matrix, as a
-// pure function — one tested place, not re-derived at each call site
-// (data-model.md). Board-sourced estimates read as more trustworthy than an
+// The fixed confidence matrix, as a pure function — one tested place, not
+// re-derived at each call site. Board-sourced estimates read as more trustworthy than an
 // AI guess regardless of complexity; within each source, a complex task's
 // estimate is trusted less than a simple one's.
 export function resolveConfidence(
@@ -61,8 +60,7 @@ export class TaskVulgarizationService {
     private readonly anthropicClient: AnthropicVulgarizationClient,
   ) {}
 
-  // Fully decoupled from any frontend request (FR-003/FR-010, research.md
-  // Decision 2) — this is the only thing that ever fetches from GitHub or
+  // Fully decoupled from any frontend request — this is the only thing that ever fetches from GitHub or
   // calls the LLM for this feature.
   @Cron(CronExpression.EVERY_5_MINUTES)
   async sweep(): Promise<void> {
@@ -195,8 +193,8 @@ export class TaskVulgarizationService {
       ? new Date(item.boardStartDate)
       : detectedStartedAt;
 
-    // Only re-call the AI when the task's own content actually changed
-    // — a snapshot independent of VulgarizedTask's own per-locale copies.
+    // Only re-call the AI when the task's own content actually changed — a
+    // snapshot independent of VulgarizedTask's own per-locale copies.
     const contentChanged =
       !existing ||
       existing.lastEstimatedTitle !== item.title ||
@@ -324,7 +322,7 @@ export class TaskVulgarizationService {
       vulgarizedImpact = output.impact;
       vulgarizedStatus = output.status;
     } catch (error) {
-      // research.md Decision 4: leave the row exactly as it was — do not
+      // Leave the row exactly as it was — do not
       // touch original* either, so the next sweep retries against the same
       // baseline instead of silently freezing on stale content (FR-007).
       this.logger.warn(

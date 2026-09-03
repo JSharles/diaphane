@@ -73,7 +73,7 @@ describe("ClientMainTabs", () => {
 
   // The heading a client reads is the one their contributor wrote,
   // not a label the product chose, and it is shown untranslated because the
-  // system cannot translate what it did not author (research Decision 7).
+  // system cannot translate what it did not author.
   it("labels each tab with the name its author gave it", () => {
     withContent([overview, planning]);
 

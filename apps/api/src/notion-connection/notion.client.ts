@@ -82,11 +82,11 @@ interface SearchResponse {
   next_cursor: string | null;
 }
 
-// Notion content is
-// fetched as plain text only — no image blocks are forwarded to Claude's
-// vision input for v1 (Notion's own image URLs are short-lived presigned
-// links, real fetch-timing complexity for a P2 path). Block children are
-// fetched recursively so nested content (toggles, nested lists) is included.
+// Notion content is fetched as plain text only — no image blocks are
+// forwarded to Claude's vision input for v1 (Notion's own image URLs are
+// short-lived presigned links, real fetch-timing complexity for little gain).
+// Block children are fetched recursively so nested content (toggles, nested
+// lists) is included.
 @Injectable()
 export class NotionClient {
   // When the next request may go out. Reserved synchronously, so concurrent

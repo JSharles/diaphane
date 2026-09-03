@@ -3,7 +3,7 @@
 import { CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import type { AvailableBoard } from "schemas";
+import type { AvailableBoard, EstimateUnit } from "schemas";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -14,7 +14,7 @@ import {
 } from "@/shared/components/ui/dialog";
 import { ApiError } from "@/shared/lib/api-client";
 import { useAvailableBoards, useConnectBoard } from "../hooks";
-import { EstimateUnitField, type EstimateUnit } from "./estimate-unit-field";
+import { EstimateUnitField } from "./estimate-unit-field";
 
 interface ConnectBoardDialogProps {
   projectId: string;

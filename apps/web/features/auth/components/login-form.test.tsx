@@ -94,7 +94,7 @@ describe("LoginForm", () => {
     render(<LoginForm />);
 
     expect(screen.getByText("noAccount")).toBeInTheDocument();
-    // No self-serve signup exists for clients (research.md Decision 10) — a
+    // No self-serve signup exists for clients — a
     // link would point somewhere wrong, so this must be plain text, not a Link.
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });

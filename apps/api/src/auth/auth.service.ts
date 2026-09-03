@@ -33,10 +33,9 @@ export class AuthService {
     return { user, sessionId: session.id };
   }
 
-  // Finds the developer account already
-  // linked to this GitHub identity, or creates one — the single entry point
-  // both GET /auth/github/callback branches (new vs. returning developer)
-  // resolve to (FR-001/FR-003/FR-004).
+  // Finds the developer account already linked to this GitHub identity, or
+  // creates one — the single entry point both GET /auth/github/callback
+  // branches (new vs. returning developer) resolve to.
   async findOrCreateFromGitHub(
     profile: GithubProfile,
   ): Promise<{ user: User; sessionId: string }> {
@@ -79,8 +78,8 @@ export class AuthService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        // research.md Decision 6: this feature never links/merges with a
-        // pre-existing account by email — a genuine collision is a dead end,
+        // This feature never links/merges with a pre-existing account by
+        // email — a genuine collision is a dead end,
         // reported cleanly rather than as a raw constraint error.
         throw new ConflictException(
           'An account already exists with this email.',

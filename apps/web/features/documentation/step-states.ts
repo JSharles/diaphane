@@ -127,7 +127,7 @@ export function stepStates(
   return { sources, reference: referenceStep, sections, client };
 }
 
-// Where /documentation lands (spec Decision 2): the first step that is not
+// Where /documentation lands: the first step that is not
 // done, and sections once everything is. Derived from the same inputs as the
 // rail, in the same file, for the same reason.
 export function landingStep(input: StepStatesInput): StepKey {

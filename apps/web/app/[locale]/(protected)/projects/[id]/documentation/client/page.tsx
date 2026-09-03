@@ -7,11 +7,10 @@ import { useClientContentPreview } from "@/features/documentation/hooks";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ClientMainTabs } from "../../client-main-tabs";
 
-// Step 4 — the mirror. A step named "ce que lit votre
-// client" shows what he reads, not a paragraph about it: the very component
-// his own page renders, framed by publication facts. The earlier preview made
-// preview and page the same component precisely so they cannot drift — this
-// step banks on that a second time.
+// Step 4 — the mirror. A step named "ce que lit votre client" shows what he
+// reads, not a paragraph about it: the very component his own page renders,
+// framed by publication facts. Preview and page were made the same component
+// precisely so they cannot drift — this step banks on that a second time.
 export default function ClientStepPage({
   params,
 }: {

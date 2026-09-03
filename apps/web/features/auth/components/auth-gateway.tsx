@@ -11,8 +11,7 @@ type AccountKind = "developer" | "client";
 
 // Single entry point for both /login and /signup. Mirrors the toggle the old
 // self-serve SignupForm used to have — familiar, one page, one obvious
-// choice, no hidden/bookmark-only route for clients (revised again
-// 2026-08-07).
+// choice, no hidden/bookmark-only route for clients (revised 2026-08-07).
 //
 // Two things a first pass got wrong, fixed here:
 // - No default selection. Pre-selecting "developer" put GitHub content in

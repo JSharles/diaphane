@@ -4,8 +4,7 @@ export const DEFAULT_LOCALE: SupportedLocale = 'fr';
 
 // Shared by auth.controller.ts (login flow) and
 // board-connections.controller.ts (board-connection flow) — both redirect the
-// browser
-// back to a locale-prefixed web route after a GitHub round-trip.
+// browser back to a locale-prefixed web route after a GitHub round-trip.
 export function resolveLocale(raw: string | undefined): SupportedLocale {
   return SUPPORTED_LOCALES.includes(raw as SupportedLocale)
     ? (raw as SupportedLocale)

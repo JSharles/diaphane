@@ -14,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
+import type { EstimateUnit } from "schemas";
 import { Link } from "@/i18n/navigation";
 import { SetupBlock, type SetupTone } from "@/shared/components/setup-block";
 import { Button } from "@/shared/components/ui/button";
@@ -21,7 +22,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { ApiError } from "@/shared/lib/api-client";
 import { useBoardConnection, useDisconnectBoard, useUpdateBoardConnection } from "../hooks";
 import { ConnectBoardDialog } from "./connect-board-dialog";
-import { EstimateUnitField, type EstimateUnit } from "./estimate-unit-field";
+import { EstimateUnitField } from "./estimate-unit-field";
 
 function errorMessage(error: unknown, generic: string): string {
   return error instanceof ApiError ? error.message : generic;

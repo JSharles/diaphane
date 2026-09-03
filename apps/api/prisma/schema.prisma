@@ -511,8 +511,7 @@ model ClientSection {
   id                   String                     @id @default(uuid()) @db.Uuid
   projectId            String                     @map("project_id") @db.Uuid
   // Contributor-authored and shown to the client as-is — never a translation
-  // key, because the system cannot translate what it did not write
-  // (research Decision 7).
+  // key, because the system cannot translate what it did not write.
   name                 String                     @db.VarChar(120)
   // Prose or a roadmap, decided at creation. A roadmap has no brief and no
   // register — its brief is fixed and a milestone date has no tone — so the
@@ -536,7 +535,7 @@ model ClientSection {
   refreshNeeded        Boolean                    @default(true) @map("refresh_needed")
   // Soft delete. A deleted section must stop being readable by the client while
   // the proposals and provenance that fed it stay explicable, so every read path
-  // filters on this rather than the row disappearing (research Decision 1).
+  // filters on this rather than the row disappearing.
   archivedAt           DateTime?                  @map("archived_at")
   // FR-013 made structural rather than conventional: at most one non-terminal
   // proposal per section, guaranteed by the unique constraint instead of by a
@@ -792,9 +791,8 @@ model NotionConnection {
 
 // One row per (project, GitHub board item, app locale). `original*` and
 // `vulgarized*` are only ever written together, atomically, on a successful
-// vulgarization call; a failed attempt leaves the row untouched (research.md
-// Decision 4) so the next sweep keeps retrying rather than silently freezing
-// on stale content. `vulgarized*` stay nullable: no successful vulgarization
+// vulgarization call; a failed attempt leaves the row untouched so the next
+// sweep keeps retrying rather than silently freezing on stale content. `vulgarized*` stay nullable: no successful vulgarization
 // has ever completed yet for this (item, locale) pair.
 model VulgarizedTask {
   id        String  @id @default(uuid()) @db.Uuid
@@ -840,7 +838,7 @@ model TaskProgress {
   detectedStartedAt DateTime @map("detected_started_at")
 
   // Resolved fresh every sweep: the board's own "Start date" field when
-  // present, else detectedStartedAt (research.md's write-path flow).
+  // present, else detectedStartedAt.
   resolvedStartedAt DateTime @map("resolved_started_at")
 
   // Resolved once per sweep via the three-tier priority order (FR-004).
@@ -852,7 +850,7 @@ model TaskProgress {
   // Always populated whenever the AI call has ever succeeded, independent
   // of whether its estimate is the one actually shown (FR-003a requires the
   // complexity judgment regardless of estimate source). Stored as a
-  // duration (not a date, research.md Decision 3) so the AI-tier candidate
+  // duration (not a date) so the AI-tier candidate
   // in estimatedCompletionAt's resolution can be recomputed against a
   // possibly-shifted resolvedStartedAt without re-calling the LLM.
   aiComplexity            TaskComplexity? @map("ai_complexity")
@@ -860,7 +858,7 @@ model TaskProgress {
 
   // The content this row's AI estimate/complexity were computed against —
   // mirrors VulgarizedTask's original* change-detection, but per-item, not
-  // per-locale (research.md Decision 6). A failed AI call leaves
+  // per-locale. A failed AI call leaves
   // aiComplexity/the ai-tier estimate untouched and does NOT update these,
   // so the next sweep retries against the same baseline.
   lastEstimatedTitle       String  @map("last_estimated_title")

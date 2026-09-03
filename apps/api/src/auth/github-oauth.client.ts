@@ -72,7 +72,7 @@ export class GithubOauthClient {
     return data.access_token;
   }
 
-  // Fetches the profile and, per research.md Decision 5, resolves the
+  // Fetches the profile and resolves the
   // verified primary email from /user/emails — never trusted from /user
   // alone, whose own `email` field carries no verification signal.
   async fetchProfile(accessToken: string): Promise<GithubProfile> {

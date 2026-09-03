@@ -2,10 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import { useId } from "react";
+import type { EstimateUnit } from "schemas";
 import { Button } from "@/shared/components/ui/button";
 import { Label } from "@/shared/components/ui/label";
-
-export type EstimateUnit = "days" | "hours";
 
 const UNITS: EstimateUnit[] = ["days", "hours"];
 

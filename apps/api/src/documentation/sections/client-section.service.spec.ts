@@ -97,7 +97,7 @@ describe('ClientSectionService', () => {
   });
 
   describe('creating', () => {
-    // Plan, Decision 4: a section is a view of the reference document, so
+    // A section is a view of the reference document, so
     // there is nothing to define one against before one exists.
     it('refuses a project with no reference document yet', async () => {
       const { prisma, service } = setup();

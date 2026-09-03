@@ -133,7 +133,7 @@ describe('BoardConnectionsService', () => {
   });
 
   describe('connect', () => {
-    it('verifies access with the developer’s token, then stores the choice with no token and the chooser', async () => {
+    it('verifies access with the developer’s token, then stores the choice with no token and who chose it', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
       githubClient.verifyBoardAccess.mockResolvedValue(availableBoard);
       prisma.boardConnection.upsert.mockResolvedValue(storedConnection);
@@ -218,7 +218,7 @@ describe('BoardConnectionsService', () => {
       ).resolves.toBeNull();
     });
 
-    it('reads as live while the chooser’s GitHub connection is fine', async () => {
+    it('reads as live while the GitHub connection of the developer who chose the board is fine', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
       prisma.boardConnection.findUnique.mockResolvedValue({
         ...storedConnection,
@@ -234,7 +234,7 @@ describe('BoardConnectionsService', () => {
       expect(result).not.toHaveProperty('encryptedToken');
     });
 
-    it('says reconnect when the chooser’s token was revoked', async () => {
+    it('says reconnect when the token of the developer who chose the board was revoked', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
       prisma.boardConnection.findUnique.mockResolvedValue({
         ...storedConnection,
@@ -246,7 +246,7 @@ describe('BoardConnectionsService', () => {
       ).resolves.toMatchObject({ needsReconnect: true });
     });
 
-    it('says reconnect when the chooser cut their GitHub connection', async () => {
+    it('says reconnect when the developer who chose the board cut their GitHub connection', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
       prisma.boardConnection.findUnique.mockResolvedValue({
         ...storedConnection,
@@ -298,7 +298,7 @@ describe('BoardConnectionsService', () => {
       });
     });
 
-    it('keeps saying reconnect when the chooser’s GitHub connection is cut: the unit is stored, the board still is not read', async () => {
+    it('keeps saying reconnect when the GitHub connection of the developer who chose the board is cut: the unit is stored, the board still is not read', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
       prisma.boardConnection.findUnique.mockResolvedValue({
         ...storedConnection,

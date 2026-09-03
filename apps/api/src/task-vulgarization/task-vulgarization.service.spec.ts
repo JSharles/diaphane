@@ -171,7 +171,7 @@ describe('TaskVulgarizationService', () => {
       expect(prisma.vulgarizedTask.upsert).not.toHaveBeenCalled();
     });
 
-    it('leaves the row untouched when vulgarization fails, so the next sweep retries (FR-007, research.md Decision 4)', async () => {
+    it('leaves the row untouched when vulgarization fails, so the next sweep retries (FR-007)', async () => {
       prisma.boardConnection.findMany.mockResolvedValue([connection]);
       githubClient.fetchInProgressItems.mockResolvedValue([item]);
       prisma.vulgarizedTask.findUnique.mockResolvedValue(null);
@@ -183,7 +183,7 @@ describe('TaskVulgarizationService', () => {
       expect(prisma.vulgarizedTask.upsert).not.toHaveBeenCalled();
     });
 
-    // US2 (spec.md): an edit on GitHub must replace the previous vulgarized
+    // An edit on GitHub must replace the previous vulgarized
     // version, not sit alongside it as a second row, and must produce
     // exactly one fresh Anthropic call per locale — distinct from the
     // "skip when unchanged" assertion above.

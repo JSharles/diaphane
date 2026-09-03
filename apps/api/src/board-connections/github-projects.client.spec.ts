@@ -128,6 +128,37 @@ describe('GithubProjectsClient', () => {
       expect(requestVariables(1)).toEqual({ after: 'cursor-1' });
     });
 
+    it('stops when GitHub claims a next page but gives no cursor to reach it', async () => {
+      mockFetchSequence([
+        {
+          data: {
+            viewer: {
+              projectsV2: {
+                nodes: [boardNode],
+                pageInfo: { hasNextPage: true, endCursor: null },
+              },
+            },
+          },
+        },
+      ]);
+
+      const result = await client.listAccessibleBoards('a-token');
+
+      expect(result).toHaveLength(1);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('treats a page with no pageInfo as the last one', async () => {
+      mockFetchSequence([
+        { data: { viewer: { projectsV2: { nodes: [boardNode] } } } },
+      ]);
+
+      const result = await client.listAccessibleBoards('a-token');
+
+      expect(result).toHaveLength(1);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
     it('stops after one page when GitHub says there is no next page', async () => {
       mockFetchSequence([
         {

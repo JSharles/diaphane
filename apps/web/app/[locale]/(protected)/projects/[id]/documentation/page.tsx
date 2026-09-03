@@ -8,8 +8,8 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 
 // The feature root renders nothing: it lands the developer on the first step
 // that is not done, and on the rubriques once everything is. replace, not
-// push — the back button must never return to an
-// empty root. The rule reads the same module as the rail's states, so where
+// push — the back button must never return to an empty root. The rule reads
+// the same module as the rail's states, so where
 // you land and what the rail says can never disagree.
 export default function DocumentationRootPage({
   params,
