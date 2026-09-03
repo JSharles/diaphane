@@ -1,6 +1,8 @@
-import type { INestApplication } from '@nestjs/common';
+import type { ExecutionContext, INestApplication } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
+import type { User } from '@prisma/client';
+import type { Request } from 'express';
 import type { Server } from 'http';
 import request from 'supertest';
 import { AppController } from '../app.controller';
@@ -11,6 +13,7 @@ import { GithubConnectionService } from '../auth/github-connection.service';
 import { GithubOauthClient } from '../auth/github-oauth.client';
 import { InvitationAcceptanceController } from '../invitations/invitation-acceptance.controller';
 import { InvitationsService } from '../invitations/invitations.service';
+import { SessionGuard } from '../auth/session.guard';
 import { GLOBAL_RATE_LIMIT, SENSITIVE_RATE_LIMIT } from './rate-limit.config';
 import { RateLimitModule } from './rate-limit.module';
 
@@ -62,12 +65,21 @@ describe('rate limiting', () => {
           },
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(SessionGuard)
+      .useValue({
+        canActivate: (context: ExecutionContext) => {
+          context.switchToHttp().getRequest<Request>().user = fakeUser as User;
+          return true;
+        },
+      })
+      .compile();
 
     app = moduleRef.createNestApplication<NestExpressApplication>();
-    // Same setting as main.ts: the client address is the one the proxy
-    // forwards, which is what lets the test speak from several addresses.
-    (app as NestExpressApplication).set('trust proxy', true);
+    // The same setting as main.ts: one trusted proxy hop, so the address
+    // counted is the last one in X-Forwarded-For, which is what lets the test
+    // speak from several addresses.
+    (app as NestExpressApplication).set('trust proxy', 1);
     await app.init();
   });
 
@@ -107,7 +119,6 @@ describe('rate limiting', () => {
         statusCode: 429,
         code: 'TOO_MANY_REQUESTS',
         message: expect.stringContaining('Too many requests'),
-        retryAfterSeconds: expect.any(Number),
       });
       expect(Number(blocked.headers['retry-after'])).toBeGreaterThan(0);
     },
@@ -128,5 +139,15 @@ describe('rate limiting', () => {
 
     expect(blocked.status).toBe(429);
     expect(blocked.body.code).toBe('TOO_MANY_REQUESTS');
+  });
+
+  // The Next server asks `GET /auth/me` for every person on every protected
+  // page, all from its own address. If that route were counted, a handful of
+  // people browsing at once would lock everyone out.
+  it('never limits GET /auth/me, which the web server calls for everyone', async () => {
+    for (let i = 0; i <= GLOBAL_RATE_LIMIT.limit; i += 1) {
+      const res = await hit('get', '/auth/me');
+      expect(res.status).toBe(200);
+    }
   });
 });

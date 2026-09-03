@@ -9,8 +9,9 @@ import { ThrottlerGuard, type ThrottlerLimitDetail } from '@nestjs/throttler';
 export const TOO_MANY_REQUESTS_CODE = 'TOO_MANY_REQUESTS';
 
 // The stock ThrottlerGuard, answering in the shape the rest of the API uses:
-// a `code` the web can branch on, a `message` it can show as is. The
-// `Retry-After` header is set by the base guard before this runs.
+// a `code` the web can branch on, a `message` it can show as is. The delay
+// lives in the `Retry-After` header, set by the base guard before this runs;
+// the message repeats it for a human reader, the body does not.
 @Injectable()
 export class RateLimitGuard extends ThrottlerGuard {
   protected throwThrottlingException(
@@ -23,7 +24,6 @@ export class RateLimitGuard extends ThrottlerGuard {
         statusCode: HttpStatus.TOO_MANY_REQUESTS,
         code: TOO_MANY_REQUESTS_CODE,
         message: `Too many requests. Try again in ${retryAfterSeconds} seconds.`,
-        retryAfterSeconds,
       },
       HttpStatus.TOO_MANY_REQUESTS,
     );

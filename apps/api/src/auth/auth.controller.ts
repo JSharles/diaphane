@@ -13,7 +13,10 @@ import {
 import type { User } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import type { Request, Response } from 'express';
-import { SensitiveRateLimit } from '../rate-limit/sensitive-rate-limit.decorator';
+import {
+  SensitiveRateLimit,
+  ServerCallRateLimitExempt,
+} from '../rate-limit/sensitive-rate-limit.decorator';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './current-user.decorator';
 import { LoginDto } from './dto/login.dto';
@@ -62,8 +65,11 @@ export class AuthController {
     return { success: true };
   }
 
+  // Called by the Next server on every protected render, so every person's
+  // request arrives from one address: see ServerCallRateLimitExempt.
   @Get('me')
   @UseGuards(SessionGuard)
+  @ServerCallRateLimitExempt()
   me(@CurrentUser() user: User) {
     return toPublicUser(user);
   }
