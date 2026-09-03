@@ -91,6 +91,24 @@ describe("invitations hooks", () => {
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: invitationsKey("project-1") });
   });
 
+  // The invitation exists before its email leaves, so a mail outage still
+  // adds it to the list: the copy-link button is the fallback the spec keeps.
+  it("useCreateInvitation refreshes the list even when the email could not be sent", async () => {
+    mockedCreateInvitation.mockRejectedValue(
+      new ApiError("The invitation was saved, but the email could not be sent", 503),
+    );
+    const { Wrapper, queryClient } = createWrapper();
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+    const { result } = renderHook(() => useCreateInvitation("project-1"), { wrapper: Wrapper });
+    act(() => {
+      result.current.mutate({ email: "client@example.com" });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: invitationsKey("project-1") });
+  });
+
   describe("useCancelInvitation", () => {
     it("invalidates the invitations query for the project", async () => {
       mockedCancelInvitation.mockResolvedValue(fakeInvitation);

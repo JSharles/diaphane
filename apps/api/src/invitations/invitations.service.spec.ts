@@ -4,10 +4,12 @@ import {
   ForbiddenException,
   GoneException,
   NotFoundException,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { AuthService } from '../auth/auth.service';
+import { MailerService } from '../mailer/mailer.service';
 import {
   asPrismaService,
   createPrismaMock,
@@ -29,6 +31,8 @@ const fakeInvitation = {
   expiresAt: new Date(Date.now() + 60_000),
   createdAt: new Date(),
 };
+
+const fakeProject = { title: 'Site vitrine', language: 'fr' };
 
 const adminMembership = {
   id: 'member-1',
@@ -63,18 +67,28 @@ const fakeUser = {
 };
 
 describe('InvitationsService', () => {
+  const ORIGINAL_ENV = process.env;
   let prisma: PrismaMock;
   let authService: jest.Mocked<Pick<AuthService, 'createSession'>>;
+  let mailer: jest.Mocked<Pick<MailerService, 'sendInvitation'>>;
   let service: InvitationsService;
 
   beforeEach(() => {
     jest.clearAllMocks();
     prisma = createPrismaMock();
+    prisma.project.findUnique.mockResolvedValue(fakeProject);
     authService = { createSession: jest.fn() };
+    mailer = { sendInvitation: jest.fn().mockResolvedValue(undefined) };
+    process.env = { ...ORIGINAL_ENV, WEB_ORIGIN: 'https://app.diaphane.fr' };
     service = new InvitationsService(
       asPrismaService(prisma),
       authService as unknown as AuthService,
+      mailer as unknown as MailerService,
     );
+  });
+
+  afterAll(() => {
+    process.env = ORIGINAL_ENV;
   });
 
   describe('create', () => {
@@ -177,6 +191,71 @@ describe('InvitationsService', () => {
         where: { id: 'invitation-1' },
         data: { expiresAt: expect.any(Date) as Date },
       });
+      // Re-inviting sends the email again: the first one may well be the
+      // reason they are asking.
+      expect(mailer.sendInvitation).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'client@example.com' }),
+      );
+    });
+
+    // The invitation is what the email carries (docs/PRODUCT.md « Les
+    // invitations et l'email »): its link points at the invitation page, in
+    // the project's language, with the project's title as the developer
+    // wrote it.
+    it('emails the client the invitation link, in the project language', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(adminMembership);
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.invitation.findFirst.mockResolvedValue(null);
+      prisma.invitation.create.mockResolvedValue(fakeInvitation);
+
+      await service.create('user-1', 'project-1', {
+        email: 'Client@Example.com',
+      });
+
+      expect(mailer.sendInvitation).toHaveBeenCalledWith({
+        to: 'client@example.com',
+        projectTitle: 'Site vitrine',
+        link: 'https://app.diaphane.fr/fr/invite/a-random-token',
+        language: 'fr',
+      });
+    });
+
+    it('writes the email in French when the project has no language yet', async () => {
+      prisma.project.findUnique.mockResolvedValue({
+        ...fakeProject,
+        language: null,
+      });
+      prisma.projectMember.findUnique.mockResolvedValue(adminMembership);
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.invitation.findFirst.mockResolvedValue(null);
+      prisma.invitation.create.mockResolvedValue(fakeInvitation);
+
+      await service.create('user-1', 'project-1', {
+        email: 'client@example.com',
+      });
+
+      expect(mailer.sendInvitation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          language: 'fr',
+          link: 'https://app.diaphane.fr/fr/invite/a-random-token',
+        }),
+      );
+    });
+
+    // The invitation exists before the email leaves, so a mail outage is
+    // reported rather than hidden: the developer copies the link, or invites
+    // again, which sends again on the same invitation.
+    it('reports an email that could not be sent, keeping the invitation', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(adminMembership);
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.invitation.findFirst.mockResolvedValue(null);
+      prisma.invitation.create.mockResolvedValue(fakeInvitation);
+      mailer.sendInvitation.mockRejectedValue(new Error('Domain not verified'));
+
+      await expect(
+        service.create('user-1', 'project-1', { email: 'client@example.com' }),
+      ).rejects.toThrow(ServiceUnavailableException);
+      expect(prisma.invitation.create).toHaveBeenCalled();
     });
   });
 
@@ -271,6 +350,21 @@ describe('InvitationsService', () => {
   });
 
   describe('resend', () => {
+    it('sends the invitation email again', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(adminMembership);
+      prisma.invitation.findUnique.mockResolvedValue(fakeInvitation);
+      prisma.invitation.update.mockResolvedValue(fakeInvitation);
+
+      await service.resend('user-1', 'project-1', 'invitation-1');
+
+      expect(mailer.sendInvitation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'client@example.com',
+          link: 'https://app.diaphane.fr/fr/invite/a-random-token',
+        }),
+      );
+    });
+
     it('extends expiresAt and keeps the same token when the requester is an admin', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(adminMembership);
       prisma.invitation.findUnique.mockResolvedValue(fakeInvitation);
