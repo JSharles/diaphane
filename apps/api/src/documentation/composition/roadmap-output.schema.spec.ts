@@ -1,6 +1,7 @@
 import { RoadmapCompositionOutputSchema } from './roadmap-output.schema';
 
 const milestone = {
+  ref: null,
   when: 'Q3 2026',
   title: 'Recette',
   description: 'Validation par le client.',
@@ -9,7 +10,7 @@ const milestone = {
 
 function output(overrides: Record<string, unknown> = {}) {
   return {
-    promptVersion: 'roadmap-composition-v3',
+    promptVersion: 'roadmap-composition-v4',
     outcome: 'composed',
     milestones: [milestone],
     changeSummary: 'First roadmap.',
@@ -61,9 +62,46 @@ describe('the roadmap composition contract', () => {
     ).toBe(false);
   });
 
+  // What stands in for the id is a reference to the roadmap in place, short
+  // enough to copy right.
+  describe('naming a step already in place', () => {
+    it('accepts a reference at either level', () => {
+      expect(
+        RoadmapCompositionOutputSchema.safeParse(
+          output({
+            milestones: [
+              {
+                ...milestone,
+                ref: 'M12',
+                substeps: [
+                  { ref: 'M12.S3', when: null, title: 'x', description: null },
+                ],
+              },
+            ],
+          }),
+        ).success,
+      ).toBe(true);
+    });
+
+    it('refuses anything that is not a reference', () => {
+      for (const ref of ['m1', 'M0', 'M1.S0', 'S1', 'M1.S1.S1', 'M1 ']) {
+        expect(
+          RoadmapCompositionOutputSchema.safeParse(
+            output({ milestones: [{ ...milestone, ref }] }),
+          ).success,
+        ).toBe(false);
+      }
+    });
+  });
+
   // What sits inside a long phase, named only where the document names it.
   describe('what a milestone contains', () => {
-    const substep = { when: null, title: 'Feature 1', description: null };
+    const substep = {
+      ref: null,
+      when: null,
+      title: 'Feature 1',
+      description: null,
+    };
 
     it('accepts a step inside a milestone, dated or not', () => {
       const parsed = RoadmapCompositionOutputSchema.parse(

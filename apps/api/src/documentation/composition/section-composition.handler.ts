@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import type { GenerationOperation, Prisma } from '@prisma/client';
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import type { GenerationProviderResult } from '../../generation/adapters/generation-provider';
 import type {
   GenerationHandler,
@@ -21,6 +21,10 @@ import {
   ROADMAP_COMPOSITION_OUTPUT_CONTRACT,
   RoadmapCompositionOutputSchema,
 } from './roadmap-output.schema';
+import {
+  mergeRoadmapRecomposition,
+  roadmapInPlaceForPrompt,
+} from './roadmap-recomposition';
 
 export interface CompositionInput {
   locale: string;
@@ -31,6 +35,9 @@ export interface CompositionInput {
   instructions: string | null;
   referenceDocumentId: string;
   referenceVersion: number;
+  // The roadmap in place a recomposition starts from, pinned at the version
+  // read when it was queued. Null on prose and on a first composition.
+  roadmapInPlace: { proposalId: string; version: number } | null;
 }
 
 // One definition of what the input is, used both when the operation is queued
@@ -79,7 +86,13 @@ export class SectionCompositionHandler
   ): Promise<GenerationRequestInput> {
     const proposal = await this.prisma.sectionProposal.findUnique({
       where: { generationOperationId: operation.id },
-      include: { section: true, referenceDocument: true },
+      include: {
+        section: true,
+        referenceDocument: true,
+        basedOn: {
+          select: { id: true, version: true, structuredContent: true },
+        },
+      },
     });
     if (!proposal || proposal.status !== 'composing') {
       throw new Error('SECTION_COMPOSITION_NOT_CURRENT');
@@ -98,6 +111,9 @@ export class SectionCompositionHandler
       instructions: proposal.section.instructions,
       referenceDocumentId: proposal.referenceDocumentId,
       referenceVersion: proposal.referenceDocument.version,
+      roadmapInPlace: proposal.basedOn
+        ? { proposalId: proposal.basedOn.id, version: proposal.basedOn.version }
+        : null,
     };
     if (compositionFingerprint(input) !== operation.inputFingerprint) {
       throw new Error('SECTION_COMPOSITION_INPUT_DRIFT');
@@ -120,6 +136,9 @@ export class SectionCompositionHandler
               locale: input.locale,
               sectionName: input.sectionName,
               parts,
+              roadmapInPlace: roadmapInPlaceForPrompt(
+                proposal.basedOn?.structuredContent,
+              ),
             }),
           },
         ],
@@ -158,7 +177,10 @@ export class SectionCompositionHandler
   ): Promise<void> {
     const proposal = await tx.sectionProposal.findUnique({
       where: { generationOperationId: operation.id },
-      include: { section: { select: { kind: true } } },
+      include: {
+        section: { select: { kind: true } },
+        basedOn: { select: { structuredContent: true } },
+      },
     });
     if (!proposal || proposal.status !== 'composing') {
       throw new Error('SECTION_COMPOSITION_NOT_CURRENT');
@@ -166,7 +188,7 @@ export class SectionCompositionHandler
 
     const composed =
       proposal.section.kind === 'roadmap'
-        ? this.applyRoadmap(result)
+        ? this.applyRoadmap(result, proposal.basedOn?.structuredContent)
         : this.applyProse(result);
 
     await tx.sectionProposal.update({
@@ -198,26 +220,18 @@ export class SectionCompositionHandler
     };
   }
 
-  // Ids are minted here rather than asked of the model, at both levels. They
-  // have to survive the developer's edits and the derivation that follows, and
-  // a model copying a uuid back is exactly the failure 45a13ac removed
-  // everywhere else.
-  private applyRoadmap(result: GenerationProviderResult) {
+  // What the model proposed is folded into the roadmap in place: developer
+  // steps come through untouched, document steps are corrected, removed or
+  // added, and ids are minted here rather than asked of the model (45a13ac).
+  private applyRoadmap(
+    result: GenerationProviderResult,
+    roadmapInPlace: unknown,
+  ) {
     const output = RoadmapCompositionOutputSchema.parse(result.output);
-    const milestones = output.milestones.map((milestone) => ({
-      id: randomUUID(),
-      when: milestone.when?.trim() ? milestone.when : null,
-      title: milestone.title,
-      description: milestone.description?.trim() ? milestone.description : null,
-      substeps: milestone.substeps.map((substep) => ({
-        id: randomUUID(),
-        when: substep.when?.trim() ? substep.when : null,
-        title: substep.title,
-        description: substep.description?.trim() ? substep.description : null,
-        origin: 'document' as const,
-      })),
-      origin: 'document' as const,
-    }));
+    const milestones = mergeRoadmapRecomposition(
+      roadmapInPlace,
+      output.milestones,
+    );
     return {
       outcome: output.outcome,
       structuredContent: milestones as unknown as Prisma.InputJsonValue,

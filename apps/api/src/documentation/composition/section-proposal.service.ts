@@ -17,6 +17,12 @@ import {
   ROADMAP_COMPOSITION_OUTPUT_CONTRACT,
   ROADMAP_COMPOSITION_PROMPT_VERSION,
 } from './roadmap-output.schema';
+import {
+  milestonesInPlace,
+  optionalText,
+  originAfterEdit,
+  requiredText,
+} from './roadmap-recomposition';
 import { compositionFingerprint } from './section-composition.handler';
 
 // Every id a roadmap holds, at both levels. Where the project stands may name
@@ -71,8 +77,9 @@ export class SectionProposalService {
     // callers get this far together. A proposal merely waiting to be read is
     // not in the way: pressing "write it" on one is the developer saying they
     // want another. Refusing that silently is what made the button look broken.
+    let held: { id: string; status: string } | null = null;
     if (section.activeProposalId) {
-      const held = await this.prisma.sectionProposal.findFirst({
+      held = await this.prisma.sectionProposal.findFirst({
         where: {
           id: section.activeProposalId,
           status: { in: [...LIVE_PROPOSAL_STATUSES] },
@@ -84,6 +91,18 @@ export class SectionProposalService {
       }
       if (held) await this.supersede(sectionId, held.id);
     }
+
+    const roadmap = section.kind === 'roadmap';
+
+    // A roadmap is recomposed in place rather than from scratch: the model
+    // receives the roadmap the developer has now — the proposal they were
+    // reviewing, edits included, or else the one they last approved — and the
+    // steps they wrote or corrected come back untouched (docs/PRODUCT.md « La
+    // roadmap »). Read after the supersede, whose version bump would otherwise
+    // read as drift.
+    const roadmapInPlace = roadmap
+      ? await this.roadmapInPlace(section.id, held?.id ?? null)
+      : null;
 
     // A section is a view of the reference document, so there is nothing to
     // compose before one exists. Said plainly rather than failed downstream:
@@ -105,9 +124,10 @@ export class SectionProposalService {
       instructions: section.instructions,
       referenceDocumentId: reference.id,
       referenceVersion: reference.version,
+      roadmapInPlace: roadmapInPlace
+        ? { proposalId: roadmapInPlace.id, version: roadmapInPlace.version }
+        : null,
     });
-
-    const roadmap = section.kind === 'roadmap';
 
     const attempts = await this.prisma.sectionProposal.count({
       where: { sectionId: section.id },
@@ -133,6 +153,7 @@ export class SectionProposalService {
           locale: locale ?? FALLBACK_LOCALE,
           generationOperationId: operation.id,
           status: 'composing',
+          basedOnProposalId: roadmapInPlace?.id ?? null,
         },
       });
       // Claiming the slot only from a section that still holds none is what
@@ -145,6 +166,23 @@ export class SectionProposalService {
         throw new ConflictException({ code: 'SECTION_COMPOSING' });
       }
       return { proposalId: proposal.id, operationId: operation.id };
+    });
+  }
+
+  // The roadmap the developer has now. The proposal they were reviewing wins
+  // over the one they approved: whatever they edited there is theirs, and
+  // starting over from the published one would lose it.
+  private async roadmapInPlace(sectionId: string, heldId: string | null) {
+    if (heldId) {
+      return this.prisma.sectionProposal.findUnique({
+        where: { id: heldId },
+        select: { id: true, version: true },
+      });
+    }
+    return this.prisma.sectionProposal.findFirst({
+      where: { sectionId, status: 'approved' },
+      orderBy: { approvedAt: 'desc' },
+      select: { id: true, version: true },
     });
   }
 
@@ -302,51 +340,46 @@ export class SectionProposalService {
     // Both levels are reconciled against what was held, so a correction to a
     // sub-step keeps its id and its origin exactly as a correction to the
     // milestone above it does.
-    const previous = (held.structuredContent ?? []) as {
-      id: string;
-      origin: string;
-      substeps?: { id: string; origin: string }[];
-    }[];
+    const previous = milestonesInPlace(held.structuredContent);
     const existing = new Map(
       previous.map((milestone) => [milestone.id, milestone]),
     );
     const existingSubsteps = new Map(
       previous.flatMap((milestone) =>
-        (milestone.substeps ?? []).map(
-          (substep) => [substep.id, substep] as const,
-        ),
+        milestone.substeps.map((substep) => [substep.id, substep] as const),
       ),
     );
 
+    // Who owns each step afterwards is decided by originAfterEdit: retouched
+    // or new means the developer's, and the next recomposition leaves it be.
     const milestones = input.milestones.map((milestone) => {
       const kept = milestone.id ? existing.get(milestone.id) : undefined;
+      const edited = {
+        when: optionalText(milestone.when),
+        title: requiredText(milestone.title),
+        description: optionalText(milestone.description),
+      };
       return {
         id: kept?.id ?? randomUUID(),
-        when: milestone.when?.trim() ? milestone.when.trim() : null,
-        title: milestone.title.trim(),
-        description: milestone.description?.trim()
-          ? milestone.description.trim()
-          : null,
+        ...edited,
         substeps: (milestone.substeps ?? []).map((substep) => {
           const keptSubstep = substep.id
             ? existingSubsteps.get(substep.id)
             : undefined;
+          // A sub-step often has no date of its own, and an empty field is
+          // that answer rather than a blank string.
+          const editedSubstep = {
+            when: optionalText(substep.when),
+            title: requiredText(substep.title),
+            description: optionalText(substep.description),
+          };
           return {
             id: keptSubstep?.id ?? randomUUID(),
-            // A step inside a phase often has no date of its own, and an empty
-            // field is that answer rather than a blank string.
-            when: substep.when?.trim() ? substep.when.trim() : null,
-            title: substep.title.trim(),
-            description: substep.description?.trim()
-              ? substep.description.trim()
-              : null,
-            origin: keptSubstep ? keptSubstep.origin : ('developer' as const),
+            ...editedSubstep,
+            origin: originAfterEdit(keptSubstep, editedSubstep),
           };
         }),
-        // A milestone read from the documents stays one even after its wording
-        // is corrected: the developer is fixing what was read, not authoring a
-        // step of their own. Anything with no id behind it is theirs.
-        origin: kept ? kept.origin : ('developer' as const),
+        origin: originAfterEdit(kept, edited),
       };
     });
 

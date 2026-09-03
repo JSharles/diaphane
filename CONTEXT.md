@@ -107,6 +107,14 @@ _Avoid_: jalon, milestone, phase
 L'étape ou la sous-étape « où on en est », déplacée à la main par le développeur, vue du client sans approbation.
 _Avoid_: curseur, position, current milestone
 
+**Roadmap en place** :
+La roadmap que le développeur a sous les yeux au moment de recomposer : la proposition qu'il relisait, retouches comprises, sinon la dernière approuvée. C'est ce que l'IA reçoit avec le document de référence.
+_Avoid_: base, previous roadmap, ancienne version
+
+**Recomposer** :
+Redemander la roadmap à l'IA après un changement de documents. Elle repart de la roadmap en place et propose des ajouts ou des corrections ; une étape d'origine développeur revient telle quelle, ni modifiée, ni supprimée, ni déplacée par rapport aux autres étapes du développeur.
+_Avoid_: régénérer, repartir de zéro, refresh
+
 **Tâche en cours** :
 Les tickets du board dans une colonne « in progress », vulgarisés pour le client.
 _Avoid_: current task, ticket en cours
