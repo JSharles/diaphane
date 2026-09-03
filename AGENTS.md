@@ -65,6 +65,7 @@ To target a single app: `pnpm --filter web dev` or `pnpm --filter api dev` (or `
 - **Auth**: hand-rolled, not Passport — `apps/api/src/auth`. Server-side sessions (`Session` table), `httpOnly` cookie, no JWT. To protect a route: `@UseGuards(SessionGuard)` + `@CurrentUser() user: User`. See `docs/PRODUCT.md` § Authentification for why.
 - `packages/schemas` is the only shared package so far. Before duplicating a type or a validation rule between `apps/web` and `apps/api`, check whether it belongs there instead.
 - Commit messages follow Conventional Commits (`feat:`, `fix:`, `chore:`, etc.).
+- **Rate limiting**: `apps/api/src/rate-limit` — a global per-address limit on every route, a tighter one on the routes where guessing pays (`POST /auth/login`, `GET /invitations/:token`, `POST /invitations/:token/accept`), applied with `@SensitiveRateLimit()`. The values are constants in `rate-limit.config.ts`, not env vars. A blocked request gets `429 { code: 'TOO_MANY_REQUESTS' }` plus a `Retry-After` header. `main.ts` sets `trust proxy` so the address counted is the client's, not Railway's proxy — keep it if the hosting changes to something that also forwards `X-Forwarded-For`.
 
 ## Gotchas
 

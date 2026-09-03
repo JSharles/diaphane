@@ -13,6 +13,7 @@ import {
 import type { User } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import type { Request, Response } from 'express';
+import { SensitiveRateLimit } from '../rate-limit/sensitive-rate-limit.decorator';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './current-user.decorator';
 import { LoginDto } from './dto/login.dto';
@@ -40,6 +41,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
+  @SensitiveRateLimit()
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
