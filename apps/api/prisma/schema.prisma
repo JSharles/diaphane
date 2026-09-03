@@ -570,7 +570,10 @@ model SectionProposal {
   // carries its own: a composition queued in French must not run in English
   // because the developer changed tab.
   locale                String                  @default("en") @db.VarChar(8)
-  generationOperationId String                  @unique @map("generation_operation_id") @db.Uuid
+  // Null on a proposal the developer wrote without the model: a correction to
+  // the published roadmap opens one prefilled with the corrected roadmap, and
+  // no operation runs for it (docs/PRODUCT.md « La roadmap »).
+  generationOperationId String?                 @unique @map("generation_operation_id") @db.Uuid
   status                SectionProposalStatus   @default(composing)
   outcome               SectionProposalOutcome?
   structuredContent     Json?                   @map("structured_content")
@@ -593,7 +596,7 @@ model SectionProposal {
   recomposedInto       SectionProposal[]      @relation("SectionProposalBase")
   activeForSection     ClientSection?         @relation("SectionActiveProposal")
   referenceDocument    ReferenceDocument      @relation("SectionProposalReference", fields: [referenceDocumentId], references: [id], onDelete: Restrict)
-  generationOperation  GenerationOperation    @relation("SectionProposalGenerationOperation", fields: [generationOperationId], references: [id], onDelete: Restrict)
+  generationOperation  GenerationOperation?   @relation("SectionProposalGenerationOperation", fields: [generationOperationId], references: [id], onDelete: Restrict)
   approvedByUser       User?                  @relation("SectionProposalApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
   clientContents       ClientSectionContent[]
   initiatingReleases   ClientContentRelease[] @relation("ReleaseInitiatingProposal")

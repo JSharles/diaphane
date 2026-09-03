@@ -579,6 +579,226 @@ describe('SectionProposalService', () => {
       ]);
     });
 
+    // A published roadmap is no longer read-only (docs/PRODUCT.md « La
+    // roadmap »): a correction to it becomes a proposal prefilled with the
+    // corrected roadmap, without calling the model, and approval publishes it
+    // as usual.
+    describe('editing the published roadmap', () => {
+      const approvedId = '00000000-0000-4000-8000-00000000000c';
+      const newProposalId = '00000000-0000-4000-8000-00000000000f';
+      const approved = {
+        id: approvedId,
+        status: 'approved',
+        version: 3,
+        referenceDocumentId: referenceId,
+        locale: 'fr',
+        structuredContent: [
+          {
+            id: milestoneId,
+            when: 'Q3 2026',
+            title: 'Recette',
+            description: null,
+            substeps: [],
+            origin: 'document',
+          },
+        ],
+      };
+
+      function publishedRoadmap(prisma: ReturnType<typeof createPrismaMock>) {
+        prisma.clientSection.findFirst.mockResolvedValue({
+          id: sectionId,
+          kind: 'roadmap',
+          activeProposalId: null,
+        });
+        prisma.sectionProposal.findFirst
+          .mockResolvedValueOnce(approved)
+          .mockResolvedValue({
+            id: newProposalId,
+            sectionId,
+            referenceDocumentId: referenceId,
+            status: 'pending_review',
+            outcome: 'composed',
+            version: 1,
+            changeSummary: null,
+            createdAt: new Date('2026-09-03T10:00:00.000Z'),
+            structuredContent: [],
+            failureCode: null,
+            section: { kind: 'roadmap' },
+          });
+        prisma.sectionProposal.create.mockResolvedValue({ id: newProposalId });
+        prisma.clientSection.updateMany.mockResolvedValue({ count: 1 });
+      }
+
+      it('turns a correction into a prefilled proposal, without calling the model', async () => {
+        const { prisma, generation, service } = setup();
+        publishedRoadmap(prisma);
+
+        const result = await service.replaceMilestones(
+          userId,
+          projectId,
+          sectionId,
+          {
+            milestones: [
+              {
+                id: milestoneId,
+                when: 'mi-octobre',
+                title: 'Recette',
+                description: null,
+              },
+            ],
+            expectedProposalVersion: 3,
+          },
+        );
+
+        expect(generation.createInTransaction).not.toHaveBeenCalled();
+        const created = prisma.sectionProposal.create.mock.calls[0][0] as {
+          data: Record<string, unknown> & {
+            structuredContent: { id: string; when: string; origin: string }[];
+          };
+        };
+        expect(created.data).toMatchObject({
+          sectionId,
+          status: 'pending_review',
+          outcome: 'composed',
+          referenceDocumentId: referenceId,
+          locale: 'fr',
+          basedOnProposalId: approvedId,
+        });
+        expect(created.data.generationOperationId).toBeUndefined();
+        // Reconciled against the roadmap the client reads: the step keeps its
+        // id, and the retouch makes it the developer's.
+        expect(created.data.structuredContent[0]).toMatchObject({
+          id: milestoneId,
+          when: 'mi-octobre',
+          origin: 'developer',
+        });
+        // The section holds it from here, so the next recomposition starts
+        // from it and the approval finds it.
+        expect(prisma.clientSection.updateMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: expect.objectContaining({
+              id: sectionId,
+              activeProposalId: null,
+            }),
+            data: expect.objectContaining({ activeProposalId: newProposalId }),
+          }),
+        );
+        expect(result).toMatchObject({
+          id: newProposalId,
+          status: 'pending_review',
+        });
+      });
+
+      it('refuses a correction made against a roadmap that has since been republished', async () => {
+        const { prisma, service } = setup();
+        publishedRoadmap(prisma);
+
+        await expect(
+          service.replaceMilestones(userId, projectId, sectionId, {
+            milestones: [],
+            expectedProposalVersion: 2,
+          }),
+        ).rejects.toMatchObject({ response: { code: 'PROPOSAL_STALE' } });
+        expect(prisma.sectionProposal.create).not.toHaveBeenCalled();
+      });
+
+      it('loses the race to a proposal opened meanwhile rather than opening a second', async () => {
+        const { prisma, service } = setup();
+        publishedRoadmap(prisma);
+        prisma.clientSection.updateMany.mockResolvedValue({ count: 0 });
+
+        await expect(
+          service.replaceMilestones(userId, projectId, sectionId, {
+            milestones: [],
+            expectedProposalVersion: 3,
+          }),
+        ).rejects.toMatchObject({ response: { code: 'PROPOSAL_STALE' } });
+      });
+
+      it('has nothing to correct before a roadmap was ever approved', async () => {
+        const { prisma, service } = setup();
+        publishedRoadmap(prisma);
+        prisma.sectionProposal.findFirst.mockReset();
+        prisma.sectionProposal.findFirst.mockResolvedValue(null);
+
+        await expect(
+          service.replaceMilestones(userId, projectId, sectionId, {
+            milestones: [],
+            expectedProposalVersion: 1,
+          }),
+        ).rejects.toMatchObject({ response: { code: 'NOT_FOUND' } });
+      });
+    });
+
+    // The editor opens on the roadmap the client reads, so a proposal retired
+    // without an approval must not hide it.
+    it('reads the roadmap last approved when the last proposal was retired', async () => {
+      const { prisma, service } = setup();
+      prisma.clientSection.findFirst.mockResolvedValue({ id: sectionId });
+      prisma.sectionProposal.findFirst
+        .mockResolvedValueOnce({
+          id: proposalId,
+          sectionId,
+          referenceDocumentId: referenceId,
+          status: 'superseded',
+          outcome: null,
+          version: 2,
+          changeSummary: null,
+          createdAt: new Date('2026-09-03T10:00:00.000Z'),
+          structuredContent: null,
+          failureCode: null,
+          section: { kind: 'roadmap' },
+        })
+        .mockResolvedValueOnce({
+          id: '00000000-0000-4000-8000-00000000000c',
+          sectionId,
+          referenceDocumentId: referenceId,
+          status: 'approved',
+          outcome: 'composed',
+          version: 3,
+          changeSummary: null,
+          createdAt: new Date('2026-09-01T10:00:00.000Z'),
+          structuredContent: [{ id: milestoneId, title: 'Recette' }],
+          failureCode: null,
+        });
+
+      const current = await service.current(userId, projectId, sectionId);
+
+      expect(current).toMatchObject({ status: 'approved', version: 3 });
+      expect(current?.milestones).toHaveLength(1);
+      expect(prisma.sectionProposal.findFirst).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          where: { sectionId, status: 'approved' },
+          orderBy: { approvedAt: 'desc' },
+        }),
+      );
+    });
+
+    // A failed composition is not hidden behind the roadmap the client reads:
+    // the developer is told, and recomposes.
+    it('still reports a failed composition on a roadmap already approved', async () => {
+      const { prisma, service } = setup();
+      prisma.clientSection.findFirst.mockResolvedValue({ id: sectionId });
+      prisma.sectionProposal.findFirst.mockResolvedValueOnce({
+        id: proposalId,
+        sectionId,
+        referenceDocumentId: referenceId,
+        status: 'failed',
+        outcome: null,
+        version: 2,
+        changeSummary: null,
+        createdAt: new Date('2026-09-03T10:00:00.000Z'),
+        structuredContent: null,
+        failureCode: 'PROVIDER_DOWN',
+        section: { kind: 'roadmap' },
+      });
+
+      const current = await service.current(userId, projectId, sectionId);
+
+      expect(current).toMatchObject({ status: 'failed', milestones: [] });
+      expect(prisma.sectionProposal.findFirst).toHaveBeenCalledTimes(1);
+    });
+
     it('refuses to edit milestones on a section that is not a roadmap', async () => {
       const { prisma, service } = setup();
       prisma.clientSection.findFirst.mockResolvedValue({

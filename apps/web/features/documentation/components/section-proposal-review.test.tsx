@@ -321,17 +321,19 @@ describe("SectionProposalReview, on a roadmap", () => {
     ).toBeVisible();
   });
 
-  // Nothing is waiting on the developer, so the rubrique shows the one timeline
-  // that still matters: the one their client is reading.
-  it("falls back to the published timeline once nothing is pending", () => {
+  // A published roadmap is no longer read-only (docs/PRODUCT.md « La
+  // roadmap »): once nothing is pending, the editor opens on the roadmap the
+  // client reads, in the developer's own words, with nothing to approve yet.
+  it("opens the editor on the published roadmap once nothing is pending", () => {
     withPublished({
       kind: "roadmap",
       id: roadmap.id,
       name: roadmap.name,
-      milestones: [{ ...milestone, origin: undefined }],
+      milestones: [{ ...milestone, title: "Acceptance", origin: undefined }],
       currentMilestoneId: null,
     });
     withProposal({
+      id: "approved-1",
       status: "approved",
       outcome: "composed",
       version: 3,
@@ -341,8 +343,55 @@ describe("SectionProposalReview, on a roadmap", () => {
 
     render(<SectionProposalReview projectId="project-1" section={roadmap} />);
 
-    expect(screen.getByText("Recette")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Recette")).toBeInTheDocument();
+    expect(screen.queryByText("Acceptance")).toBeNull();
+    expect(screen.getByText("liveLabel")).toBeInTheDocument();
+    expect(screen.getByText("addStep")).toBeVisible();
     expect(screen.queryByRole("button", { name: "approve" })).toBeNull();
+  });
+
+  // The correction it saves is a proposal the developer still has to approve,
+  // and the label says so over the same editor.
+  it("asks for approval once a correction is waiting over the published roadmap", () => {
+    withPublished({
+      kind: "roadmap",
+      id: roadmap.id,
+      name: roadmap.name,
+      milestones: [{ ...milestone, origin: undefined }],
+      currentMilestoneId: null,
+    });
+    withProposal({
+      id: "proposal-2",
+      status: "pending_review",
+      outcome: "composed",
+      version: 1,
+      blocks: [],
+      milestones: [{ ...milestone, when: "mi-octobre" }],
+    });
+
+    render(<SectionProposalReview projectId="project-1" section={roadmap} />);
+
+    expect(screen.getByDisplayValue("mi-octobre")).toBeInTheDocument();
+    expect(screen.getByText("pendingOverLive")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "approve" })).toBeVisible();
+  });
+
+  // A roadmap whose only proposal was retired without an approval has nothing
+  // to open on.
+  it("says so when the roadmap was never approved and nothing is pending", () => {
+    withPublished(undefined);
+    withProposal({
+      id: "proposal-1",
+      status: "superseded",
+      outcome: null,
+      version: 2,
+      blocks: [],
+      milestones: [],
+    });
+
+    render(<SectionProposalReview projectId="project-1" section={roadmap} />);
+
+    expect(screen.getByText("neverComposed")).toBeInTheDocument();
   });
 
   it("says so when nothing has been written and nothing is published", () => {

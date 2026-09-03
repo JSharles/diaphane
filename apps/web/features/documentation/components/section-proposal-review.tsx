@@ -80,9 +80,10 @@ export function SectionProposalReview({
   // A roadmap is corrected where it is, so there is no "nothing matched" dead
   // end and no separate review: what the developer edits is the timeline
   // itself, and the phases every project runs through are already on the rail
-  // waiting to be taken.
+  // waiting to be taken. Published, it is still the form (docs/PRODUCT.md « La
+  // roadmap »): the editor opens on the roadmap the client reads, and the
+  // first correction saved opens a proposal to approve.
   if (section.kind === "roadmap") {
-    const pending = current?.status === "pending_review";
     if (current?.status === "composing") {
       return (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -99,9 +100,16 @@ export function SectionProposalReview({
         </div>
       );
     }
-    if (!pending && live?.kind !== "roadmap") {
+    // The roadmap in place (CONTEXT.md): the proposal under review, or else
+    // the one last approved. Anything else is a roadmap never approved with
+    // nothing pending, which has nothing to open on.
+    if (
+      !current ||
+      (current.status !== "pending_review" && current.status !== "approved")
+    ) {
       return <p className="text-sm text-muted-foreground">{t("neverComposed")}</p>;
     }
+    const pending = current.status === "pending_review";
     return (
       <div className="space-y-5">
         <p
@@ -117,15 +125,9 @@ export function SectionProposalReview({
         <RoadmapEditor
           projectId={projectId}
           section={section}
-          milestones={
-            pending
-              ? current.milestones
-              : live?.kind === "roadmap"
-                ? live.milestones
-                : []
-          }
-          proposalVersion={pending ? current.version : undefined}
-          editable={pending}
+          milestones={current.milestones}
+          proposalId={current.id}
+          proposalVersion={current.version}
         />
         {pending && (
           <div className="flex flex-wrap items-center gap-3">

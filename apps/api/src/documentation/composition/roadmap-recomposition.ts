@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import type { MilestoneDraftDto } from '../dto/client-section.dto';
 
 // Recomposing a roadmap keeps the developer's retouches (docs/PRODUCT.md « La
 // roadmap »): the model receives the roadmap in place next to the reference
@@ -107,6 +108,59 @@ export function originAfterEdit(
     kept.title !== edited.title ||
     kept.description !== edited.description;
   return retouched ? 'developer' : 'document';
+}
+
+// The roadmap after the developer sent it back from the editor, reconciled
+// against the one they were editing. Every milestone travels, in order, so the
+// result is never a function of what was held. Both levels are reconciled, so
+// a correction to a sub-step keeps its id and its origin exactly as a
+// correction to the milestone above it does; a new step can never collide with
+// an existing id or silently overwrite one. Who owns each step afterwards is
+// decided by originAfterEdit.
+export function roadmapAfterEdit(
+  structuredContent: unknown,
+  drafts: MilestoneDraftDto[],
+): MilestoneInPlace[] {
+  const previous = milestonesInPlace(structuredContent);
+  const existing = new Map(
+    previous.map((milestone) => [milestone.id, milestone]),
+  );
+  const existingSubsteps = new Map(
+    previous.flatMap((milestone) =>
+      milestone.substeps.map((substep) => [substep.id, substep] as const),
+    ),
+  );
+
+  return drafts.map((milestone) => {
+    const kept = milestone.id ? existing.get(milestone.id) : undefined;
+    const edited = {
+      when: optionalText(milestone.when),
+      title: requiredText(milestone.title),
+      description: optionalText(milestone.description),
+    };
+    return {
+      id: kept?.id ?? randomUUID(),
+      ...edited,
+      substeps: (milestone.substeps ?? []).map((substep) => {
+        const keptSubstep = substep.id
+          ? existingSubsteps.get(substep.id)
+          : undefined;
+        // A sub-step often has no date of its own, and an empty field is that
+        // answer rather than a blank string.
+        const editedSubstep = {
+          when: optionalText(substep.when),
+          title: requiredText(substep.title),
+          description: optionalText(substep.description),
+        };
+        return {
+          id: keptSubstep?.id ?? randomUUID(),
+          ...editedSubstep,
+          origin: originAfterEdit(keptSubstep, editedSubstep),
+        };
+      }),
+      origin: originAfterEdit(kept, edited),
+    };
+  });
 }
 
 // The roadmap as the model reads it: every step under a reference and its

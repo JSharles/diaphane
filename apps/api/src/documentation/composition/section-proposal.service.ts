@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ProjectAccessService } from '../../projects/project-access.service';
 import { GenerationService } from '../../generation/generation.service';
@@ -17,12 +17,8 @@ import {
   ROADMAP_COMPOSITION_OUTPUT_CONTRACT,
   ROADMAP_COMPOSITION_PROMPT_VERSION,
 } from './roadmap-output.schema';
-import {
-  milestonesInPlace,
-  optionalText,
-  originAfterEdit,
-  requiredText,
-} from './roadmap-recomposition';
+import { ReplaceMilestonesDto } from '../dto/client-section.dto';
+import { roadmapAfterEdit } from './roadmap-recomposition';
 import { compositionFingerprint } from './section-composition.handler';
 
 // Every id a roadmap holds, at both levels. Where the project stands may name
@@ -158,32 +154,50 @@ export class SectionProposalService {
       });
       // Claiming the slot only from a section that still holds none is what
       // makes two simultaneous triggers produce one composition rather than two.
-      const claimed = await tx.clientSection.updateMany({
-        where: { id: section.id, activeProposalId: null, archivedAt: null },
-        data: { activeProposalId: proposal.id, version: { increment: 1 } },
-      });
-      if (claimed.count !== 1) {
-        throw new ConflictException({ code: 'SECTION_COMPOSING' });
-      }
+      await this.claimSlot(tx, section.id, proposal.id, 'SECTION_COMPOSING');
       return { proposalId: proposal.id, operationId: operation.id };
+    });
+  }
+
+  // Hands the section the proposal it now holds, only if it holds none: the
+  // unique constraint on `activeProposalId` refuses a second claim, and so does
+  // this, with the code that says what lost the race.
+  private async claimSlot(
+    tx: Prisma.TransactionClient,
+    sectionId: string,
+    proposalId: string,
+    code: 'SECTION_COMPOSING' | 'PROPOSAL_STALE',
+  ) {
+    const claimed = await tx.clientSection.updateMany({
+      where: { id: sectionId, activeProposalId: null, archivedAt: null },
+      data: { activeProposalId: proposalId, version: { increment: 1 } },
+    });
+    if (claimed.count !== 1) throw new ConflictException({ code });
+  }
+
+  // The roadmap the client reads (CONTEXT.md « Roadmap en place », when
+  // nothing is under review): the proposal last approved, whole.
+  private lastApproved(sectionId: string) {
+    return this.prisma.sectionProposal.findFirst({
+      where: { sectionId, status: 'approved' },
+      orderBy: { approvedAt: 'desc' },
     });
   }
 
   // The roadmap the developer has now. The proposal they were reviewing wins
   // over the one they approved: whatever they edited there is theirs, and
   // starting over from the published one would lose it.
-  private async roadmapInPlace(sectionId: string, heldId: string | null) {
+  private async roadmapInPlace(
+    sectionId: string,
+    heldId: string | null,
+  ): Promise<{ id: string; version: number } | null> {
     if (heldId) {
       return this.prisma.sectionProposal.findUnique({
         where: { id: heldId },
         select: { id: true, version: true },
       });
     }
-    return this.prisma.sectionProposal.findFirst({
-      where: { sectionId, status: 'approved' },
-      orderBy: { approvedAt: 'desc' },
-      select: { id: true, version: true },
-    });
+    return this.lastApproved(sectionId);
   }
 
   // Revising a section makes whatever it is holding obsolete: a proposal under
@@ -209,7 +223,7 @@ export class SectionProposalService {
 
     // Stop the remote work before releasing the slot. Released first, the run
     // in flight could still land on a proposal the section had moved past.
-    if (held.status === 'composing') {
+    if (held.status === 'composing' && held.generationOperationId) {
       await this.generation.cancel(held.generationOperationId);
     }
     await this.supersede(sectionId, held.id);
@@ -253,12 +267,22 @@ export class SectionProposalService {
     });
     if (!section) throw new NotFoundException({ code: 'NOT_FOUND' });
 
-    const proposal = await this.prisma.sectionProposal.findFirst({
+    const latest = await this.prisma.sectionProposal.findFirst({
       where: { sectionId },
       orderBy: { createdAt: 'desc' },
       include: { section: { select: { kind: true } } },
     });
-    if (!proposal) return null;
+    if (!latest) return null;
+    const roadmap = latest.section.kind === 'roadmap';
+
+    // The editor opens on the roadmap the client reads (docs/PRODUCT.md « La
+    // roadmap »), so a proposal retired without an approval — a recomposition
+    // that never got queued — must not hide it. A failed one still shows: the
+    // developer is told, and recomposes.
+    const proposal =
+      (roadmap && latest.status === 'superseded'
+        ? await this.lastApproved(sectionId)
+        : null) ?? latest;
 
     // Content stays empty until there is something to review, so a client of
     // this route cannot mistake "still composing" for "composed nothing".
@@ -267,7 +291,6 @@ export class SectionProposalService {
     const content = readable
       ? ((proposal.structuredContent ?? []) as unknown[])
       : [];
-    const roadmap = proposal.section.kind === 'roadmap';
 
     return {
       id: proposal.id,
@@ -286,33 +309,22 @@ export class SectionProposalService {
     };
   }
 
-  // The developer's edits land on the proposal they are reviewing, not on a
-  // regeneration: a wrong date is fixed by fixing it, not by writing a note and
-  // asking for the whole roadmap again.
+  // The developer's edits land on the roadmap they have in front of them, not
+  // on a recomposition: a wrong date is fixed by fixing it, not by writing a
+  // note and asking for the whole roadmap again. On a proposal under review
+  // the edit lands on the proposal; on the published roadmap it opens a
+  // proposal prefilled with the corrected roadmap, without calling the model,
+  // and approval publishes it as usual (docs/PRODUCT.md « La roadmap »).
   //
   // Every milestone travels, in order, so the result is never a function of
-  // what the server already held. An id names one being kept; its absence means
-  // a new one, which is why a new milestone can never collide with an existing
-  // id or silently overwrite one.
+  // what the server already held. An id names one being kept; its absence
+  // means a new one, which is why a new milestone can never collide with an
+  // existing id or silently overwrite one.
   async replaceMilestones(
     userId: string,
     projectId: string,
     sectionId: string,
-    input: {
-      milestones: {
-        id?: string | null;
-        when?: string | null;
-        title: string;
-        description?: string | null;
-        substeps?: {
-          id?: string | null;
-          when?: string | null;
-          title: string;
-          description?: string | null;
-        }[];
-      }[];
-      expectedProposalVersion: number;
-    },
+    input: ReplaceMilestonesDto,
   ) {
     await this.access.requireDeveloper(userId, projectId);
     const section = await this.prisma.clientSection.findFirst({
@@ -323,12 +335,21 @@ export class SectionProposalService {
     if (section.kind !== 'roadmap') {
       throw new BadRequestException({ code: 'SECTION_NOT_ROADMAP' });
     }
-    if (!section.activeProposalId) {
-      throw new NotFoundException({ code: 'NOT_FOUND' });
-    }
 
+    if (section.activeProposalId) {
+      await this.editHeldProposal(section.activeProposalId, input);
+    } else {
+      await this.editPublishedRoadmap(section.id, input);
+    }
+    return this.current(userId, projectId, sectionId);
+  }
+
+  private async editHeldProposal(
+    proposalId: string,
+    input: ReplaceMilestonesDto,
+  ) {
     const held = await this.prisma.sectionProposal.findUnique({
-      where: { id: section.activeProposalId },
+      where: { id: proposalId },
       select: { id: true, status: true, structuredContent: true },
     });
     // A composition still running will overwrite whatever is written here the
@@ -337,52 +358,10 @@ export class SectionProposalService {
       throw new ConflictException({ code: 'PROPOSAL_STALE' });
     }
 
-    // Both levels are reconciled against what was held, so a correction to a
-    // sub-step keeps its id and its origin exactly as a correction to the
-    // milestone above it does.
-    const previous = milestonesInPlace(held.structuredContent);
-    const existing = new Map(
-      previous.map((milestone) => [milestone.id, milestone]),
+    const milestones = roadmapAfterEdit(
+      held.structuredContent,
+      input.milestones,
     );
-    const existingSubsteps = new Map(
-      previous.flatMap((milestone) =>
-        milestone.substeps.map((substep) => [substep.id, substep] as const),
-      ),
-    );
-
-    // Who owns each step afterwards is decided by originAfterEdit: retouched
-    // or new means the developer's, and the next recomposition leaves it be.
-    const milestones = input.milestones.map((milestone) => {
-      const kept = milestone.id ? existing.get(milestone.id) : undefined;
-      const edited = {
-        when: optionalText(milestone.when),
-        title: requiredText(milestone.title),
-        description: optionalText(milestone.description),
-      };
-      return {
-        id: kept?.id ?? randomUUID(),
-        ...edited,
-        substeps: (milestone.substeps ?? []).map((substep) => {
-          const keptSubstep = substep.id
-            ? existingSubsteps.get(substep.id)
-            : undefined;
-          // A sub-step often has no date of its own, and an empty field is
-          // that answer rather than a blank string.
-          const editedSubstep = {
-            when: optionalText(substep.when),
-            title: requiredText(substep.title),
-            description: optionalText(substep.description),
-          };
-          return {
-            id: keptSubstep?.id ?? randomUUID(),
-            ...editedSubstep,
-            origin: originAfterEdit(keptSubstep, editedSubstep),
-          };
-        }),
-        origin: originAfterEdit(kept, edited),
-      };
-    });
-
     const { count } = await this.prisma.sectionProposal.updateMany({
       where: {
         id: held.id,
@@ -390,7 +369,7 @@ export class SectionProposalService {
         version: input.expectedProposalVersion,
       },
       data: {
-        structuredContent: milestones,
+        structuredContent: milestones as unknown as Prisma.InputJsonValue,
         // A roadmap the developer filled in by hand has composed something,
         // whatever the model found.
         outcome: milestones.length > 0 ? 'composed' : 'nothing_matched',
@@ -398,8 +377,48 @@ export class SectionProposalService {
       },
     });
     if (count === 0) throw new ConflictException({ code: 'PROPOSAL_STALE' });
+  }
 
-    return this.current(userId, projectId, sectionId);
+  // Nothing is under review, so the roadmap the developer corrected is the one
+  // the client reads. The correction becomes a proposal of its own: prefilled,
+  // pinned to the reference document and language the approved one was written
+  // in, based on it so the next recomposition starts from the correction, and
+  // with no operation behind it because no model wrote it.
+  private async editPublishedRoadmap(
+    sectionId: string,
+    input: ReplaceMilestonesDto,
+  ) {
+    const approved = await this.lastApproved(sectionId);
+    // A roadmap never approved has nothing published to correct: it composes
+    // first, and the developer edits the proposal.
+    if (!approved) throw new NotFoundException({ code: 'NOT_FOUND' });
+    // The correction was made against the roadmap the developer read, at the
+    // version they read; one republished since is refused rather than edited
+    // unseen.
+    if (approved.version !== input.expectedProposalVersion) {
+      throw new ConflictException({ code: 'PROPOSAL_STALE' });
+    }
+
+    const milestones = roadmapAfterEdit(
+      approved.structuredContent,
+      input.milestones,
+    );
+    await this.prisma.$transaction(async (tx) => {
+      const proposal = await tx.sectionProposal.create({
+        data: {
+          sectionId,
+          referenceDocumentId: approved.referenceDocumentId,
+          locale: approved.locale,
+          status: 'pending_review',
+          outcome: milestones.length > 0 ? 'composed' : 'nothing_matched',
+          structuredContent: milestones as unknown as Prisma.InputJsonValue,
+          basedOnProposalId: approved.id,
+        },
+      });
+      // A proposal opened meanwhile, by another edit or a recomposition, wins,
+      // and this correction is refused rather than written beside it.
+      await this.claimSlot(tx, sectionId, proposal.id, 'PROPOSAL_STALE');
+    });
   }
 
   async approve(

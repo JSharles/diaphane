@@ -54,8 +54,8 @@ function renderEditor(props: Partial<Parameters<typeof RoadmapEditor>[0]> = {}) 
       projectId="project"
       section={section}
       milestones={[framing, launch]}
+      proposalId="proposal-1"
       proposalVersion={3}
-      editable
       {...props}
     />,
   );
@@ -251,21 +251,43 @@ describe("RoadmapEditor", () => {
     });
   });
 
-  // What is published is shown by the client's own component, so the preview
-  // cannot drift from the thing. The marker stays a control: the position moves
-  // without composing, approving or publishing anything.
-  it("shows a published roadmap as the client's own timeline, position still movable", async () => {
+  // A published roadmap is no longer read-only (docs/PRODUCT.md « La
+  // roadmap »): the editor opens on it, and a correction is saved against the
+  // approved proposal, which is what turns it into a prefilled one.
+  it("opens on the published roadmap and saves a correction against it", async () => {
     const user = userEvent.setup();
-    renderEditor({ editable: false, proposalVersion: undefined });
+    renderEditor({ proposalId: "approved-1", proposalVersion: 5 });
 
-    expect(screen.queryByLabelText("whenLabel")).toBeNull();
-    expect(screen.queryByText("addStep")).toBeNull();
-    await user.click(screen.getAllByRole("button")[0]);
+    await user.type(screen.getAllByLabelText("titleLabel")[0], " revu");
+    await user.click(screen.getByText("save"));
 
-    expect(move.mutate).toHaveBeenCalledWith({
-      milestoneId: framing.id,
-      expectedVersion: 4,
-    });
+    expect(save.mutate).toHaveBeenCalledWith(
+      expect.objectContaining({ expectedProposalVersion: 5 }),
+    );
+  });
+
+  // Saving a correction to the published roadmap opens a proposal of its own,
+  // so the draft follows the proposal it is now editing rather than the one
+  // it was opened on.
+  it("follows the proposal the correction opened, even at the same version", async () => {
+    const user = userEvent.setup();
+    const { rerender } = renderEditor({ proposalId: "approved-1" });
+
+    await user.type(screen.getAllByLabelText("titleLabel")[0], " revu");
+
+    rerender(
+      <RoadmapEditor
+        projectId="project"
+        section={section}
+        milestones={[{ ...framing, title: "Cadrage revu" }]}
+        proposalId="proposal-2"
+        proposalVersion={3}
+      />,
+    );
+
+    const titles = screen.getAllByLabelText("titleLabel");
+    expect(titles).toHaveLength(1);
+    expect((titles[0] as HTMLInputElement).value).toBe("Cadrage revu");
   });
 
   // A fresh composition replaces the draft rather than being masked by edits
@@ -281,8 +303,8 @@ describe("RoadmapEditor", () => {
         projectId="project"
         section={section}
         milestones={[{ ...framing, title: "Atelier de cadrage" }]}
+        proposalId="proposal-1"
         proposalVersion={4}
-        editable
       />,
     );
 
@@ -293,12 +315,10 @@ describe("RoadmapEditor", () => {
 
   it("shows what a milestone covers when it has something to add", () => {
     renderEditor({
-      editable: false,
-      proposalVersion: undefined,
       milestones: [{ ...framing, description: "Ateliers et périmètre." }],
     });
 
-    expect(screen.getByText("Ateliers et périmètre.")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Ateliers et périmètre.")).toBeInTheDocument();
   });
 
   // `null === null`: a milestone the developer has just added carries no id, and
@@ -435,7 +455,8 @@ describe("the roadmap's markers", () => {
         projectId="project"
         section={{ ...section, currentMilestoneId: launch.id }}
         milestones={[framing, launch]}
-        editable={false}
+        proposalId="proposal-1"
+        proposalVersion={3}
       />,
     );
 
