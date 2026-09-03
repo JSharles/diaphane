@@ -67,6 +67,18 @@ export const CreateNotionRootRequestSchema = z
   .object({ pageId: NotionPageIdSchema })
   .strict();
 
+// What « Mettre à jour » did: the racines whose content had changed, replaced
+// as they now read, and how many read the same as before.
+export const NotionRootsUpdateSchema = z
+  .object({
+    replaced: z.array(SourceDocumentSchema),
+    unchanged: z.number().int().nonnegative(),
+    // False when a racine was replaced but the rewrite could not run now (one
+    // already running): the project stays owed it and the screen offers it.
+    referenceRewritten: z.boolean(),
+  })
+  .strict();
+
 export type SourceDocument = z.infer<typeof SourceDocumentSchema>;
 export type SourceDocumentDetail = z.infer<typeof SourceDocumentDetailSchema>;
 export type DocumentAcknowledgement = z.infer<
@@ -75,3 +87,4 @@ export type DocumentAcknowledgement = z.infer<
 export type NotionRootCandidate = z.infer<typeof NotionRootCandidateSchema>;
 export type NotionRootCandidateList = z.infer<typeof NotionRootCandidateListSchema>;
 export type CreateNotionRootRequest = z.infer<typeof CreateNotionRootRequestSchema>;
+export type NotionRootsUpdate = z.infer<typeof NotionRootsUpdateSchema>;

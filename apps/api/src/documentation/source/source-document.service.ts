@@ -10,6 +10,7 @@ import { NotionConnectionService } from '../../notion-connection/notion-connecti
 import {
   NotionAccessError,
   NotionClient,
+  type NotionPageContent,
 } from '../../notion-connection/notion.client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ProjectAccessService } from '../../projects/project-access.service';
@@ -51,6 +52,16 @@ export interface SourceDocumentDetail extends SourceDocumentSummary {
 
 export interface SourceDocumentAcknowledgement {
   document: SourceDocumentSummary;
+}
+
+// What « Mettre à jour » did: the racines whose content had changed, replaced
+// as they now read, and how many read the same as before.
+export interface NotionRootsUpdate {
+  replaced: SourceDocumentSummary[];
+  unchanged: number;
+  // False when a racine was replaced but the rewrite could not run now (one
+  // already running); the project stays owed it and the screen offers it.
+  referenceRewritten: boolean;
 }
 
 // A page the developer ticked in Notion, and the document it already is for
@@ -205,17 +216,7 @@ export class SourceDocumentService {
     );
 
     const documentId = randomUUID();
-    const snapshot = Buffer.from(
-      JSON.stringify({
-        version: 1,
-        capturedAt: new Date().toISOString(),
-        pageId,
-        pageUrl: page.url,
-        title: page.title,
-        content: page.content,
-      }),
-      'utf8',
-    );
+    const snapshot = notionSnapshot(pageId, page);
     const objectKey = `documentation/${projectId}/${documentId}/notion-snapshot.json`;
     await this.storage.put(objectKey, snapshot, 'application/json');
 
@@ -233,7 +234,7 @@ export class SourceDocumentService {
           storedObjectKey: objectKey,
           externalUrl: page.url,
           notionPageId: pageId,
-          contentSha256: sha256(snapshot),
+          contentSha256: notionFingerprint(page),
           addedByUserId: userId,
         },
       });
@@ -243,6 +244,85 @@ export class SourceDocumentService {
       await this.compensateCreate(document?.id, objectKey);
       throw error;
     }
+  }
+
+  // « Mettre à jour »: every racine of the project is re-read, those whose
+  // content changed are replaced by what they now read, and the reference
+  // document is rewritten once if at least one changed. Every racine is read
+  // before any is replaced: a page Notion refuses (no longer shared, say)
+  // stops the update with the project as it was, and the message names the
+  // racine so the developer knows which one to take out or share again.
+  async updateNotionRoots(
+    userId: string,
+    projectId: string,
+    locale: string | null = null,
+  ): Promise<NotionRootsUpdate> {
+    await this.access.requireDeveloper(userId, projectId);
+    const roots = await this.prisma.sourceDocument.findMany({
+      where: {
+        projectId,
+        kind: 'notion',
+        status: { not: 'removed' },
+        notionPageId: { not: null },
+      },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    });
+
+    const changed: { root: SourceDocument; page: NotionPageContent }[] = [];
+    for (const root of roots) {
+      const pageId = root.notionPageId as string;
+      const page = await this.readFromNotion(
+        userId,
+        (token) => this.notionClient.fetchPage(token, pageId),
+        `Unable to read the Notion page « ${root.title} » with your Notion connection.`,
+      );
+      if (notionFingerprint(page) !== root.contentSha256) {
+        changed.push({ root, page });
+      }
+    }
+
+    if (changed.length === 0) {
+      return {
+        replaced: [],
+        unchanged: roots.length,
+        referenceRewritten: false,
+      };
+    }
+
+    // Owed before the first snapshot moves: a replacement that stops halfway
+    // must not leave the reference document silently behind its documents.
+    await this.oweReference(projectId);
+    const replaced: SourceDocumentSummary[] = [];
+    for (const { root, page } of changed) {
+      const snapshot = notionSnapshot(root.notionPageId as string, page);
+      const objectKey =
+        root.storedObjectKey ??
+        `documentation/${projectId}/${root.id}/notion-snapshot.json`;
+      await this.storage.put(objectKey, snapshot, 'application/json');
+      const document = await this.prisma.sourceDocument.update({
+        where: { id: root.id },
+        data: {
+          title: page.title,
+          externalUrl: page.url,
+          originalSizeBytes: snapshot.length,
+          storedObjectKey: objectKey,
+          contentSha256: notionFingerprint(page),
+          version: { increment: 1 },
+        },
+      });
+      replaced.push(this.summary(document));
+    }
+
+    const referenceRewritten = await this.writeOwedReference(
+      userId,
+      projectId,
+      locale,
+    );
+    return {
+      replaced,
+      unchanged: roots.length - replaced.length,
+      referenceRewritten,
+    };
   }
 
   async list(
@@ -316,7 +396,13 @@ export class SourceDocumentService {
       return await this.notionConnection.withToken(userId, read);
     } catch (error) {
       if (error instanceof NotionAccessError) {
-        throw new BadRequestException(refusalMessage);
+        // A limit the client could not wait out is not a page refused: the
+        // advice is to try again, not to share the page again.
+        throw new BadRequestException(
+          error.status === 429
+            ? 'Notion is limiting reads right now. Try again in a moment.'
+            : refusalMessage,
+        );
       }
       throw error;
     }
@@ -377,21 +463,35 @@ export class SourceDocumentService {
     projectId: string,
     locale: string | null,
   ): Promise<void> {
+    await this.oweReference(projectId);
+    await this.writeOwedReference(userId, projectId, locale);
+  }
+
+  private async oweReference(projectId: string): Promise<void> {
     await this.prisma.project.update({
       where: { id: projectId },
       data: { referenceNeedsRewrite: true },
     });
+  }
+
+  // Whether the write ran. A write already running has this document's
+  // arrival behind it, and one still being read is not a reason to refuse
+  // the upload: the project stays owed a rewrite and the screen offers it —
+  // the document is in either way.
+  private async writeOwedReference(
+    userId: string,
+    projectId: string,
+    locale: string | null,
+  ): Promise<boolean> {
     try {
       await this.reference.write(userId, projectId, locale);
+      return true;
     } catch (error) {
-      // A write already running has this document's arrival behind it, and one
-      // still being read is not a reason to refuse the upload. The project stays
-      // owed a rewrite and the screen offers it — the document is in either way.
       if (
         error instanceof ConflictException ||
         error instanceof BadRequestException
       ) {
-        return;
+        return false;
       }
       throw error;
     }
@@ -413,6 +513,29 @@ export class SourceDocumentService {
 
 function sha256(bytes: Buffer): string {
   return createHash('sha256').update(bytes).digest('hex');
+}
+
+// A racine Notion, stored as it was read: the page and its whole subtree
+// flattened, with when it was captured.
+function notionSnapshot(pageId: string, page: NotionPageContent): Buffer {
+  return Buffer.from(
+    JSON.stringify({
+      version: 1,
+      capturedAt: new Date().toISOString(),
+      pageId,
+      pageUrl: page.url,
+      title: page.title,
+      content: page.content,
+    }),
+    'utf8',
+  );
+}
+
+// What « Mettre à jour » compares: the content as read, title included, and
+// nothing about when — the snapshot carries its capture time, so its own hash
+// would call every re-read a change.
+function notionFingerprint(page: NotionPageContent): string {
+  return sha256(Buffer.from(`${page.title}\n${page.content}`, 'utf8'));
 }
 
 function stripExtension(fileName: string): string {

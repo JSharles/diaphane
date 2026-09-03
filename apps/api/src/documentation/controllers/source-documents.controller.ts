@@ -78,6 +78,22 @@ export class SourceDocumentsController {
     );
   }
 
+  // « Mettre à jour »: re-read every racine, replace those whose content
+  // changed, rewrite the reference document once if any did.
+  @Post('notion/update')
+  @HttpCode(200)
+  updateNotionRoots(
+    @CurrentUser() user: User,
+    @Param('projectId') projectId: string,
+    @Headers('x-interface-locale') headerLocale?: string,
+  ) {
+    return this.documents.updateNotionRoots(
+      user.id,
+      projectId,
+      headerLocale ?? user.locale ?? null,
+    );
+  }
+
   @Get()
   list(
     @CurrentUser() user: User,

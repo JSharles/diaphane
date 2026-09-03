@@ -3,6 +3,7 @@ import type {
   CreateNotionRootRequest,
   DocumentAcknowledgement,
   NotionRootCandidateList,
+  NotionRootsUpdate,
   SourceDocument,
   SourceDocumentDetail,
   DocumentationWorkspace,
@@ -65,6 +66,15 @@ export function addNotionRoot(projectId: string, data: CreateNotionRootRequest) 
   return apiFetch<DocumentAcknowledgement>(
     `/projects/${projectId}/documentation/documents/notion`,
     { method: "POST", body: data },
+  );
+}
+
+// « Mettre à jour »: every racine re-read, the changed ones replaced, the
+// reference document rewritten once if any changed.
+export function updateNotionRoots(projectId: string) {
+  return apiFetch<NotionRootsUpdate>(
+    `/projects/${projectId}/documentation/documents/notion/update`,
+    { method: "POST" },
   );
 }
 

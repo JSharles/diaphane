@@ -18,6 +18,7 @@ import {
   addNotionRoot,
   CursorPage,
   listNotionPages,
+  updateNotionRoots,
   getDocument,
   listDocuments,
   uploadDocument,
@@ -44,6 +45,7 @@ import {
 } from "./api";
 import type { AddNoteRequest } from "schemas";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 // A tab nobody is looking at is not worth a request every three seconds. Guarded
 // on `document` existing at all: `refetchInterval` is evaluated during the
@@ -181,6 +183,30 @@ export function useAddNotionRoot(projectId: string) {
         (current) => mergeAcknowledgement(current, document),
       );
       queryClient.invalidateQueries({ queryKey: notionPagesKey(projectId) });
+    },
+  });
+}
+
+// « Mettre à jour »: what it says depends on what it found, so the toast is
+// raised here rather than declared once. A replaced racine changed its
+// document and rewrote the reference document, so everything read from the
+// documentation is refetched; nothing new leaves everything as it was.
+export function useUpdateNotionRoots(projectId: string) {
+  const t = useTranslations("Projects.DocumentationNew.Toasts");
+  const invalidate = useInvalidateDocumentation(projectId);
+  return useMutation({
+    mutationFn: () => updateNotionRoots(projectId),
+    onSuccess: ({ replaced, referenceRewritten }) => {
+      if (replaced.length === 0) {
+        toast.success(t("notionNothingNew"));
+        return;
+      }
+      toast.success(
+        t(referenceRewritten ? "notionRootsUpdated" : "notionRootsUpdatedRewriteOwed", {
+          count: replaced.length,
+        }),
+      );
+      invalidate();
     },
   });
 }
