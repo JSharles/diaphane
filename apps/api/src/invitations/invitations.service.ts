@@ -41,6 +41,14 @@ export class InvitationsService {
   // management (see docs/PRODUCT.md "Business rules" § Access). The invitee
   // is always granted client, non-admin membership (FR-011) — a client is
   // never an admin by default in this feature.
+  //
+  // « La réponse à une invitation ne doit pas révéler si un compte existe »
+  // (docs/PRODUCT.md « Les invitations et l'email »): the answer is the same
+  // whatever the email. An email that belongs to a développeur is invited
+  // like any other — same row, same email — and the refusal waits for
+  // acceptance, where only the holder of the link learns it (decision #49).
+  // A member of this project is the one exception, and no secret: the
+  // inviter already reads the members list.
   async create(
     userId: string,
     projectId: string,
@@ -54,16 +62,6 @@ export class InvitationsService {
     });
 
     if (existingUser) {
-      // Developer and client are non-overlapping audiences by design
-      // (specs/004-account-kind) — a developer-kind account can never become
-      // a client-role member anywhere, so this is rejected immediately
-      // rather than left as an invitation that could never be accepted.
-      if (existingUser.accountKind === 'developer') {
-        throw new ForbiddenException(
-          'This person has a developer account and cannot be invited as a client',
-        );
-      }
-
       const membership = await this.prisma.projectMember.findUnique({
         where: {
           projectId_userId: { projectId, userId: existingUser.id },
@@ -280,11 +278,13 @@ export class InvitationsService {
     });
 
     if (user) {
-      // Mirrors the same check in create() — covers the case where the
-      // account was created (or switched) after the invitation was sent.
-      // Checked before the password verify below: a GitHub-only developer
-      // account (specs/009-developer-github-oauth) has no passwordHash at
-      // all, so this order also avoids ever calling argon2.verify with null.
+      // The one place a développeur is refused, on purpose: refused at
+      // creation, the answer told the inviter an account existed (decision
+      // #49). Here only the holder of the link learns it, about their own
+      // email. Checked before the password verify below: a GitHub-only
+      // developer account (specs/009-developer-github-oauth) has no
+      // passwordHash at all, so this order also avoids ever calling
+      // argon2.verify with null.
       if (user.accountKind === 'developer') {
         throw new ForbiddenException(
           'Developer accounts cannot accept client invitations',

@@ -157,20 +157,29 @@ describe('InvitationsService', () => {
       expect(prisma.invitation.create).not.toHaveBeenCalled();
     });
 
-    it('throws forbidden when the invited email already belongs to a developer account', async () => {
-      prisma.projectMember.findUnique.mockResolvedValue(adminMembership);
+    // « La réponse à une invitation ne doit pas révéler si un compte existe »
+    // (docs/PRODUCT.md « Les invitations et l'email »): see create().
+    it('invites an email that belongs to a developer account like any other', async () => {
+      prisma.projectMember.findUnique
+        .mockResolvedValueOnce(adminMembership)
+        .mockResolvedValueOnce(null);
       prisma.user.findUnique.mockResolvedValue({
         ...fakeUser,
         id: 'user-2',
         accountKind: 'developer',
       });
+      prisma.invitation.findFirst.mockResolvedValue(null);
+      prisma.invitation.create.mockResolvedValue(fakeInvitation);
 
-      await expect(
-        service.create('user-1', 'project-1', { email: 'client@example.com' }),
-      ).rejects.toThrow(ForbiddenException);
+      const result = await service.create('user-1', 'project-1', {
+        email: 'client@example.com',
+      });
 
-      expect(prisma.projectMember.findUnique).toHaveBeenCalledTimes(1);
-      expect(prisma.invitation.create).not.toHaveBeenCalled();
+      expect(result).toEqual(fakeInvitation);
+      expect(prisma.invitation.create).toHaveBeenCalled();
+      expect(mailer.sendInvitation).toHaveBeenCalledWith(
+        expect.objectContaining({ to: 'client@example.com' }),
+      );
     });
 
     it('delegates to resend (extends expiresAt, same token) when a pending invitation already exists for that email (FR-008)', async () => {
