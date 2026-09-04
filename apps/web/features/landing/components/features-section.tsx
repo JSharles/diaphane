@@ -18,10 +18,7 @@ export function FeaturesSection() {
       className="mx-auto flex max-w-5xl scroll-mt-24 flex-col px-6 py-16 sm:py-24"
     >
       <div className="mb-10 max-w-2xl">
-        <p className="text-sm font-mono font-semibold tracking-[0.18em] text-primary uppercase">
-          {t("eyebrow")}
-        </p>
-        <h2 className="mt-4 text-balance text-3xl font-black tracking-[-0.025em] sm:text-5xl">
+        <h2 className="text-balance text-3xl font-black tracking-[-0.025em] sm:text-5xl">
           {t("title")}
           <span className="text-optical-light">{t("titleAccent")}</span>
         </h2>
@@ -31,7 +28,7 @@ export function FeaturesSection() {
       </div>
       <AiPreview />
       <DocumentPreview />
-      <div className="mt-6 grid divide-y divide-border border-y border-border lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+      <div className="mt-12 grid divide-y divide-border border-y border-border lg:grid-cols-3 lg:divide-x lg:divide-y-0">
         {CARDS.map(({ icon: Icon, key }) => (
           <div
             key={key}

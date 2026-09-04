@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 export function LandingFooter() {
   const t = useTranslations("Landing.footer");
@@ -19,9 +20,16 @@ export function LandingFooter() {
             Diaphane
           </span>
         </div>
-        <p className="max-w-lg text-sm text-muted-foreground">
-          {t("statement")}
-        </p>
+        <div className="flex max-w-lg flex-col gap-2 text-sm text-muted-foreground">
+          <p>{t("statement")}</p>
+          <p>
+            {t("invitedHint")}{" "}
+            <Link href="/login" className="font-semibold text-foreground underline-offset-4 hover:underline">
+              {t("invitedLogin")}
+            </Link>
+            .
+          </p>
+        </div>
         <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
           {t("status")}
         </p>

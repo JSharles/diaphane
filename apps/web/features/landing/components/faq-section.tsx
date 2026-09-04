@@ -14,7 +14,7 @@ export function FaqSection() {
       id="faq"
       className="mx-auto flex max-w-3xl scroll-mt-24 flex-col gap-10 px-6 py-20"
     >
-      <h2 className="text-sm font-mono font-semibold tracking-[0.2em] text-optical-light uppercase">
+      <h2 className="text-balance text-3xl font-black tracking-[-0.025em] sm:text-4xl">
         {t("eyebrow")}
       </h2>
       {GROUPS.map((group) => (

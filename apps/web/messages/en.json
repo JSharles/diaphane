@@ -1,10 +1,10 @@
 {
   "Metadata": {
-    "title": "Diaphane — Technology, made understandable",
+    "title": "Diaphane: technology, made understandable",
     "description": "Diaphane translates technical complexity into a clear, reassuring client experience without distorting the reality of the project."
   },
   "Landing": {
-    "signUp": "Create a workspace",
+    "signUp": "Create a project",
     "logIn": "Log in",
     "openMenu": "Open menu",
     "nav": {
@@ -17,8 +17,8 @@
       "titleBefore": "Let clients understand ",
       "titleHighlight": "what you're building",
       "titleAfter": ".",
-      "subhead": "Diaphane sits between technology and your clients, making it clear, accessible, and less intimidating — without distorting the reality of the project.",
-      "primaryCta": "Create a workspace for my client",
+      "subhead": "Diaphane sits between technology and your clients, making it clear, accessible, and less intimidating, without distorting the reality of the project.",
+      "primaryCta": "Create my first project",
       "trustSources": "The real work stays the source",
       "trustReadOnly": "Read-only client access",
       "trustPublishing": "You control published documents"
@@ -28,7 +28,7 @@
       "title": "The technology stays precise. ",
       "subhead": "Diaphane removes jargon and opacity, not substance. Every piece of information stays true to the real work and becomes understandable to your client.",
       "preview": {
-        "badge": "Transformation example",
+        "badge": "Rewritten by the AI from the source ticket",
         "sourceLabel": "In your board",
         "sourceStatus": "In progress",
         "sourceTitle": "Refactor auth middleware and session invalidation",
@@ -51,9 +51,9 @@
       "accessTitle": "Clients view; they do not edit",
       "accessDescription": "Their workspace is read-only, while your working process stays in your tools.",
       "documentPreview": {
-        "documentBadge": "Document transformation",
+        "documentBadge": "One document, sorted and explained by the AI",
         "sourceLabel": "Source document",
-        "sourceTitle": "Project brief — version 3.docx",
+        "sourceTitle": "Project brief v3.docx",
         "sourceExcerpt": "Goals, business rules, user journeys, and next steps are mixed together in one working document.",
         "classifyTitle": "1. Classify",
         "classifyDescription": "Every passage goes to the right topic.",
@@ -81,7 +81,7 @@
       "stepLabel": "Step {number}",
       "connectTitle": "Connect your sources",
       "connectDescription": "Link your board and add PDFs, documents, images, or Notion pages. GitHub Projects is the first available board integration.",
-      "contextTitle": "Diaphane translates and organizes",
+      "contextTitle": "The AI translates and organizes, you review",
       "contextDescription": "Tasks are rewritten in plain language. Documents are classified, structured, then explained in sections you can review.",
       "inviteTitle": "Review, then share",
       "inviteDescription": "Approve the content to publish, then share a secure invitation. Your client can only access the relevant project."
@@ -105,10 +105,31 @@
       "card1Title": "Understand what is happening now",
       "card1Description": "The current task is presented with its purpose, impact, and state in plain language.",
       "card2Title": "Explore structured documentation",
-      "card2Description": "Approved information is organized by topic and clearly rewritten, with the original document still accessible.",
+      "card2Description": "Approved information is organized by topic and clearly rewritten, in their language.",
       "card3Title": "Know who to contact",
       "card3Description": "The team, useful contact details, and meeting link live in the same workspace.",
-      "titleAccent": "without learning your tools."
+      "titleAccent": "without learning your tools.",
+      "preview": {
+        "label": "What your client reads",
+        "projectTitle": "Website redesign",
+        "tabProject": "The project",
+        "tabRoadmap": "Roadmap",
+        "tabTask": "Current task",
+        "m1Title": "Scoping and mockups",
+        "m1When": "March",
+        "m1S1": "Site map approved",
+        "m1S2": "Key page mockups",
+        "m2Title": "Building the site",
+        "m2When": "April to May",
+        "m2S1": "Pages and content",
+        "m2S2": "Contact form",
+        "m2S3": "News section",
+        "m3Title": "Going live",
+        "m3When": "June",
+        "m3S1": "Acceptance with you",
+        "m3S2": "Public launch",
+        "note": "Example roadmap. The “we are here” marker is moved by the developer, with no re-approval."
+      }
     },
     "faq": {
       "eyebrow": "Frequently asked questions",
@@ -116,7 +137,7 @@
       "groupHowItWorks": "How it works",
       "groupTrustPricing": "Trust & pricing",
       "q1": "Does Diaphane replace my project tracker?",
-      "a1": "No. Your board remains where you manage the project. Diaphane is designed to connect to different project trackers; GitHub Projects is the first integration available.",
+      "a1": "No. Your board remains where you manage the project. Diaphane reads a GitHub Projects board; it is the only tracker integration for now.",
       "q2": "What does Diaphane do with my documents?",
       "a2": "Diaphane analyzes their content, sorts it into the project's topics, structures it into useful sections, then explains it in plain language. You can approve, reject, or refile every section before publishing.",
       "q3": "What exactly can my client see?",
@@ -131,15 +152,17 @@
       "a7": "Diaphane is in launch phase. Pricing will be announced soon; you can already create an account and a first project."
     },
     "closing": {
-      "eyebrow": "Ready to lift the veil?",
+      "eyebrow": "What next",
       "title": "Show what is really happening. ",
       "subhead": "Make your work understandable without changing the way you work.",
-      "cta": "Create a workspace for my client",
-      "titleAccent": "Earn their trust."
+      "cta": "Create my first project",
+      "titleAccent": "Starting with your next ticket."
     },
     "footer": {
       "statement": "Technical complexity, made understandable for your clients.",
-      "status": "Product in launch phase"
+      "status": "Product in launch phase",
+      "invitedHint": "Received an invitation? Follow the link in the email, or",
+      "invitedLogin": "log in"
     }
   },
   "Auth": {

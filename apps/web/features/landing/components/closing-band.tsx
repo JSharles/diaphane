@@ -11,9 +11,6 @@ export function ClosingBand() {
   return (
     <section className="border-t px-6 py-20 text-center">
       <div className="mx-auto flex max-w-2xl flex-col items-center">
-        <p className="mb-4 text-xs font-semibold tracking-[0.18em] text-muted-foreground uppercase">
-          {t("eyebrow")}
-        </p>
         <h2 className="text-glow-strong text-balance text-3xl leading-tight font-black text-white sm:text-4xl">
           {t("title")}
           <span className="text-optical-light">{t("titleAccent")}</span>

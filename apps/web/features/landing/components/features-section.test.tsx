@@ -6,7 +6,6 @@ describe("FeaturesSection", () => {
   it("renders both product demonstrations and three trust principles", () => {
     render(<FeaturesSection />);
 
-    expect(screen.getByText("eyebrow")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { level: 2, name: "titletitleAccent" }),
     ).toBeInTheDocument();

@@ -1,70 +1,47 @@
 import { useTranslations } from "next-intl";
-import type { LucideIcon } from "lucide-react";
-import {
-  BookOpenText,
-  Eye,
-  FileCheck2,
-  PanelsTopLeft,
-  MessageSquareText,
-  Users,
-} from "lucide-react";
+import { ClientViewPreview } from "./client-view-preview";
 
-interface Track {
-  namespace: "clients" | "developers";
-  icons: readonly LucideIcon[];
+// Two audiences, two forms. The developer reads a list of what changes for
+// them; the client's track shows the thing itself, the roadmap their client
+// reads, with the three benefits as captions under it.
+function TrackHeading({ namespace }: { namespace: "clients" | "developers" }) {
+  const t = useTranslations(`Landing.${namespace}`);
+  return (
+    <div>
+      <p className="font-mono text-xs font-semibold tracking-[0.08em] text-primary uppercase">
+        {t("eyebrow")}
+      </p>
+      <h2 className="mt-4 max-w-md text-balance text-3xl font-black tracking-[-0.025em] sm:text-4xl">
+        {t("title")}
+        <span className="text-optical-light">{t("titleAccent")}</span>
+      </h2>
+      <p className="mt-5 max-w-md leading-relaxed text-muted-foreground">
+        {t("subhead")}
+      </p>
+    </div>
+  );
 }
 
-const TRACKS: readonly Track[] = [
-  {
-    namespace: "developers",
-    icons: [MessageSquareText, PanelsTopLeft, FileCheck2],
-  },
-  {
-    namespace: "clients",
-    icons: [Eye, BookOpenText, Users],
-  },
-];
-
-function BenefitTrack({ namespace, icons }: Track) {
+function BenefitList({
+  namespace,
+  compact,
+}: {
+  namespace: "clients" | "developers";
+  compact?: boolean;
+}) {
   const t = useTranslations(`Landing.${namespace}`);
-
   return (
-    <div
-      id={namespace}
-      className="grid scroll-mt-24 gap-10 border-t border-border py-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:py-20"
-    >
-      <div>
-        <p className="text-sm font-mono font-semibold tracking-[0.18em] text-primary uppercase">
-          {t("eyebrow")}
-        </p>
-        <h2 className="mt-4 max-w-md text-balance text-3xl font-black tracking-[-0.025em] sm:text-4xl">
-          {t("title")}
-          <span className="text-optical-light">{t("titleAccent")}</span>
-        </h2>
-        <p className="mt-5 max-w-md leading-relaxed text-muted-foreground">
-          {t("subhead")}
-        </p>
-      </div>
-      <div className="divide-y divide-border">
-        {icons.map((Icon, index) => (
-          <div
-            key={index}
-            className="grid gap-3 py-6 first:pt-0 sm:grid-cols-[auto_1fr] sm:gap-5"
-          >
-            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-optical-light">
-              <Icon className="size-5" strokeWidth={1.75} />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold">
-                {t(`card${index + 1}Title` as "card1Title")}
-              </h3>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                {t(`card${index + 1}Description` as "card1Description")}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className={compact ? "grid gap-6 sm:grid-cols-3" : "divide-y divide-border"}>
+      {([1, 2, 3] as const).map((n) => (
+        <div key={n} className={compact ? undefined : "py-6 first:pt-0 last:pb-0"}>
+          <h3 className={compact ? "font-bold" : "text-lg font-bold"}>
+            {t(`card${n}Title`)}
+          </h3>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            {t(`card${n}Description`)}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -75,9 +52,24 @@ export function BenefitsSection() {
       id="benefits"
       className="mx-auto flex max-w-5xl scroll-mt-24 flex-col px-6 py-8 sm:py-12"
     >
-      {TRACKS.map((track) => (
-        <BenefitTrack key={track.namespace} {...track} />
-      ))}
+      <div
+        id="developers"
+        className="grid scroll-mt-24 gap-10 border-t border-border py-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:py-20"
+      >
+        <TrackHeading namespace="developers" />
+        <BenefitList namespace="developers" />
+      </div>
+
+      <div
+        id="clients"
+        className="flex scroll-mt-24 flex-col gap-10 border-t border-border py-14 lg:py-20"
+      >
+        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <TrackHeading namespace="clients" />
+          <ClientViewPreview />
+        </div>
+        <BenefitList namespace="clients" compact />
+      </div>
     </section>
   );
 }
