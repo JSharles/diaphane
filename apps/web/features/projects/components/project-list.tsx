@@ -45,7 +45,7 @@ function ProjectCard({ project }: { project: Project }) {
 
   return (
     <Link key={project.id} href={`/projects/${project.id}`}>
-      <Card className="h-full gap-4 transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <Card className="h-full gap-4 transition-colors duration-fast hover:border-hairline-strong hover:bg-surface-2">
         <CardHeader>
           <div className="flex items-start justify-between gap-3">
             <div className="flex size-10 items-center justify-center rounded-lg bg-accent">
@@ -112,14 +112,14 @@ export function ProjectList() {
             page's actual subject — WelcomeCard's greeting above it is
             deliberately not a heading, so there's nothing this needs to
             nest under. */}
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
+        <h1 className="font-serif text-3xl leading-[1.15] font-normal">{t("title")}</h1>
         {canCreateProject ? (
           <Button onClick={() => setCreateOpen(true)}>{t("newProject")}</Button>
         ) : null}
       </div>
 
       {isPending ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <Skeleton className="h-40 w-full" />
           <Skeleton className="h-40 w-full" />
           <Skeleton className="h-40 w-full" />
@@ -136,7 +136,7 @@ export function ProjectList() {
           ) : null}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}

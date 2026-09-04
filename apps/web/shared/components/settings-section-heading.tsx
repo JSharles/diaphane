@@ -1,13 +1,11 @@
 import type { ReactNode } from "react";
 
-// Small uppercase group label above a cluster of related SettingsRows (e.g.
-// "Tools" above Board + Notion, "Preferences" above Timezone/Date format/
-// Language) — only used above genuine multi-row groups; a single-row
-// section's own SettingsRow title already labels it, so it doesn't need
-// one of these too.
+// A section title in the workspace (DESIGN.md § 8): ui-section, after a
+// hairline and 40px of air. Never capitals. Only above a genuine group of
+// rows; a single row's own title already names it.
 export function SettingsSectionHeading({ children }: { children: ReactNode }) {
   return (
-    <h2 className="pt-6 pb-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+    <h2 className="mt-10 border-t border-hairline pt-10 pb-2 text-[1.0625rem] font-medium">
       {children}
     </h2>
   );

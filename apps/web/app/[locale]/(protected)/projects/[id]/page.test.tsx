@@ -12,6 +12,9 @@ vi.mock("react", async (importOriginal) => {
 
 vi.mock("@/features/projects/hooks", () => ({
   useProject: vi.fn(),
+  // The client's reading header names the publisher from the members; the
+  // header has its own test, here it stays quiet.
+  useProjectMembers: vi.fn(() => ({ data: undefined })),
 }));
 vi.mock("@/shared/hooks/use-current-user", () => ({
   useCurrentUser: vi.fn(),

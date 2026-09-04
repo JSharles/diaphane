@@ -219,7 +219,10 @@
       "loadErrorRetry": "Retry",
       "joinMeeting": "Join meeting",
       "connections": "Connections",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "publishedBy": "Documents published by {name}",
+      "updatedOn": "Updated on {date}",
+      "publishedWith": "Published with Diaphane"
     },
     "Documentation": {
       "AddDocument": {
