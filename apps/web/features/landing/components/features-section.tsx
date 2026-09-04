@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { AiPreview } from "./ai-preview";
 import { DocumentPreview } from "./document-preview";
 
 const PRINCIPLES = ["source", "control", "access"] as const;
@@ -19,6 +20,7 @@ export function FeaturesSection() {
           {t("subhead")}
         </p>
       </div>
+      <AiPreview />
       <DocumentPreview />
       <dl className="mt-12 grid divide-y divide-border border-y border-border lg:grid-cols-3 lg:divide-x lg:divide-y-0">
         {PRINCIPLES.map((key) => (

@@ -22,6 +22,7 @@ describe("ClosingBand", () => {
   it("renders the closing title and a call to action link", () => {
     render(<ClosingBand />);
 
+    expect(screen.getByText("eyebrow")).toBeInTheDocument();
     expect(screen.getByText("title")).toBeInTheDocument();
     expect(screen.getByText("subhead")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "cta" })).toHaveAttribute(

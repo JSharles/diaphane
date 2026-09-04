@@ -28,16 +28,10 @@ export function GlassBar({ children }: { children: ReactNode }) {
     );
   }
   return (
-    // Tuned so what scrolls under the bar is frosted, not printed twice:
-    // a gentler displacement than the component's default, a smoothed
-    // displacement map, and a frost of its own instead of full transparency.
     <GlassSurface
       width="100%"
       height={64}
       borderRadius={14}
-      distortionScale={-40}
-      displace={8}
-      backgroundOpacity={0.12}
       className="mx-auto max-w-6xl"
     >
       {children}

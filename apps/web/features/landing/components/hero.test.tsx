@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Hero } from "./hero";
 
@@ -7,7 +8,10 @@ vi.mock("@/i18n/navigation", () => ({
     href,
     children,
     ...props
-  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
+  }: AnchorHTMLAttributes<HTMLAnchorElement> & {
+    href: string;
+    children: ReactNode;
+  }) => (
     <a href={href} {...props}>
       {children}
     </a>
@@ -15,7 +19,7 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 describe("Hero", () => {
-  it("renders the promise, one call to action, the facts line, and the ticket before/after as proof", () => {
+  it("renders the product promise, primary call to action, and trust signals", () => {
     render(<Hero />);
 
     const heading = screen.getByRole("heading", { level: 1 });
@@ -23,11 +27,15 @@ describe("Hero", () => {
     expect(within(heading).getByText("titleHighlight")).toBeInTheDocument();
     expect(screen.getByText("eyebrow")).toBeInTheDocument();
     expect(screen.getByText("subhead")).toBeInTheDocument();
-    expect(screen.getAllByRole("link")).toHaveLength(1);
-    expect(screen.getByRole("link", { name: "primaryCta" })).toHaveAttribute("href", "/signup");
-    expect(screen.getByText("facts")).toBeInTheDocument();
-    // The proof: the ticket example is in the first viewport.
-    expect(screen.getByText("badge")).toBeInTheDocument();
-    expect(screen.getByText("clientTitle")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "primaryCta" })).toHaveAttribute(
+      "href",
+      "/signup",
+    );
+    expect(
+      screen.queryByRole("link", { name: "secondaryCta" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("trustSources")).toBeInTheDocument();
+    expect(screen.getByText("trustReadOnly")).toBeInTheDocument();
+    expect(screen.getByText("trustPublishing")).toBeInTheDocument();
   });
 });

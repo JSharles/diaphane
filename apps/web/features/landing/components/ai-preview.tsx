@@ -6,9 +6,8 @@ const LABEL = "font-mono text-xs font-medium tracking-[0.08em] text-muted-foregr
 
 // One worked example: a board ticket, then what the client reads. Two panels
 // on the page's own ground, no frame around them; the frosted right panel is
-// the product surface, and it is the only glass here. Stacked in the hero
-// (compact), side by side elsewhere.
-export function AiPreview({ compact = false }: { compact?: boolean }) {
+// the product surface, and it is the only glass here.
+export function AiPreview() {
   const t = useTranslations("Landing.features.preview");
 
   return (
@@ -18,10 +17,7 @@ export function AiPreview({ compact = false }: { compact?: boolean }) {
       </span>
 
       <div
-        className={cn(
-          "grid grid-cols-1 items-center gap-4",
-          !compact && "lg:grid-cols-[minmax(0,0.8fr)_auto_minmax(0,1.2fr)] lg:gap-6",
-        )}
+        className="grid grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.8fr)_auto_minmax(0,1.2fr)] lg:gap-6"
       >
         <div className="rounded-xl border border-border bg-muted p-5">
           <div className="mb-4 flex items-center justify-between gap-4">
@@ -37,7 +33,7 @@ export function AiPreview({ compact = false }: { compact?: boolean }) {
         </div>
 
         <ArrowRight
-          className={cn("mx-auto size-5 rotate-90 text-primary", !compact && "lg:rotate-0")}
+          className="mx-auto size-5 rotate-90 text-primary lg:rotate-0"
           aria-hidden="true"
         />
 
@@ -50,9 +46,9 @@ export function AiPreview({ compact = false }: { compact?: boolean }) {
             </span>
           </div>
           <h3 className="text-balance text-xl font-bold">{t("clientTitle")}</h3>
-          <dl className={cn("mt-5 grid gap-4", !compact && "sm:grid-cols-2")}>
+          <dl className="mt-5 grid gap-4 sm:grid-cols-2">
             {(["why", "impact", "state"] as const).map((key) => (
-              <div key={key} className={!compact && key === "state" ? "sm:col-span-2" : undefined}>
+              <div key={key} className={key === "state" ? "sm:col-span-2" : undefined}>
                 <dt className={cn(LABEL, "text-optical-light")}>{t(`${key}Label`)}</dt>
                 <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(key)}</dd>
               </div>

@@ -11,7 +11,7 @@ export function DocumentPreview() {
   const t = useTranslations("Landing.features.documentPreview");
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mt-12 flex flex-col gap-6">
       <span className="w-fit font-mono text-xs font-semibold tracking-[0.08em] text-primary uppercase">
         {t("documentBadge")}
       </span>

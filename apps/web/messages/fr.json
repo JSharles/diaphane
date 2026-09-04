@@ -17,9 +17,11 @@
       "titleBefore": "Vos clients comprennent enfin ",
       "titleHighlight": "ce que vous construisez",
       "titleAfter": ".",
-      "subhead": "Un portail en lecture seule où votre client suit son projet : votre board GitHub, vos pages Notion et vos documents, réécrits pour lui par l’IA et publiés après votre approbation.",
+      "subhead": "Diaphane se place entre la tech et vos clients pour la rendre claire, accessible et moins intimidante, sans déformer la réalité du projet.",
       "primaryCta": "Créer mon premier projet",
-      "facts": "Rien d’inventé. Lecture seule pour le client. Rien ne part sans votre approbation."
+      "trustSources": "Le travail réel reste la source",
+      "trustReadOnly": "Accès client en lecture seule",
+      "trustPublishing": "Documents publiés sous votre contrôle"
     },
     "features": {
       "eyebrow": "La complexité, traduite",
@@ -146,11 +148,11 @@
       "title": "Questions fréquentes"
     },
     "closing": {
-      "eyebrow": "Et maintenant",
+      "eyebrow": "Prêt à lever le voile ?",
       "title": "Montrez ce qui se passe vraiment. ",
       "subhead": "Rendez votre travail compréhensible sans changer votre façon de travailler.",
       "cta": "Créer mon premier projet",
-      "titleAccent": "Dès le prochain ticket."
+      "titleAccent": "Gagnez leur confiance."
     },
     "footer": {
       "statement": "La complexité technique, rendue compréhensible pour vos clients.",

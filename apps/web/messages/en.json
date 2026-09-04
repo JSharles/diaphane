@@ -17,9 +17,11 @@
       "titleBefore": "Let clients understand ",
       "titleHighlight": "what you're building",
       "titleAfter": ".",
-      "subhead": "A read-only portal where your client follows their project: your GitHub board, your Notion pages and your documents, rewritten for them by the AI and published after your approval.",
+      "subhead": "Diaphane sits between technology and your clients, making it clear, accessible, and less intimidating, without distorting the reality of the project.",
       "primaryCta": "Create my first project",
-      "facts": "Nothing invented. Read-only for the client. Nothing leaves without your approval."
+      "trustSources": "The real work stays the source",
+      "trustReadOnly": "Read-only client access",
+      "trustPublishing": "You control published documents"
     },
     "features": {
       "eyebrow": "Complexity, translated",
@@ -146,11 +148,11 @@
       "title": "Frequently asked questions"
     },
     "closing": {
-      "eyebrow": "What next",
+      "eyebrow": "Ready to lift the veil?",
       "title": "Show what is really happening. ",
       "subhead": "Make your work understandable without changing the way you work.",
       "cta": "Create my first project",
-      "titleAccent": "Starting with your next ticket."
+      "titleAccent": "Earn their trust."
     },
     "footer": {
       "statement": "Technical complexity, made understandable for your clients.",
