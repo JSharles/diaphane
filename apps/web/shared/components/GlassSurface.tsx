@@ -230,9 +230,13 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
         ...baseStyles,
         background: isDarkMode ? `hsl(0 0% 0% / ${backgroundOpacity})` : `hsl(0 0% 100% / ${backgroundOpacity})`,
         backdropFilter: `url(#${filterId}) saturate(${saturation})`,
+        // 2026-09-04: the rim was a bright ring that read as a drawn border
+        // rather than as an edge of glass. Both inset highlights are pulled
+        // back so the bar is felt at its edge, not outlined (DESIGN.md: no
+        // halo around a container).
         boxShadow: isDarkMode
-          ? `0 0 2px 1px color-mix(in oklch, white, transparent 65%) inset,
-             0 0 10px 4px color-mix(in oklch, white, transparent 85%) inset,
+          ? `0 0 2px 1px color-mix(in oklch, white, transparent 88%) inset,
+             0 0 10px 4px color-mix(in oklch, white, transparent 94%) inset,
              0px 4px 16px rgba(17, 17, 26, 0.05),
              0px 8px 24px rgba(17, 17, 26, 0.05),
              0px 16px 56px rgba(17, 17, 26, 0.05),

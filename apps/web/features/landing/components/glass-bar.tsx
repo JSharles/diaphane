@@ -22,7 +22,7 @@ export function GlassBar({ children }: { children: ReactNode }) {
 
   if (!mounted) {
     return (
-      <div className="mx-auto flex h-16 max-w-6xl items-center rounded-2xl border border-pane-line bg-pane p-2 backdrop-blur-sm">
+      <div className="mx-auto flex h-16 max-w-6xl items-center rounded-2xl border border-white/8 bg-pane p-2 backdrop-blur-sm">
         {children}
       </div>
     );
@@ -32,6 +32,9 @@ export function GlassBar({ children }: { children: ReactNode }) {
       width="100%"
       height={64}
       borderRadius={16}
+      // A narrow refraction band: the wide default drew a visible ring at
+      // the edge instead of bending what passes under it.
+      borderWidth={0.03}
       className="mx-auto max-w-6xl"
     >
       {children}
