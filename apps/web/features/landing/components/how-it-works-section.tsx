@@ -14,7 +14,7 @@ export function HowItWorksSection() {
     >
       <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div>
-          <h2 className="text-balance text-3xl font-black tracking-[-0.025em] sm:text-5xl">
+          <h2 className="text-balance text-3xl font-black tracking-[-0.025em] sm:text-4xl">
             {t("title")}
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">

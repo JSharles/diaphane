@@ -13,7 +13,6 @@ function TrackHeading({ namespace }: { namespace: "clients" | "developers" }) {
       </p>
       <h2 className="mt-4 max-w-md text-balance text-3xl font-black tracking-[-0.025em] sm:text-4xl">
         {t("title")}
-        <span className="text-optical-light">{t("titleAccent")}</span>
       </h2>
       <p className="mt-5 max-w-md leading-relaxed text-muted-foreground">
         {t("subhead")}

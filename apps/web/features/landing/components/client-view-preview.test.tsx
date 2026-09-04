@@ -3,11 +3,12 @@ import { describe, expect, it } from "vitest";
 import { ClientViewPreview } from "./client-view-preview";
 
 describe("ClientViewPreview", () => {
-  it("renders the example roadmap with the client's own timeline and the roadmap tab selected", () => {
+  it("renders the example roadmap with the client's own timeline and the roadmap tab marked open", () => {
     render(<ClientViewPreview />);
 
     expect(screen.getByText("projectTitle")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { selected: true })).toHaveTextContent("tabRoadmap");
+    expect(screen.getByText("tabRoadmap")).toHaveAttribute("aria-current", "true");
+    expect(screen.queryByRole("tab")).not.toBeInTheDocument();
     for (const key of ["m1Title", "m2Title", "m3Title", "m2S2"]) {
       expect(screen.getByText(key)).toBeInTheDocument();
     }

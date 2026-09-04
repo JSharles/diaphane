@@ -6,7 +6,7 @@ describe("FaqSection", () => {
   it("renders every question and its answer inside a disclosure", () => {
     render(<FaqSection />);
 
-    expect(screen.getByText("eyebrow")).toBeInTheDocument();
+    expect(screen.getByText("title")).toBeInTheDocument();
 
     for (let i = 1; i <= 7; i++) {
       expect(screen.getByText(`q${i}`)).toBeInTheDocument();

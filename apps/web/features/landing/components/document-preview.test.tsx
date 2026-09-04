@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { DocumentPreview } from "./document-preview";
 
 describe("DocumentPreview", () => {
-  it("renders the source, three transformations, categories, and review control", () => {
+  it("renders the source, three transformations, the developer's rubriques, and the approval note", () => {
     render(<DocumentPreview />);
 
     expect(screen.getByText("documentBadge")).toBeInTheDocument();
@@ -14,7 +14,6 @@ describe("DocumentPreview", () => {
     expect(screen.getByText("projectCategory")).toBeInTheDocument();
     expect(screen.getByText("howCategory")).toBeInTheDocument();
     expect(screen.getByText("roadmapCategory")).toBeInTheDocument();
-    expect(screen.getByText("otherCategory")).toBeInTheDocument();
     expect(screen.getByText("controlText")).toBeInTheDocument();
   });
 });

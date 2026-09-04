@@ -52,29 +52,26 @@ export function ClientViewPreview() {
       </span>
       <div className="rounded-xl border border-white/15 bg-white/[0.06] p-5 backdrop-blur sm:p-6">
         <p className="text-lg font-bold">{t("projectTitle")}</p>
-        <div
-          role="tablist"
-          aria-label={t("projectTitle")}
-          className="mt-4 flex gap-5 border-b border-border text-sm"
-        >
+        {/* The client's tab strip, shown, not operable: a list with the open
+            tab marked, so assistive tech is never told there are tabs to work. */}
+        <ul className="mt-4 flex gap-5 border-b border-border text-sm">
           {(["tabProject", "tabRoadmap", "tabTask"] as const).map((key) => {
-            const selected = key === "tabRoadmap";
+            const open = key === "tabRoadmap";
             return (
-              <span
+              <li
                 key={key}
-                role="tab"
-                aria-selected={selected}
+                aria-current={open ? "true" : undefined}
                 className={
-                  selected
+                  open
                     ? "-mb-px border-b-2 border-optical-light pb-2 font-semibold text-foreground"
                     : "pb-2 text-muted-foreground"
                 }
               >
                 {t(key)}
-              </span>
+              </li>
             );
           })}
-        </div>
+        </ul>
         <div className="mt-6">
           <ClientTimeline milestones={milestones} currentMilestoneId={CURRENT_ID} />
         </div>

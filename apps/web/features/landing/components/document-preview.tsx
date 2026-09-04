@@ -5,20 +5,20 @@ import { ArrowRight, Check, FileText } from "lucide-react";
 // numbered in the copy, no icon tile per step.
 const OPERATIONS = ["classify", "structure", "simplify"] as const;
 
-const CATEGORIES = ["project", "how", "roadmap", "other"] as const;
+const CATEGORIES = ["project", "how", "roadmap"] as const;
 
 export function DocumentPreview() {
   const t = useTranslations("Landing.features.documentPreview");
 
   return (
-    <div className="mt-12 flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <span className="w-fit font-mono text-xs font-semibold tracking-[0.08em] text-primary uppercase">
         {t("documentBadge")}
       </span>
 
       <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(11rem,0.55fr)_minmax(0,1.2fr)]">
         <div className="rounded-xl border border-border bg-muted p-5 sm:p-6">
-          <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <p className="font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
             {t("sourceLabel")}
           </p>
           <div className="mt-5 flex items-start gap-3">
@@ -51,14 +51,15 @@ export function DocumentPreview() {
 
         <div className="rounded-xl border border-white/15 bg-white/[0.06] p-5 backdrop-blur sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            <p className="font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
               {t("clientLabel")}
             </p>
             <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
               {t("reviewStatus")}
             </span>
           </div>
-          <div className="mt-5 flex flex-wrap gap-2">
+          <p className="mt-5 font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">{t("rubriquesLabel")}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
             {CATEGORIES.map((category, index) => (
               <span
                 key={category}
