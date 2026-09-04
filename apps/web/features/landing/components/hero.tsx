@@ -5,8 +5,11 @@ import { Link } from "@/i18n/navigation";
 export function Hero() {
   const tHero = useTranslations("Landing.hero");
 
+  // The hero owns the first viewport: its height is the screen minus the
+  // floating bar, content centered, so the next section's title starts below
+  // the fold instead of peeking into the scene of the rays.
   return (
-    <section className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-1000 mx-auto flex max-w-5xl flex-col items-center px-6 pt-16 pb-16 text-center sm:pt-24 sm:pb-24">
+    <section className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-1000 mx-auto flex min-h-[calc(100svh-5.5rem)] max-w-5xl flex-col items-center justify-center px-6 py-16 text-center sm:py-24">
       <p className="mb-6 font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
         {tHero("eyebrow")}
       </p>
