@@ -44,41 +44,8 @@
   --warning-bg: rgba(240, 179, 90, 0.12);
   --danger: #f07a6b;
   --danger-bg: rgba(240, 122, 107, 0.12);
-
-  /* ── shadcn variables, read from the material ─────────────────────── */
-  --background: var(--ground);
-  --foreground: var(--text);
-  --card: var(--surface-1);
-  --card-foreground: var(--text);
-  --popover: var(--surface-2);
-  --popover-foreground: var(--text);
-  --primary: var(--action);
-  --primary-foreground: var(--on-action);
-  --secondary: var(--surface-2);
-  --secondary-foreground: var(--text);
-  --muted: var(--surface-1);
-  --muted-foreground: var(--text-3);
-  --accent: var(--surface-2);
-  --accent-foreground: var(--text);
-  --destructive: var(--danger);
-  --success-foreground: var(--ground);
-  --border: var(--hairline);
-  --input: var(--hairline-strong);
-  --ring: var(--ring-color);
-  --chart-1: var(--text);
-  --chart-2: var(--text-2);
-  --chart-3: var(--text-3);
-  --chart-4: var(--machine);
-  --chart-5: var(--machine-dim);
-  --sidebar: var(--surface-1);
-  --sidebar-foreground: var(--text);
-  --sidebar-primary: var(--action);
-  --sidebar-primary-foreground: var(--on-action);
-  --sidebar-accent: var(--surface-2);
-  --sidebar-accent-foreground: var(--text);
-  --sidebar-border: var(--hairline);
-  --sidebar-ring: var(--ring-color);
 }
+
 
 /* ── Lait: the client's reading surface ──────────────────────────────── */
 [data-theme="lait"] {
@@ -116,6 +83,46 @@
   --danger-bg: rgba(180, 68, 58, 0.1);
   --success-foreground: #edf0f3;
   color-scheme: light;
+}
+
+/* The shadcn variables are resolved per element, not once on :root: a custom
+   property substitutes at the point of declaration, so an alias written only
+   on :root would carry the Encre values into a Lait subtree. Declaring them
+   for both materials lets each var() resolve against the tokens in scope. */
+:root,
+[data-theme="lait"] {
+  --background: var(--ground);
+  --foreground: var(--text);
+  --card: var(--surface-1);
+  --card-foreground: var(--text);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--text);
+  --primary: var(--action);
+  --primary-foreground: var(--on-action);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface-1);
+  --muted-foreground: var(--text-3);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--text);
+  --destructive: var(--danger);
+  --success-foreground: var(--ground);
+  --border: var(--hairline);
+  --input: var(--hairline-strong);
+  --ring: var(--ring-color);
+  --chart-1: var(--text);
+  --chart-2: var(--text-2);
+  --chart-3: var(--text-3);
+  --chart-4: var(--machine);
+  --chart-5: var(--machine-dim);
+  --sidebar: var(--surface-1);
+  --sidebar-foreground: var(--text);
+  --sidebar-primary: var(--action);
+  --sidebar-primary-foreground: var(--on-action);
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: var(--text);
+  --sidebar-border: var(--hairline);
+  --sidebar-ring: var(--ring-color);
 }
 
 @theme inline {
