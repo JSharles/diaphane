@@ -102,7 +102,7 @@ export class SectionProposalService {
 
     // A section is a view of the reference document, so there is nothing to
     // compose before one exists. Said plainly rather than failed downstream:
-    // this is a real ordering constraint, not an error (plan, Decision 4).
+    // this is a real ordering constraint, not an error.
     const reference = await this.prisma.referenceDocument.findFirst({
       where: { projectId, status: 'ready', outcome: 'written' },
       orderBy: { createdAt: 'desc' },

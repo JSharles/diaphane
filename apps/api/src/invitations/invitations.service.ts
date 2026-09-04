@@ -136,7 +136,7 @@ export class InvitationsService {
 
   // Pending-only (FR-018) — an invitation drops out once it's accepted,
   // cancelled, or time-expired, even though "expired" is never written to
-  // `status` (see data-model.md — it's computed from `expiresAt`).
+  // `status` (it's computed from `expiresAt`).
   async findAllForProject(
     userId: string,
     projectId: string,
@@ -170,7 +170,7 @@ export class InvitationsService {
   }
 
   // Resend (and the create()-delegates-to-resend path above) reset the
-  // expiry on the same row — the token is never rotated (research.md §2).
+  // expiry on the same row — the token is never rotated.
   // This also revives an invitation that has time-expired but wasn't
   // cancelled, which is the intended recovery path for a stale link.
   async resend(
@@ -282,9 +282,8 @@ export class InvitationsService {
       // creation, the answer told the inviter an account existed (decision
       // #49). Here only the holder of the link learns it, about their own
       // email. Checked before the password verify below: a GitHub-only
-      // developer account (specs/009-developer-github-oauth) has no
-      // passwordHash at all, so this order also avoids ever calling
-      // argon2.verify with null.
+      // developer account has no passwordHash at all, so this order also
+      // avoids ever calling argon2.verify with null.
       if (user.accountKind === 'developer') {
         throw new ForbiddenException(
           'Developer accounts cannot accept client invitations',

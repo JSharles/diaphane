@@ -24,7 +24,6 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "documentary:reset": "ts-node -r tsconfig-paths/register src/documentation/reset/documentary-reset.bootstrap.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

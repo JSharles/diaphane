@@ -7,7 +7,7 @@ export function ClientSectionView({ section }: { section: PublicClientSection })
   const t = useTranslations("Projects.ClientMainTabs");
 
   // Order, dates and where the project stands are spatial facts, and a
-  // paragraph hides all three (specs/020).
+  // paragraph hides all three.
   if (section.kind === "roadmap") {
     return (
       <ClientTimeline

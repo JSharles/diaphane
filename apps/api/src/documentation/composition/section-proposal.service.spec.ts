@@ -166,7 +166,7 @@ describe('SectionProposalService', () => {
       ).rejects.toMatchObject({ response: { code: 'SECTION_COMPOSING' } });
     });
 
-    // Plan, Decision 4: a section is a view of the reference document, so this
+    // A section is a view of the reference document, so this
     // is a real ordering constraint rather than a failure.
     it('refuses to compose before a reference document exists', async () => {
       const { prisma, service } = setup();

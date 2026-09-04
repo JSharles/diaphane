@@ -133,7 +133,7 @@ describe('BoardConnectionsService', () => {
   });
 
   describe('connect', () => {
-    it('verifies access with the developer’s token, then stores the choice with no token and the chooser', async () => {
+    it('verifies access with the developer’s token, then stores the choice with no token and who chose it', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
       githubClient.verifyBoardAccess.mockResolvedValue(availableBoard);
       prisma.boardConnection.upsert.mockResolvedValue(storedConnection);
@@ -218,7 +218,7 @@ describe('BoardConnectionsService', () => {
       ).resolves.toBeNull();
     });
 
-    it('reads as live while the chooser’s GitHub connection is fine', async () => {
+    it('reads as live while the GitHub connection of the developer who chose the board is fine', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
       prisma.boardConnection.findUnique.mockResolvedValue({
         ...storedConnection,
@@ -234,7 +234,7 @@ describe('BoardConnectionsService', () => {
       expect(result).not.toHaveProperty('encryptedToken');
     });
 
-    it('says reconnect when the chooser’s token was revoked', async () => {
+    it('says reconnect when the token of the developer who chose the board was revoked', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
       prisma.boardConnection.findUnique.mockResolvedValue({
         ...storedConnection,
@@ -246,7 +246,7 @@ describe('BoardConnectionsService', () => {
       ).resolves.toMatchObject({ needsReconnect: true });
     });
 
-    it('says reconnect when the chooser cut their GitHub connection', async () => {
+    it('says reconnect when the developer who chose the board cut their GitHub connection', async () => {
       prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
       prisma.boardConnection.findUnique.mockResolvedValue({
         ...storedConnection,
@@ -264,6 +264,77 @@ describe('BoardConnectionsService', () => {
       await expect(
         service.findForProject('user-1', 'project-1'),
       ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('updateEstimateUnit', () => {
+    it('changes how the board’s Estimate is read without touching the board choice or calling GitHub', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
+      prisma.boardConnection.findUnique.mockResolvedValue({
+        ...storedConnection,
+        connectedBy: { githubConnection: { needsReconnect: false } },
+      });
+      prisma.boardConnection.update.mockResolvedValue({
+        ...storedConnection,
+        estimateUnit: 'hours',
+      });
+
+      const result = await service.updateEstimateUnit(
+        'user-1',
+        'project-1',
+        'hours',
+      );
+
+      expect(prisma.boardConnection.update).toHaveBeenCalledWith({
+        where: { projectId: 'project-1' },
+        data: { estimateUnit: 'hours' },
+      });
+      expect(githubClient.verifyBoardAccess).not.toHaveBeenCalled();
+      expect(githubConnections.getToken).not.toHaveBeenCalled();
+      expect(result).toMatchObject({
+        boardTitle: 'Roadmap',
+        estimateUnit: 'hours',
+        needsReconnect: false,
+      });
+    });
+
+    it('keeps saying reconnect when the GitHub connection of the developer who chose the board is cut: the unit is stored, the board still is not read', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
+      prisma.boardConnection.findUnique.mockResolvedValue({
+        ...storedConnection,
+        connectedBy: { githubConnection: null },
+      });
+      prisma.boardConnection.update.mockResolvedValue({
+        ...storedConnection,
+        estimateUnit: 'hours',
+      });
+
+      const result = await service.updateEstimateUnit(
+        'user-1',
+        'project-1',
+        'hours',
+      );
+
+      expect(result.needsReconnect).toBe(true);
+    });
+
+    it('is a 404 when no board is connected', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(developerMembership);
+      prisma.boardConnection.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.updateEstimateUnit('user-1', 'project-1', 'hours'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prisma.boardConnection.update).not.toHaveBeenCalled();
+    });
+
+    it('hides the project from a client member', async () => {
+      prisma.projectMember.findUnique.mockResolvedValue(clientMembership);
+
+      await expect(
+        service.updateEstimateUnit('user-1', 'project-1', 'hours'),
+      ).rejects.toBeInstanceOf(NotFoundException);
+      expect(prisma.boardConnection.update).not.toHaveBeenCalled();
     });
   });
 

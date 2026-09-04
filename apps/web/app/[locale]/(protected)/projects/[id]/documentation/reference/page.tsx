@@ -5,8 +5,8 @@ import { use } from "react";
 import { ReferenceDocumentView } from "@/features/documentation/components/reference-document-view";
 
 // Step 2 — what Diaphane understood. The centre of the product, no longer a
-// section at the foot of the documents page but a place of its own
-// (specs/022). ReferenceDocumentView is moved, not rebuilt: prose with the
+// section at the foot of the documents page but a place of its own.
+// ReferenceDocumentView is moved, not rebuilt: prose with the
 // open points inline, correction in place, the notes and the rewrite action.
 export default function ReferenceStepPage({
   params,

@@ -86,7 +86,7 @@ function StateBanner({ projectId }: { projectId: string }) {
   );
 }
 
-// specs/022: the contributor gate, the back link and the page title moved to
+// The contributor gate, the back link and the page title moved to
 // the documentation layout — this is now step 3's panel, nothing more.
 export function ClientContentPage({ projectId }: { projectId: string }) {
   const t = useTranslations("Projects.Documentation.Client");

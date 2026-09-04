@@ -60,7 +60,7 @@ describe("DocumentationLayout", () => {
   });
 
   // The rail is a layout, not a component each page remembers to include — a
-  // step cannot render without it (specs/022).
+  // step cannot render without it.
   it("wraps every step with the rail and the way back", () => {
     mockAccount("developer");
     mockedUseProject.mockReturnValue({

@@ -11,16 +11,26 @@ export const AvailableBoardSchema = z.object({
 });
 export type AvailableBoard = z.infer<typeof AvailableBoardSchema>;
 
+// How the board's numeric "Estimate" field reads as a duration.
+export const EstimateUnitSchema = z.enum(['days', 'hours']);
+export type EstimateUnit = z.infer<typeof EstimateUnitSchema>;
+
 // The board a project chooses. No token: the developer's GitHub connection,
-// given at login, reads it. estimateUnit: how to read the board's numeric
-// "Estimate" field as a duration; defaults to "days" server-side.
+// given at login, reads it. estimateUnit defaults to "days" server-side.
 export const CreateBoardConnectionRequestSchema = z.object({
   ownerLogin: z.string(),
   ownerType: z.enum(['User', 'Organization']),
   number: z.number().int().positive(),
-  estimateUnit: z.enum(['days', 'hours']).optional(),
+  estimateUnit: EstimateUnitSchema.optional(),
 });
 export type CreateBoardConnectionRequest = z.infer<typeof CreateBoardConnectionRequestSchema>;
+
+// The one thing a project changes on its board without choosing it again:
+// how the board's numeric "Estimate" reads as a duration.
+export const UpdateBoardConnectionRequestSchema = z.object({
+  estimateUnit: EstimateUnitSchema,
+});
+export type UpdateBoardConnectionRequest = z.infer<typeof UpdateBoardConnectionRequestSchema>;
 
 // The project's board choice, as the developer sees it.
 export const BoardConnectionSchema = z.object({
@@ -30,7 +40,7 @@ export const BoardConnectionSchema = z.object({
   boardNumber: z.number(),
   boardTitle: z.string(),
   boardUrl: z.url(),
-  estimateUnit: z.enum(['days', 'hours']),
+  estimateUnit: EstimateUnitSchema,
   // The developer who chose this board has no usable GitHub connection any
   // more (cut, or revoked): the board is named but no longer read.
   needsReconnect: z.boolean(),

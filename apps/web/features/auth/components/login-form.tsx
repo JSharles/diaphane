@@ -85,8 +85,7 @@ export function LoginForm() {
         <Button type="submit" disabled={login.isPending}>
           {login.isPending ? t("submitPending") : t("submit")}
         </Button>
-        {/* No self-serve signup exists here (research.md Decision 10,
-            specs/009-developer-github-oauth) — a client's account only ever
+        {/* No self-serve signup exists here — a client's account only ever
             comes from a developer's invitation, so plain text, not a
             "Sign up" link, which would have nowhere correct to point. */}
         <p className="text-sm text-muted-foreground">{t("noAccount")}</p>

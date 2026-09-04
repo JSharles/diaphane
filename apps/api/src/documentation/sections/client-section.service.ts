@@ -241,10 +241,10 @@ export class ClientSectionService {
     await this.requireSection(projectId, sectionId);
 
     // Archiving rather than deleting: the client stops reading it, and the
-    // proposals that fed it stay explicable (research Decision 1).
+    // proposals that fed it stay explicable.
     // Releasing `activeProposalId` here is what lets a composition in flight be
     // cancelled without the section holding a dead pointer; cancelling the
-    // remote work itself belongs to the composition service (US4.4, T018).
+    // remote work itself belongs to the composition service.
     const { count } = await this.prisma.clientSection.updateMany({
       where: { id: sectionId, projectId, archivedAt: null },
       data: {
@@ -388,7 +388,7 @@ export class ClientSectionService {
   }
 
   // A section is a view of the reference document, so there is nothing to
-  // define one against before one exists (plan, Decision 4).
+  // define one against before one exists.
   private async requireReferenceDocument(projectId: string) {
     const written = await this.prisma.referenceDocument.count({
       where: { projectId, status: 'ready', outcome: 'written' },

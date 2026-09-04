@@ -5,13 +5,13 @@
 // The line that must not be crossed: nothing here is ever persisted, and no
 // section records which suggestion it came from. The moment a section knows its
 // preset, the product has a fixed taxonomy again — recorded, queryable, and
-// eventually reasoned about — which is exactly what specs/017 removes.
+// eventually reasoned about — exactly what author-defined sections remove.
 //
 // The real payload of a prose suggestion is its description, not its title. A
 // contributor's instructions are the only expression of what a section should
 // hold, and a vague instruction produces a vague section that the system can
 // neither detect nor fix. A worked example shown at the moment of writing
-// teaches that far better than help text (research Decision 10).
+// teaches that far better than help text.
 //
 // The roadmap sits among them rather than below the line. It used to be offered
 // apart, next to "write my own title", while the list still carried a prose

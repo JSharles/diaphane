@@ -64,7 +64,7 @@ describe("DocumentarySourcesPage", () => {
     withSummary({ documentCount: 1, document: { status: "ready" } });
   });
 
-  // specs/022: the reference document has its own step now. This page is the
+  // The reference document has its own step now. This page is the
   // document list and add/remove, nothing else — the mocked ReferenceDocumentView
   // above stays declared as a tripwire: if it is imported here again, its
   // marker text renders and the absence assertion fails loudly.
@@ -98,7 +98,7 @@ describe("DocumentarySourcesPage", () => {
   });
 
   // The rail carries the way onward now; a footer link here would be a second
-  // navigation for the same move (specs/022).
+  // navigation for the same move.
   it("carries no navigation of its own", () => {
     render(<DocumentarySourcesPage projectId="project-1" />);
 
@@ -121,6 +121,6 @@ describe("DocumentarySourcesPage", () => {
     expect(screen.queryByText("emptyTitle")).not.toBeInTheDocument();
   });
 
-  // The contributor gate moved to the documentation layout (specs/022) —
+  // The contributor gate moved to the documentation layout —
   // covered in layout.test.tsx; the API refuses independently either way.
 });

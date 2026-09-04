@@ -121,7 +121,7 @@ describe("ProjectPage", () => {
     expect(screen.queryByText("client-main-tabs:project-1")).not.toBeInTheDocument();
   });
 
-  // 2026-08-29, after specs/022: the documents live in the documentation and
+  // 2026-08-29: the documents live in the documentation and
   // the remaining connections came back to the foot of this page — the setup
   // route was more address than content. The documentary-source mock is a
   // tripwire: that component is deleted, and if a documents block is ever

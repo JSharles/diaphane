@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader } from "@/shared/components/ui/card";
 
 // Deliberately no Developer/Client toggle (AuthGateway) here, unlike /login.
-// There is no self-serve signup for clients (research.md Decision 10) — the
+// There is no self-serve signup for clients — the
 // only way to create a Diaphane account is via GitHub, and a client's real
 // entry point is their developer's invitation, never this page. Offering a
 // "Client" choice that led to a login form (with a "no account? ask your

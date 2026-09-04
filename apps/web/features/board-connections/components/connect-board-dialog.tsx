@@ -3,7 +3,7 @@
 import { CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import type { AvailableBoard } from "schemas";
+import type { AvailableBoard, EstimateUnit } from "schemas";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -12,9 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { Label } from "@/shared/components/ui/label";
 import { ApiError } from "@/shared/lib/api-client";
 import { useAvailableBoards, useConnectBoard } from "../hooks";
+import { EstimateUnitField } from "./estimate-unit-field";
 
 interface ConnectBoardDialogProps {
   projectId: string;
@@ -33,9 +33,8 @@ export function ConnectBoardDialog({ projectId, open, onOpenChange }: ConnectBoa
   const t = useTranslations("Projects.ConnectBoardDialog");
   const tToasts = useTranslations("Toasts");
   const [selectedBoard, setSelectedBoard] = useState<AvailableBoard | null>(null);
-  // How the board's numeric "Estimate" field converts to a duration when
-  // there's no "Target date" field to read directly. Defaults to "days".
-  const [estimateUnit, setEstimateUnit] = useState<"days" | "hours">("days");
+  // Defaults to "days"; changeable later on the card without reconnecting.
+  const [estimateUnit, setEstimateUnit] = useState<EstimateUnit>("days");
   const boards = useAvailableBoards(projectId, { enabled: open });
   const connect = useConnectBoard(projectId);
 
@@ -117,31 +116,7 @@ export function ConnectBoardDialog({ projectId, open, onOpenChange }: ConnectBoa
                 })}
               </ul>
             )}
-            <div className="flex flex-col gap-1">
-              <Label id="estimate-unit-label">{t("estimateUnitLabel")}</Label>
-              <div className="flex gap-2" role="radiogroup" aria-labelledby="estimate-unit-label">
-                <Button
-                  type="button"
-                  role="radio"
-                  aria-checked={estimateUnit === "days"}
-                  size="sm"
-                  variant={estimateUnit === "days" ? "default" : "outline"}
-                  onClick={() => setEstimateUnit("days")}
-                >
-                  {t("estimateUnitDays")}
-                </Button>
-                <Button
-                  type="button"
-                  role="radio"
-                  aria-checked={estimateUnit === "hours"}
-                  size="sm"
-                  variant={estimateUnit === "hours" ? "default" : "outline"}
-                  onClick={() => setEstimateUnit("hours")}
-                >
-                  {t("estimateUnitHours")}
-                </Button>
-              </div>
-            </div>
+            <EstimateUnitField value={estimateUnit} onChange={setEstimateUnit} />
             <Button
               type="button"
               disabled={!selectedBoard || connect.isPending}

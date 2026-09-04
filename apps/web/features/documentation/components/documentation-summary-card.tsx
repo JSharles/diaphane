@@ -13,7 +13,7 @@ import { useDocumentationWorkspace, useReferenceSummary } from "../hooks";
 
 // One door. The documents this runs on are a setting behind it, not a second
 // feature beside it: the developer came to give their client something to read,
-// not to manage files (specs/019).
+// not to manage files.
 export function DocumentationSummaryCard({ projectId }: { projectId: string }) {
   const t = useTranslations("Projects.Documentation.Entry");
   const workspace = useDocumentationWorkspace(projectId);

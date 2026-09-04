@@ -271,7 +271,7 @@ export function useConfirmDocumentRemoval(projectId: string) {
     meta: { skipGlobalErrorToast: true, successMessage: t("documentRemoved") },
   });
 }
-// ─── Author-defined client sections (specs/017) ───────────────────────────────
+// ─── Author-defined client sections ──────────────────────────────────────────
 
 export const sectionsKey = (projectId: string) =>
   [...documentationKey(projectId), "sections"] as const;
@@ -443,7 +443,7 @@ export function useApproveSectionProposal(
   });
 }
 
-// ─── The reference document (specs/018) ───────────────────────────────────────
+// ─── The reference document ──────────────────────────────────────────────────
 
 export const referenceSummaryKey = (projectId: string) =>
   [...documentationKey(projectId), "reference", "summary"] as const;

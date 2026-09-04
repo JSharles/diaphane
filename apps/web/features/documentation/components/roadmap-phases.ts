@@ -10,11 +10,11 @@
 // draw: nothing here is ever persisted, and no milestone records which phase it
 // came from. A phase is a name and a starting "when" — the moment a milestone
 // knows its preset, the product has a fixed taxonomy again, which is what
-// specs/017 removed.
+// author-defined sections did away with.
 //
 // They are also never handed to the model. Giving it an arc to fill is how it
 // ends up asserting a "Recette" nobody planned; the developer accepts a phase
-// or does not, and whatever they accept is their word (specs/020).
+// or does not, and whatever they accept is their word.
 // Six, and no more. Ten of them were tried and read as a wall — the developer
 // saw a list of things they had not decided, and could not tell an offer from
 // their own content. Contractualisation, reprise de données, bêta and formation

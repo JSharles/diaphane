@@ -10,8 +10,8 @@ import {
   VulgarizationOutputSchema,
 } from './vulgarization-output.schema';
 
-// research.md Decision 1: a small, current Claude model is sufficient for
-// this short, tightly-constrained rewrite — the per-call payload is tiny, so
+// A small, current Claude model is sufficient for this short,
+// tightly-constrained rewrite — the per-call payload is tiny, so
 // cost is not the deciding factor, reliability on a bounded task is. Trivial
 // to swap to a larger model (one constant) if evaluation shows it's needed.
 const MODEL = 'claude-haiku-4-5';
@@ -30,7 +30,7 @@ const LANGUAGE_NAME: Record<Locale, string> = {
 // Encodes the guardrails discussed with the user: genuine vulgarization (not
 // word-swapping), never fabricate, no added opinion/marketing, always short
 // regardless of source length. See docs/PRODUCT.md Product Principles
-// ("Never fabricate") and spec.md FR-002.
+// ("Never fabricate").
 //
 // 2026-08-09: restructured from one title+description pair into four named
 // sections (docs/PRODUCT.md "Working notes") — a client scans "what/why/
@@ -73,11 +73,10 @@ export interface VulgarizationInput {
   locale: Locale;
 }
 
-// specs/008-current-task-progress research.md Decision 2/3: a separate call
-// from vulgarize() — this judgment is locale-independent (asked once per
-// item, not once per locale, research.md Decision 1) and must never receive
-// or return an absolute date, only a duration, to avoid LLM date-arithmetic
-// errors (the caller computes the real date from the task's own start date).
+// A separate call from vulgarize() — this judgment is locale-independent
+// (asked once per item, not once per locale) and must never receive or return
+// an absolute date, only a duration, to avoid LLM date-arithmetic errors (the
+// caller computes the real date from the task's own start date).
 const ESTIMATE_SYSTEM_PROMPT = `You judge how long a software development task will likely take and how complex it is, based only on its own title and description — no external context about the team, their velocity, or their calendar.
 
 Rules:

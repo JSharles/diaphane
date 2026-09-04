@@ -119,7 +119,7 @@ describe("ConnectBoardDialog", () => {
     expect(submit).toBeDisabled();
 
     await user.click(screen.getByRole("radio", { name: /acme \/ Roadmap/ }));
-    await user.click(screen.getByRole("radio", { name: "estimateUnitHours" }));
+    await user.click(screen.getByRole("radio", { name: "hours" }));
     await user.click(submit);
 
     expect(mutate).toHaveBeenCalledWith(

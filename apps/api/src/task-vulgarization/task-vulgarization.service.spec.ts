@@ -171,7 +171,7 @@ describe('TaskVulgarizationService', () => {
       expect(prisma.vulgarizedTask.upsert).not.toHaveBeenCalled();
     });
 
-    it('leaves the row untouched when vulgarization fails, so the next sweep retries (FR-007, research.md Decision 4)', async () => {
+    it('leaves the row untouched when vulgarization fails, so the next sweep retries (FR-007)', async () => {
       prisma.boardConnection.findMany.mockResolvedValue([connection]);
       githubClient.fetchInProgressItems.mockResolvedValue([item]);
       prisma.vulgarizedTask.findUnique.mockResolvedValue(null);
@@ -183,7 +183,7 @@ describe('TaskVulgarizationService', () => {
       expect(prisma.vulgarizedTask.upsert).not.toHaveBeenCalled();
     });
 
-    // US2 (spec.md): an edit on GitHub must replace the previous vulgarized
+    // An edit on GitHub must replace the previous vulgarized
     // version, not sit alongside it as a second row, and must produce
     // exactly one fresh Anthropic call per locale — distinct from the
     // "skip when unchanged" assertion above.
@@ -389,7 +389,7 @@ describe('TaskVulgarizationService', () => {
     });
   });
 
-  // specs/008-current-task-progress User Story 1: start date.
+  // Task progress: start date.
   describe('sweep — task progress (start date)', () => {
     it('creates a TaskProgress row with detectedStartedAt ≈ now for a brand-new item', async () => {
       prisma.boardConnection.findMany.mockResolvedValue([connection]);
@@ -458,7 +458,7 @@ describe('TaskVulgarizationService', () => {
     });
   });
 
-  // specs/008-current-task-progress User Story 2: estimate + progress data.
+  // Task progress: estimate + progress data.
   describe('sweep — task progress (estimate resolution)', () => {
     it('calls estimateTask when content changed or no prior success exists, skips it when unchanged', async () => {
       prisma.boardConnection.findMany.mockResolvedValue([connection]);
@@ -576,7 +576,7 @@ describe('TaskVulgarizationService', () => {
       expect(call.create.estimateSource).toBeNull();
     });
 
-    it('leaves the previous aiComplexity/estimate untouched when a later estimateTask call fails (matches specs/007 failure-retry precedent)', async () => {
+    it('leaves the previous aiComplexity/estimate untouched when a later estimateTask call fails (matches the vulgarization failure-retry precedent)', async () => {
       const changedItem = { ...item, title: 'Refactor auth middleware (v2)' };
       prisma.boardConnection.findMany.mockResolvedValue([connection]);
       githubClient.fetchInProgressItems.mockResolvedValue([changedItem]);
@@ -605,7 +605,7 @@ describe('TaskVulgarizationService', () => {
     });
   });
 
-  // specs/008-current-task-progress User Story 4: confidence.
+  // Task progress: confidence.
   describe('sweep — task progress (complexity always computed)', () => {
     it('still calls estimateTask (and stores aiComplexity) even when the board already supplies a Target date', async () => {
       const itemWithTarget = { ...item, boardTargetDate: '2026-08-01' };
@@ -629,7 +629,7 @@ describe('TaskVulgarizationService', () => {
     });
   });
 
-  // specs/008-current-task-progress User Story 3: board precedence, per field.
+  // Task progress: board precedence, per field.
   describe('sweep — task progress (board precedence)', () => {
     it('resolves startedAt from the board and estimatedCompletionAt from the AI independently (per-field, not all-or-nothing)', async () => {
       const itemStartOnly = { ...item, boardStartDate: '2026-07-01' };

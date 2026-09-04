@@ -4,9 +4,9 @@ import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/shared/components/ui/button";
 
-// specs/009-developer-github-oauth: the developer path of AuthGateway — a
-// real link (research.md Decision 8), not a form/mutation, since starting an
-// OAuth flow requires a genuine top-level navigation to GitHub and back. The
+// The developer path of AuthGateway — a real link, not a form/mutation,
+// since starting an OAuth flow requires a genuine top-level navigation to
+// GitHub and back. The
 // API endpoint itself doesn't distinguish sign-up from login (FR-001), so
 // this component doesn't either.
 export function GitHubAuthCard() {

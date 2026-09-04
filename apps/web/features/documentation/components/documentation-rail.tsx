@@ -33,8 +33,8 @@ const TONE_CLASS: Record<StepTone, string> = {
 };
 
 // The four steps, permanently on screen with their states — what turns a heap
-// of pages into a sequence you can see without being told (specs/022). Not
-// tabs: tabs show the step you are in and hide the rest, which is the exact
+// of pages into a sequence you can see without being told. Not tabs: tabs
+// show the step you are in and hide the rest, which is the exact
 // failure this exists to fix. The numbers never move; week one this reads as
 // steps, week six as a table of contents with states.
 export function DocumentationRail({ projectId }: { projectId: string }) {

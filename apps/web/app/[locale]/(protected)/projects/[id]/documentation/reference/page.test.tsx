@@ -15,7 +15,7 @@ vi.mock("@/features/documentation/components/reference-document-view", () => ({
 
 describe("ReferenceStepPage", () => {
   // Step 2 exists so the reference document stops being a section at the foot
-  // of the documents page (specs/022) — the view is moved, not rebuilt.
+  // of the documents page — the view is moved, not rebuilt.
   it("makes the reference document the subject of its own screen", () => {
     render(
       <ReferenceStepPage

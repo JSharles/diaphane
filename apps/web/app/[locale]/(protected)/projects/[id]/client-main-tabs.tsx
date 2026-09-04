@@ -10,12 +10,12 @@ import { cn } from "@/shared/lib/utils";
 const CURRENT_TASK_TAB_KEY = "__current-task__";
 
 // A tab holds one continuous text, not a stack of blocks the reader has to
-// reconcile — that was the point of moving the unit off the document (specs/015
-// US3), and it survives the move onto sections.
+// reconcile — that was the point of moving the unit off the document, and it
+// survives the move onto sections.
 //
 // Order and labels now come from the contributor rather than from a frozen
 // list: they named these headings and chose the order their client reads them
-// in (specs/017). The API already returns them ordered and omits any section
+// in. The API already returns them ordered and omits any section
 // with nothing to say, which is what produces "no empty tab" (FR-023).
 export function ClientMainTabs({
   projectId,

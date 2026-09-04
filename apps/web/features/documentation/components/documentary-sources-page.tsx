@@ -14,7 +14,7 @@ import { RemoveDocumentDialog } from "./remove-document-dialog";
 
 // A document is read once at upload and then it is in. There is nothing to
 // stop, nothing to retry and no removal to resume: the only thing left to do
-// with a document is take it back out (specs/018).
+// with a document is take it back out.
 function DocumentActions({
   document,
   onRemove,
@@ -41,7 +41,7 @@ function DocumentActions({
 }
 
 // Step 1 — what the developer hands over. The reference document left for its
-// own step, and the gate/back-link/title chrome for the layout (specs/022):
+// own step, and the gate/back-link/title chrome for the layout:
 // this panel is the document list and add/remove, nothing else.
 export function DocumentarySourcesPage({ projectId }: { projectId: string }) {
   const t = useTranslations("Projects.Documentation.Base");

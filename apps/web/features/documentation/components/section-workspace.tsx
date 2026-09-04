@@ -59,7 +59,7 @@ const STATE_TONE: Record<ReturnType<typeof stateOf>, string> = {
 // rubrique per tab — with the actions the client does not get. A list of
 // rubriques above a separate "client preview" said the same thing twice, and
 // the list unfolded every proposal in full, so a project with three rubriques
-// was thousands of pixels of scroll (specs/019).
+// was thousands of pixels of scroll.
 export function SectionWorkspace({ projectId }: { projectId: string }) {
   const t = useTranslations("Projects.Documentation.Sections");
   const sections = useSections(projectId);

@@ -574,9 +574,6 @@
       "noBoards": "Your GitHub account doesn't have access to any GitHub Projects board.",
       "connectSubmit": "Connect",
       "connectPending": "Connecting…",
-      "estimateUnitLabel": "When a task has an \"Estimate\" number but no \"Target date\", treat it as:",
-      "estimateUnitDays": "Days",
-      "estimateUnitHours": "Hours",
       "loading": "Loading your boards…",
       "githubNotConnected": "GitHub isn't connected on your account, so there are no boards to pick from.",
       "goToProfile": "Open your profile"
@@ -678,6 +675,11 @@
         "notionNothingNew": "Nothing new in your Notion pages.",
         "notionRootsUpdatedRewriteOwed": "{count, plural, =1 {One page changed} other {# pages changed}} — a reference document write is already running, write it again afterwards."
       }
+    },
+    "EstimateUnitField": {
+      "label": "When a task has an \"Estimate\" number but no \"Target date\", read it in:",
+      "days": "Days",
+      "hours": "Hours"
     }
   },
   "Invite": {

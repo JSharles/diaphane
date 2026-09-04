@@ -1,8 +1,23 @@
 import { Injectable } from '@nestjs/common';
 
-// GitHub Projects v2 has no REST equivalent — it's GraphQL-only. See
-// specs/005-github-project-connection research.md Decision 1.
+// GitHub Projects v2 has no REST equivalent — it's GraphQL-only.
 const GITHUB_GRAPHQL_URL = 'https://api.github.com/graphql';
+
+// GitHub caps a connection at 100 nodes per request; every list here is
+// read page by page until GitHub says there is no next page, so a developer
+// with more boards or a board with more items than one page holds is read
+// whole.
+const PAGE_SIZE = 100;
+
+interface PageInfo {
+  hasNextPage: boolean;
+  endCursor: string | null;
+}
+
+interface Connection<T> {
+  nodes: T[];
+  pageInfo?: PageInfo;
+}
 
 export type GithubOwnerType = 'User' | 'Organization';
 
@@ -25,20 +40,19 @@ interface GithubProjectsV2Node {
 }
 
 interface ListBoardsResponse {
-  viewer: { projectsV2: { nodes: GithubProjectsV2Node[] } };
+  viewer: { projectsV2: Connection<GithubProjectsV2Node> };
 }
 
 // The ProjectV2Item's own node id — its identity as "this content's
-// placement on this specific board" (specs/007-current-task-vulgarization
-// research.md Decision 3), used by task-vulgarization to key persisted rows.
-// Not part of the public CurrentTaskItemSchema (packages/schemas) — that
-// shape has no `id`, since the frontend never needs one. No `url` either —
-// the client is never sent to GitHub (specs/006 feedback), so this feature
-// doesn't carry it any further than this fetch.
+// placement on this specific board", used by task-vulgarization to key
+// persisted rows. Not part of the public CurrentTaskItemSchema
+// (packages/schemas) — that shape has no `id`, since the frontend never
+// needs one. No `url` either — the client is never sent to GitHub, so this
+// feature doesn't carry it any further than this fetch.
 //
-// boardStartDate/boardTargetDate/boardEstimateValue (specs/008
-// data-model.md): the board's own custom fields, when present and validly
-// typed — null otherwise (field absent, empty, or the wrong field type).
+// boardStartDate/boardTargetDate/boardEstimateValue: the board's own custom
+// fields, when present and validly typed — null otherwise (field absent,
+// empty, or the wrong field type).
 export interface InProgressItem {
   id: string;
   title: string;
@@ -66,20 +80,20 @@ interface GithubItemNode {
 }
 
 interface FetchItemsResponse {
-  user?: { projectV2: { items: { nodes: GithubItemNode[] } } | null } | null;
+  user?: { projectV2: { items: Connection<GithubItemNode> } | null } | null;
   organization?: {
-    projectV2: { items: { nodes: GithubItemNode[] } } | null;
+    projectV2: { items: Connection<GithubItemNode> } | null;
   } | null;
 }
 
 // `viewer` resolves to whichever identity the token belongs to — this
-// returns exactly the boards the developer needs to pick from (research.md
-// Decision 2), and doubles as the access check for a specific board
-// (Decision 3): a board that doesn't appear here is not accessible.
+// returns exactly the boards the developer needs to pick from, and doubles
+// as the access check for a specific board: a board that doesn't appear
+// here is not accessible.
 const LIST_BOARDS_QUERY = `
-  query {
+  query($after: String) {
     viewer {
-      projectsV2(first: 50) {
+      projectsV2(first: ${PAGE_SIZE}, after: $after) {
         nodes {
           number
           title
@@ -90,31 +104,31 @@ const LIST_BOARDS_QUERY = `
             ... on Organization { login }
           }
         }
+        pageInfo { hasNextPage endCursor }
       }
     }
   }
 `;
 
 // GitHub's Status single-select field, looked up by its exact default name —
-// a board that renamed/removed it simply yields no matches (research.md
-// Decision 1). GraphQL has no dynamic root field, so `user`/`organization`
-// is chosen by string-building the query, not by a variable.
+// a board that renamed/removed it simply yields no matches. GraphQL has no
+// dynamic root field, so `user`/`organization` is chosen by string-building
+// the query, not by a variable.
 //
-// startDate/targetDate/estimate (specs/008-current-task-progress
-// data-model.md): the same board-item custom fields the user's own GitHub
-// Projects v2 board template already provides, looked up by exact name the
-// same way Status is — aliased since fieldValueByName can't be called more
-// than once per node without one. A field of the wrong underlying type (or
-// absent entirely) simply doesn't match its fragment, yielding null with no
-// extra handling needed.
+// startDate/targetDate/estimate: the same board-item custom fields the
+// user's own GitHub Projects v2 board template already provides, looked up
+// by exact name the same way Status is — aliased since fieldValueByName
+// can't be called more than once per node without one. A field of the wrong
+// underlying type (or absent entirely) simply doesn't match its fragment,
+// yielding null with no extra handling needed.
 function itemsQuery(ownerType: GithubOwnerType): string {
   const rootField = ownerType === 'User' ? 'user' : 'organization';
 
   return `
-    query($login: String!, $number: Int!) {
+    query($login: String!, $number: Int!, $after: String) {
       ${rootField}(login: $login) {
         projectV2(number: $number) {
-          items(first: 100) {
+          items(first: ${PAGE_SIZE}, after: $after) {
             nodes {
               id
               content {
@@ -136,6 +150,7 @@ function itemsQuery(ownerType: GithubOwnerType): string {
                 ... on ProjectV2ItemFieldNumberValue { number }
               }
             }
+            pageInfo { hasNextPage endCursor }
           }
         }
       }
@@ -157,9 +172,16 @@ export interface TaskCounts {
 @Injectable()
 export class GithubProjectsClient {
   async listAccessibleBoards(token: string): Promise<AvailableBoard[]> {
-    const data = await this.query<ListBoardsResponse>(token, LIST_BOARDS_QUERY);
+    const nodes = await this.collectPages(async (after) => {
+      const data = await this.query<ListBoardsResponse>(
+        token,
+        LIST_BOARDS_QUERY,
+        { after },
+      );
+      return data.viewer.projectsV2;
+    });
 
-    return data.viewer.projectsV2.nodes.map((node) => ({
+    return nodes.map((node) => ({
       ownerLogin: node.owner.login,
       ownerType: node.owner.__typename,
       number: node.number,
@@ -188,26 +210,20 @@ export class GithubProjectsClient {
 
   // Matches items whose Status value (case-insensitive substring) contains
   // "in progress" — the field name itself is matched exactly ("Status"),
-  // per the product decision (spec.md, research.md Decisions 1-2). Content
-  // with no matching fragment (e.g. a redacted item) is skipped rather than
-  // erroring (research.md Decision 3).
+  // per the product decision. Content with no matching fragment (e.g. a
+  // redacted item) is skipped rather than erroring.
   async fetchInProgressItems(
     token: string,
     ownerLogin: string,
     ownerType: GithubOwnerType,
     number: number,
   ): Promise<InProgressItem[]> {
-    const data = await this.query<FetchItemsResponse>(
+    const nodes = await this.fetchAllItems(
       token,
-      itemsQuery(ownerType),
-      {
-        login: ownerLogin,
-        number,
-      },
+      ownerLogin,
+      ownerType,
+      number,
     );
-
-    const owner = ownerType === 'User' ? data.user : data.organization;
-    const nodes = owner?.projectV2?.items.nodes ?? [];
 
     const items: InProgressItem[] = [];
     for (const node of nodes) {
@@ -228,28 +244,23 @@ export class GithubProjectsClient {
     return items;
   }
 
-  // A separate GraphQL call from fetchInProgressItems (same query shape,
-  // same board) rather than a shared fetch the two derive from — this keeps
-  // the well-tested in-progress path untouched (it feeds the live
-  // client-facing current-task card) instead of risking a regression there
-  // for a cheap, infrequent (5-minute sweep) extra request.
+  // The sweep calls this right after fetchInProgressItems on the same board,
+  // so the same pages are read twice. Kept as its own read rather than one
+  // fetch both derive from: the in-progress path feeds the client-facing
+  // current-task card and stays untouched, and the doubled read is cheap for
+  // a sweep that runs every five minutes.
   async fetchTaskCounts(
     token: string,
     ownerLogin: string,
     ownerType: GithubOwnerType,
     number: number,
   ): Promise<TaskCounts> {
-    const data = await this.query<FetchItemsResponse>(
+    const nodes = await this.fetchAllItems(
       token,
-      itemsQuery(ownerType),
-      {
-        login: ownerLogin,
-        number,
-      },
+      ownerLogin,
+      ownerType,
+      number,
     );
-
-    const owner = ownerType === 'User' ? data.user : data.organization;
-    const nodes = owner?.projectV2?.items.nodes ?? [];
 
     let total = 0;
     let done = 0;
@@ -262,6 +273,41 @@ export class GithubProjectsClient {
     }
 
     return { total, done };
+  }
+
+  // Every item of the board, across pages. A board GitHub no longer resolves
+  // (deleted, or the owner renamed) reads as empty, not as an error.
+  private fetchAllItems(
+    token: string,
+    ownerLogin: string,
+    ownerType: GithubOwnerType,
+    number: number,
+  ): Promise<GithubItemNode[]> {
+    return this.collectPages(async (after) => {
+      const data = await this.query<FetchItemsResponse>(
+        token,
+        itemsQuery(ownerType),
+        { login: ownerLogin, number, after },
+      );
+      const owner = ownerType === 'User' ? data.user : data.organization;
+      return owner?.projectV2?.items ?? { nodes: [] };
+    });
+  }
+
+  // Walks a GraphQL connection to its end. A page with no pageInfo, or one
+  // that says "next page" without a cursor to reach it, is the last one.
+  private async collectPages<T>(
+    fetchPage: (after: string | null) => Promise<Connection<T>>,
+  ): Promise<T[]> {
+    const nodes: T[] = [];
+    let after: string | null = null;
+    for (;;) {
+      const page = await fetchPage(after);
+      nodes.push(...page.nodes);
+      const pageInfo = page.pageInfo;
+      if (!pageInfo?.hasNextPage || !pageInfo.endCursor) return nodes;
+      after = pageInfo.endCursor;
+    }
   }
 
   private async query<T>(
@@ -282,8 +328,7 @@ export class GithubProjectsClient {
     // 401/403 specifically means the stored token was revoked or is
     // otherwise invalid — distinguished from other failures (5xx, network)
     // so the background sweep can tell "needs reconnecting" apart from
-    // "transient, will retry" (specs/010-github-oauth-board-connection,
-    // FR-008, research.md Decision 6).
+    // "transient, will retry".
     if (res.status === 401 || res.status === 403) {
       throw new GithubAuthError(
         `GitHub API request failed with status ${res.status}`,

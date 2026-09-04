@@ -10,7 +10,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useCurrentUser } from "@/shared/hooks/use-current-user";
 
-// The documentary feature in one place (specs/022): every step renders inside
+// The documentary feature in one place: every step renders inside
 // this layout, so a step cannot exist without the rail and the four cannot
 // drift apart. The contributor gate lives here once instead of in each page —
 // the API refuses independently either way.

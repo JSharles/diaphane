@@ -36,7 +36,7 @@ const fakeProject = {
   dateFormat: null,
   language: null,
   // The project holds the reference document being written and whether one is
-  // owed, since specs/018 removed the table that used to (FR-006).
+  // owed, since the reference document replaced the table that used to.
   activeReferenceDocumentId: null,
   referenceNeedsRewrite: true,
   createdAt: new Date(),

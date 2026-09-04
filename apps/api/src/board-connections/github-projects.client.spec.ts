@@ -15,6 +15,30 @@ function mockFetchOnce(response: {
   });
 }
 
+// One successful GraphQL response per call, in order — for the pagination
+// tests, where the client must come back for the next page.
+function mockFetchSequence(bodies: unknown[]) {
+  const fetchMock = jest.fn();
+  for (const body of bodies) {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve(body),
+    });
+  }
+  global.fetch = fetchMock;
+}
+
+function requestVariables(callIndex: number): Record<string, unknown> {
+  const [, init] = (global.fetch as jest.Mock).mock.calls[callIndex] as [
+    string,
+    RequestInit,
+  ];
+  return (
+    JSON.parse(init.body as string) as { variables: Record<string, unknown> }
+  ).variables;
+}
+
 const boardNode = {
   number: 3,
   title: 'Roadmap',
@@ -69,6 +93,89 @@ describe('GithubProjectsClient', () => {
       const result = await client.listAccessibleBoards('a-token');
 
       expect(result).toEqual([]);
+    });
+
+    it('follows the cursor past the first page so a developer with more than 50 boards sees them all', async () => {
+      const secondBoard = { ...boardNode, number: 4, title: 'Backlog' };
+      mockFetchSequence([
+        {
+          data: {
+            viewer: {
+              projectsV2: {
+                nodes: [boardNode],
+                pageInfo: { hasNextPage: true, endCursor: 'cursor-1' },
+              },
+            },
+          },
+        },
+        {
+          data: {
+            viewer: {
+              projectsV2: {
+                nodes: [secondBoard],
+                pageInfo: { hasNextPage: false, endCursor: 'cursor-2' },
+              },
+            },
+          },
+        },
+      ]);
+
+      const result = await client.listAccessibleBoards('a-token');
+
+      expect(result.map((board) => board.number)).toEqual([3, 4]);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(requestVariables(0)).toEqual({ after: null });
+      expect(requestVariables(1)).toEqual({ after: 'cursor-1' });
+    });
+
+    it('stops when GitHub claims a next page but gives no cursor to reach it', async () => {
+      mockFetchSequence([
+        {
+          data: {
+            viewer: {
+              projectsV2: {
+                nodes: [boardNode],
+                pageInfo: { hasNextPage: true, endCursor: null },
+              },
+            },
+          },
+        },
+      ]);
+
+      const result = await client.listAccessibleBoards('a-token');
+
+      expect(result).toHaveLength(1);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('treats a page with no pageInfo as the last one', async () => {
+      mockFetchSequence([
+        { data: { viewer: { projectsV2: { nodes: [boardNode] } } } },
+      ]);
+
+      const result = await client.listAccessibleBoards('a-token');
+
+      expect(result).toHaveLength(1);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops after one page when GitHub says there is no next page', async () => {
+      mockFetchSequence([
+        {
+          data: {
+            viewer: {
+              projectsV2: {
+                nodes: [boardNode],
+                pageInfo: { hasNextPage: false, endCursor: 'cursor-1' },
+              },
+            },
+          },
+        },
+      ]);
+
+      await client.listAccessibleBoards('a-token');
+
+      expect(global.fetch).toHaveBeenCalledTimes(1);
     });
 
     it('throws a GithubAuthError without leaking the token on a 401', async () => {
@@ -437,6 +544,59 @@ describe('GithubProjectsClient', () => {
       expect(result).toEqual([]);
     });
 
+    it('follows the cursor past the first page so a board with more than 100 items is read whole', async () => {
+      const secondItem = { ...inProgressIssue, id: 'PVTI_item2' };
+      mockFetchSequence([
+        {
+          data: {
+            organization: {
+              projectV2: {
+                items: {
+                  nodes: [inProgressIssue],
+                  pageInfo: { hasNextPage: true, endCursor: 'cursor-1' },
+                },
+              },
+            },
+          },
+        },
+        {
+          data: {
+            organization: {
+              projectV2: {
+                items: {
+                  nodes: [secondItem],
+                  pageInfo: { hasNextPage: false, endCursor: null },
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      const result = await client.fetchInProgressItems(
+        'a-token',
+        'acme',
+        'Organization',
+        3,
+      );
+
+      expect(result.map((item) => item.id)).toEqual([
+        'PVTI_item1',
+        'PVTI_item2',
+      ]);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(requestVariables(0)).toEqual({
+        login: 'acme',
+        number: 3,
+        after: null,
+      });
+      expect(requestVariables(1)).toEqual({
+        login: 'acme',
+        number: 3,
+        after: 'cursor-1',
+      });
+    });
+
     it('returns an empty list when the board has no items', async () => {
       mockFetchOnce({
         ok: true,
@@ -549,6 +709,45 @@ describe('GithubProjectsClient', () => {
       );
 
       expect(result).toEqual({ total: 0, done: 0 });
+    });
+
+    it('counts every page, not just the first 100 items', async () => {
+      mockFetchSequence([
+        {
+          data: {
+            organization: {
+              projectV2: {
+                items: {
+                  nodes: [itemNode('Done')],
+                  pageInfo: { hasNextPage: true, endCursor: 'cursor-1' },
+                },
+              },
+            },
+          },
+        },
+        {
+          data: {
+            organization: {
+              projectV2: {
+                items: {
+                  nodes: [itemNode('Todo'), itemNode('Done')],
+                  pageInfo: { hasNextPage: false, endCursor: 'cursor-2' },
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      const result = await client.fetchTaskCounts(
+        'a-token',
+        'acme',
+        'Organization',
+        3,
+      );
+
+      expect(result).toEqual({ total: 3, done: 2 });
+      expect(requestVariables(1)).toMatchObject({ after: 'cursor-1' });
     });
 
     it('returns zero counts when the board has no items', async () => {

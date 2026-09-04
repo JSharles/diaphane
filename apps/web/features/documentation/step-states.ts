@@ -1,6 +1,6 @@
 import type { DocumentationWorkspace, ReferenceSummary } from "schemas";
 
-// The four places of the documentary feature (specs/022). The keys are the
+// The four places of the documentary feature. The keys are the
 // route segments under /projects/[id]/documentation — order is the order of
 // the chain, and it never changes (FR-003).
 export const STEP_KEYS = ["sources", "reference", "sections", "client"] as const;
@@ -127,7 +127,7 @@ export function stepStates(
   return { sources, reference: referenceStep, sections, client };
 }
 
-// Where /documentation lands (spec Decision 2): the first step that is not
+// Where /documentation lands: the first step that is not
 // done, and sections once everything is. Derived from the same inputs as the
 // rail, in the same file, for the same reason.
 export function landingStep(input: StepStatesInput): StepKey {

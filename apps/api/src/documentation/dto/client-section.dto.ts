@@ -14,8 +14,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-// The four editorial dimensions, stated per section rather than per project
-// (specs/017 research Decision 6). The literal unions mirror the Prisma enums;
+// The four editorial dimensions, stated per section rather than per project.
+// The literal unions mirror the Prisma enums;
 // `packages/schemas` carries the same shape for the web side.
 export class SectionEditorialDto {
   @IsIn(['concise', 'balanced', 'detailed'])
@@ -45,7 +45,7 @@ export class CreateClientSectionDto {
 
   // A roadmap has neither: its brief is fixed — what the documents say about
   // sequence — and a milestone date has no tone. Choosing a roadmap removes
-  // controls rather than adding them (specs/020).
+  // controls rather than adding them.
   @ValidateIf((dto: CreateClientSectionDto) => dto.kind !== 'roadmap')
   @IsString()
   @MinLength(1)

@@ -15,7 +15,7 @@ import { DocumentStorageClient } from './document-storage.client';
 // state, a sweep for removals abandoned halfway. None of that survives the
 // reference document: every write reads the documents that are there, so
 // removing one is removing one. What is left is the warning that the reference
-// document will no longer say what this document said (specs/018).
+// document will no longer say what this document said.
 @Injectable()
 export class DocumentRemovalService {
   private readonly logger = new Logger(DocumentRemovalService.name);

@@ -41,7 +41,11 @@ describe('BoardConnectionsController', () => {
   let service: jest.Mocked<
     Pick<
       BoardConnectionsService,
-      'findForProject' | 'listBoards' | 'connect' | 'disconnect'
+      | 'findForProject'
+      | 'listBoards'
+      | 'connect'
+      | 'updateEstimateUnit'
+      | 'disconnect'
     >
   >;
   let controller: BoardConnectionsController;
@@ -51,6 +55,7 @@ describe('BoardConnectionsController', () => {
       findForProject: jest.fn(),
       listBoards: jest.fn(),
       connect: jest.fn(),
+      updateEstimateUnit: jest.fn(),
       disconnect: jest.fn(),
     };
     controller = new BoardConnectionsController(
@@ -105,6 +110,24 @@ describe('BoardConnectionsController', () => {
       number: 3,
       estimateUnit: 'hours',
     });
+  });
+
+  it('update changes only the estimate unit of the connected board', async () => {
+    service.updateEstimateUnit.mockResolvedValue({
+      ...fakeConnection,
+      estimateUnit: 'hours',
+    });
+
+    const result = await controller.update(fakeUser, 'project-1', {
+      estimateUnit: 'hours',
+    });
+
+    expect(result.estimateUnit).toBe('hours');
+    expect(service.updateEstimateUnit).toHaveBeenCalledWith(
+      'user-1',
+      'project-1',
+      'hours',
+    );
   });
 
   it('disconnect delegates to the service', async () => {
