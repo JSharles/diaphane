@@ -26,7 +26,7 @@ export function WelcomeCard({ user, isPending }: WelcomeCardProps) {
   }
 
   return (
-    <p className="text-[0.8125rem] text-fg-3">
+    <p className="ui-meta text-fg-3">
       {t("welcome", { firstName: user.firstName })}
     </p>
   );

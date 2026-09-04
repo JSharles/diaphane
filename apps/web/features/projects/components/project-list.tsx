@@ -43,7 +43,7 @@ function CreatedAt({ createdAt }: { createdAt: string }) {
   }
 
   return (
-    <p className="text-[0.8125rem] text-fg-3">
+    <p className="ui-meta text-fg-3">
       {t("createdAt", { date: new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(date) })}
     </p>
   );
@@ -94,7 +94,7 @@ function ProjectCard({ project }: { project: Project }) {
             // (DESIGN.md § 6 Barre de progression).
             <div className="flex items-center gap-3">
               <Progress value={project.progressPercentage} className="flex-1" />
-              <span className="shrink-0 text-[0.8125rem] text-fg-3">
+              <span className="shrink-0 ui-meta text-fg-3">
                 {project.progressPercentage}%
               </span>
             </div>

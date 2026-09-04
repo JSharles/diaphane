@@ -8,7 +8,7 @@ function TrackHeading({ namespace }: { namespace: "clients" | "developers" }) {
   const t = useTranslations(`Landing.${namespace}`);
   return (
     <div>
-      <p className="text-[0.8125rem] font-medium text-fg-3">
+      <p className="ui-eyebrow">
         {t("eyebrow")}
       </p>
       <h2 className="mt-4 max-w-md text-balance font-serif text-3xl leading-tight font-normal sm:text-[2.5rem]">

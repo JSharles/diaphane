@@ -19,7 +19,7 @@ export function FaqSection() {
       </h2>
       {GROUPS.map((group) => (
         <div key={group.labelKey} className="flex flex-col gap-2">
-          <h3 className="text-[0.8125rem] font-medium text-fg-3">
+          <h3 className="ui-eyebrow">
             {t(group.labelKey)}
           </h3>
           <div className="flex flex-col divide-y divide-hairline">

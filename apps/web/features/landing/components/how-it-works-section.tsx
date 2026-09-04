@@ -28,7 +28,7 @@ export function HowItWorksSection() {
               key={key}
               className="grid gap-2 border-b border-hairline py-7 last:border-b-0 sm:grid-cols-[6rem_1fr] sm:gap-6"
             >
-              <p className="text-[0.8125rem] font-medium text-fg-3">
+              <p className="ui-eyebrow">
                 {t("stepLabel", { number: index + 1 })}
               </p>
               <div>

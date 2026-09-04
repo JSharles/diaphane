@@ -10,7 +10,7 @@ export function Hero() {
   // the fold instead of peeking into the scene of the rays.
   return (
     <section className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-1000 mx-auto flex min-h-[calc(100svh-5.5rem)] max-w-5xl flex-col items-center justify-center px-6 py-16 text-center sm:py-24">
-      <p className="mb-6 text-[0.8125rem] font-medium text-fg-3">
+      <p className="ui-eyebrow mb-6">
         {tHero("eyebrow")}
       </p>
       {/* Sharp letters under the rays: the light of the hero is the scene
@@ -29,7 +29,7 @@ export function Hero() {
 
       <Link
         href="/signup"
-        className="mt-9 rounded-md bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="mt-9 rounded-md bg-primary ui-control px-7 py-3 text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
       >
         {tHero("primaryCta")}
       </Link>

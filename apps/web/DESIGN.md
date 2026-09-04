@@ -1,32 +1,32 @@
 ---
 name: Diaphane
 description: La tech, rendue lisible. Deux matières — Encre pour l'espace de travail du dev, Lait pour la lecture client — et une paroi entre les deux.
-version: 2026-09-04 — Encre / Lait (remplace « Optical memory » du 2026-08-31 et la passe palette du 2026-09-04)
+version: 2026-09-04 — Encre / Lait v2 (révision de la palette et des registres typographiques)
 colors:
   # ---------- ENCRE (espace de travail, mode par défaut de l'app) ----------
-  encre-ground: "#0E1A2F"
-  encre-surface-1: "#182337"
-  encre-surface-2: "#212C40"
-  encre-surface-3: "#2B3548"
-  encre-hairline: "rgba(255, 255, 255, 0.10)"
-  encre-hairline-strong: "rgba(255, 255, 255, 0.16)"
-  encre-text: "#F4EFE4"
-  encre-text-2: "#B9C1D0"
-  encre-text-3: "#8C97AB"
-  encre-text-disabled: "rgba(244, 239, 228, 0.38)"
-  encre-machine: "#7C8AA3"
-  encre-machine-dim: "#2B3D5B"
+  encre-ground: "#09101C"
+  encre-surface-1: "#121A28"
+  encre-surface-2: "#1A2333"
+  encre-surface-3: "#232D3E"
+  encre-hairline: "rgba(190, 215, 245, 0.11)"
+  encre-hairline-strong: "rgba(190, 215, 245, 0.18)"
+  encre-text: "#E8EDF4"
+  encre-text-2: "#A8B4C6"
+  encre-text-3: "#7A8699"
+  encre-text-disabled: "rgba(232, 237, 244, 0.38)"
+  encre-machine: "#8FB0D8"
+  encre-machine-dim: "#1E3450"
   encre-pane: "rgba(255, 255, 255, 0.055)"
-  encre-pane-line: "rgba(255, 255, 255, 0.16)"
+  encre-pane-line: "rgba(190, 215, 245, 0.17)"
   encre-pane-highlight: "rgba(255, 255, 255, 0.18)"
-  encre-overlay: "rgba(14, 26, 47, 0.62)"
+  encre-overlay: "rgba(9, 16, 28, 0.62)"
   encre-light: "rgba(255, 226, 196, 0.17)"
   encre-bloom: "0 0 24px rgba(255, 226, 196, 0.12)"
-  encre-ring: "rgba(244, 239, 228, 0.60)"
-  encre-action: "#F4EFE4"
+  encre-ring: "rgba(232, 237, 244, 0.60)"
+  encre-action: "#E8EDF4"
   encre-action-hover: "#FFFFFF"
-  encre-action-active: "#E8E2D5"
-  encre-on-action: "#0E1A2F"
+  encre-action-active: "#D6DDE7"
+  encre-on-action: "#09101C"
   encre-success: "#8BD4A5"
   encre-success-bg: "rgba(139, 212, 165, 0.12)"
   encre-warning: "#F0B35A"
@@ -98,15 +98,26 @@ typography:
     fontWeight: 400
     lineHeight: 1.5
   ui-control:
-    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
-    fontSize: "0.875rem"
+    fontFamily: "IBM Plex Mono, ui-monospace, monospace"
+    fontSize: "0.8125rem"
     fontWeight: 500
     lineHeight: 1
   ui-meta:
-    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
-    fontSize: "0.8125rem"
+    fontFamily: "IBM Plex Mono, ui-monospace, monospace"
+    fontSize: "0.75rem"
     fontWeight: 400
     lineHeight: 1.45
+  ui-badge:
+    fontFamily: "IBM Plex Mono, ui-monospace, monospace"
+    fontSize: "0.71875rem"
+    fontWeight: 400
+    lineHeight: 1.45
+  ui-eyebrow:
+    fontFamily: "IBM Plex Mono, ui-monospace, monospace"
+    fontSize: "0.78125rem"
+    fontWeight: 400
+    lineHeight: 1.45
+    color: "{colors.encre-machine}"
   ui-caption:
     fontFamily: "IBM Plex Sans, system-ui, sans-serif"
     fontSize: "0.75rem"
@@ -119,9 +130,9 @@ typography:
     lineHeight: 1.6
 rounded:
   sm: "0.375rem"
-  md: "0.625rem"
-  lg: "0.875rem"
-  pane: "1.375rem"
+  md: "0.5rem"
+  lg: "0.625rem"
+  pane: "1rem"
   full: "9999px"
 motion:
   fast: "160ms cubic-bezier(0.2, 0, 0, 1)"
@@ -178,14 +189,15 @@ Diaphane se place entre la tech et le client. Le système visuel est cette phras
 
 Le client ne voit jamais l'encre. Le dev voit les deux : son espace est sombre, et le document du client y apparaît comme une carte claire, la seule surface Lait dans l'Encre. C'est la porte.
 
-**Ce que ce système remplace.** Le fond noir neutre (#0A0A0B) devient une encre bleue. Le blanc froid devient un blanc chaud (#F4EFE4). Il n'y a plus d'accent de teinte : la seule chaleur est la lumière derrière le verre. Urbanist et Geist Mono sont remplacés par Spectral, IBM Plex Sans et IBM Plex Mono. Les effets « optical memory » (rayons, iris, grain, halo, glow-medium/strong) disparaissent ; ce qui en survit est la discipline : mat par défaut, lumière localisée, et le test de suppression (retire l'effet, la composition doit tenir).
+**Ce que ce système remplace.** Le fond noir neutre (#0A0A0B) devient une encre bleue (#09101C). Le blanc froid de l'ancien système devient le blanc bleuté #E8EDF4. Il n'y a plus d'accent de teinte : la seule chaleur est la lumière derrière le verre. Urbanist et Geist Mono sont remplacés par Spectral, IBM Plex Sans et IBM Plex Mono. Les effets « optical memory » (rayons, iris, grain, halo, glow-medium/strong) disparaissent ; ce qui en survit est la discipline : mat par défaut, lumière localisée, et le test de suppression (retire l'effet, la composition doit tenir).
 
-## 2. Les quatre règles
+## 2. Les cinq règles
 
-1. **Pas d'accent de teinte.** Aucune couleur de marque en texte ou en fond. L'action primaire est le blanc chaud sur encre, l'encre sur lait. Les couleurs de statut (succès, attention, erreur) sont fonctionnelles, jamais décoratives, jamais sur un élément actionnable. L'information est neutre : le bleu est déjà le sol, il ne peut pas être un signal.
-2. **Le verre est rare.** Un seul `backdrop-filter` par écran, réservé aux couches flottantes (dialogue, panneau latéral, palette de commandes). Les cartes, listes et champs sont des surfaces plates.
-3. **Spectral n'est que la voix.** Le titre d'une page, le titre et le corps d'un document : ce qu'on lit, jamais ce qu'on manipule. Boutons, champs, labels, tableaux, badges : Plex Sans. Le poids 300 n'existe qu'au-dessus de 40 px.
-4. **Le client ne voit jamais la machine.** Aucun monospace, aucun hash, aucun chemin de fichier, aucun pourcentage de commits dans Lait. La provenance y est une phrase en Plex Sans (« Mis à jour à partir de 14 changements cette semaine »).
+1. **Le bleu clair n'existe que dans la machine.** `encre-machine` (#8FB0D8) ne colore que du monospace, petit : provenance, refs, compteurs de la couche machine. Jamais un titre, jamais un fond, jamais un bouton. La voix (Spectral) et les titres restent en `encre-text`.
+2. **Pas d'accent de teinte.** Aucune couleur de marque en texte ou en fond. L'action primaire est le blanc bleuté sur encre, l'encre sur lait. Les couleurs de statut (succès, attention, erreur) sont fonctionnelles, jamais décoratives, jamais sur un élément actionnable. L'information est neutre : le bleu est déjà le sol, il ne peut pas être un signal.
+3. **Le verre est rare.** Un seul `backdrop-filter` par écran, réservé aux couches flottantes (dialogue, panneau latéral, palette de commandes). Les cartes, listes et champs sont des surfaces plates.
+4. **Spectral n'est que la voix.** Le titre d'une page, le titre et le corps d'un document : ce qu'on lit, jamais ce qu'on manipule. Boutons, champs, labels, tableaux, badges : Plex Sans. Le poids 300 n'existe qu'au-dessus de 40 px.
+5. **Le client ne voit jamais la machine.** Aucun monospace, aucun hash, aucun chemin de fichier, aucun pourcentage de commits dans Lait. La provenance y est une phrase en Plex Sans (« Mis à jour à partir de 14 changements cette semaine »).
 
 ## 3. Couleurs
 
@@ -193,24 +205,24 @@ Le client ne voit jamais l'encre. Le dev voit les deux : son espace est sombre, 
 
 | Token | Valeur | Rôle | Contraste sur ground |
 |---|---|---|---|
-| `encre-ground` | #0E1A2F | Le sol de l'espace de travail | — |
-| `encre-surface-1` | #182337 | Cartes, lignes de liste au survol, champs | — |
-| `encre-surface-2` | #212C40 | Popovers, toasts, boutons secondaires, survol des cartes | — |
-| `encre-surface-3` | #2B3548 | Sélection active, tooltips | — |
-| `encre-hairline` | white 10 % | Séparateurs, bordures de cartes | — |
-| `encre-hairline-strong` | white 16 % | Bordures de champs, cartes au survol | — |
-| `encre-text` | #F4EFE4 | Titres, corps, texte des contrôles | ≈15:1 |
-| `encre-text-2` | #B9C1D0 | Texte secondaire, descriptions, liens de nav | ≈9.6:1 |
-| `encre-text-3` | #8C97AB | Métadonnées, dates, pourcentages, placeholders | ≈5.9:1 |
-| `encre-machine` | #7C8AA3 | Monospace lisible : provenance, refs de commits, chemins | ≈5:1 |
-| `encre-machine-dim` | #2B3D5B | Monospace décoratif (la couche code de la landing), `aria-hidden` uniquement | ≈1.6:1, jamais pour de l'information |
-| `encre-pane` / `-line` / `-highlight` | white 5.5 % / 16 % / 18 % | La paroi : couches flottantes uniquement | — |
+| `encre-ground` | #09101C | Le sol de l'espace de travail | — |
+| `encre-surface-1` | #121A28 | Cartes, lignes de liste au survol, champs | — |
+| `encre-surface-2` | #1A2333 | Popovers, toasts, boutons secondaires, survol des cartes | — |
+| `encre-surface-3` | #232D3E | Sélection active, tooltips | — |
+| `encre-hairline` | bleu clair 11 % | Séparateurs, bordures de cartes | — |
+| `encre-hairline-strong` | bleu clair 18 % | Bordures de champs, cartes au survol | — |
+| `encre-text` | #E8EDF4 | Titres, corps, texte des contrôles | ≈15:1 |
+| `encre-text-2` | #A8B4C6 | Texte secondaire, descriptions, liens de nav | ≈9.6:1 |
+| `encre-text-3` | #7A8699 | Métadonnées, dates, pourcentages, placeholders | ≈5.9:1 |
+| `encre-machine` | #8FB0D8 | La seule couleur du registre machine : provenance, refs, chemins | ≈7:1 |
+| `encre-machine-dim` | #1E3450 | Monospace décoratif (la couche code de la landing), `aria-hidden` uniquement | ≈1.6:1, jamais pour de l'information |
+| `encre-pane` / `-line` / `-highlight` | white 5.5 % / bleu clair 17 % / white 18 % | La paroi : couches flottantes uniquement | — |
 | `encre-overlay` | ground 62 % | Voile sous un dialogue | — |
 | `encre-light` | rgba(255,226,196,.17) | La source de lumière : un dégradé radial, au plus un par écran | — |
 | `encre-bloom` | 0 0 24px rgba(255,226,196,.12) | Le seul glow : survol du bouton primaire | — |
-| `encre-ring` | text 60 % | Anneau de focus, 2 px, offset 2 px | — |
+| `encre-ring` | text 60 % (#E8EDF4) | Anneau de focus, 2 px, offset 2 px | — |
 
-Surfaces : les valeurs hexa sont l'encre mélangée à 4 / 8 / 12 % de blanc. Les utiliser en solide (pas en alpha) pour les cartes et champs, afin que le texte dessus reste prévisible.
+Surfaces : les valeurs hexa sont l'encre mélangée par paliers réguliers vers le bleu clair. Les utiliser en solide (pas en alpha) pour les cartes et champs, afin que le texte dessus reste prévisible.
 
 ### Lait
 
@@ -262,25 +274,31 @@ Trois voix, trois familles, chargées via `next/font/google` et exposées en `--
 | `voice-page` | Spectral 400 | 30 / 1.15 | Titre de page dans l'app (« Vos projets », nom du projet) |
 | `voice-doc-title` | Spectral 400 | 26 / 1.2 | Titre d'un document, éditeur et vue client |
 | `voice-doc-body` | Spectral 400 | 17 / 1.6, mesure 68ch | Corps d'un document, éditeur et vue client |
-| `ui-section` | Plex Sans 500 | 17 / 1.3 | Titres de section (« Branchements », « Équipe ») |
+| `ui-section` | Plex Sans 500 | 17 / 1.3 | Titres de section (« Connexions », « Équipe ») |
 | `ui-title` | Plex Sans 500 | 16 / 1.3 | Titres de carte et de ligne |
 | `ui-body` | Plex Sans 400 | 15 / 1.5 | Texte courant de l'interface |
-| `ui-control` | Plex Sans 500 | 14 / 1 | Boutons, onglets ; champs en 400 |
-| `ui-meta` | Plex Sans 400 | 13 / 1.45 | Dates, compteurs, aide de champ |
+| `ui-control` | **Plex Mono 500** | 13 / 1 | Boutons, onglets, liens de nav |
+| `ui-meta` | **Plex Mono 400** | 12 / 1.45 | Dates, compteurs, pourcentages, aide de champ |
+| `ui-badge` | **Plex Mono 400** | 11.5 / 1.45 | Badges de statut |
+| `ui-eyebrow` | **Plex Mono 400** | 12.5 / 1.45 | L'étiquette au-dessus d'un titre, en `encre-machine` |
 | `ui-caption` | Plex Sans 400 | 12 / 1.4 | Taille minimale, rare |
 | `machine` | Plex Mono 400 | 13 / 1.6 | Provenance, refs |
 
+### Les trois registres
+
+La **mécanique** de l'interface est monospace, en casse normale et sans interlettrage : boutons, onglets, liens de nav (`ui-control`), dates, compteurs, pourcentages, aide de champ (`ui-meta`), badges (`ui-badge`), étiquettes au-dessus d'un titre (`ui-eyebrow`). La **prose** de l'interface reste Plex Sans : `ui-section`, `ui-title`, `ui-body`, `ui-caption`, et le texte saisi dans un champ. La **voix** reste Spectral : `voice-display`, `voice-page`, `voice-doc-title`, `voice-doc-body`.
+
 ### Interdits typographiques
 
-Pas de capitales en label (« BRANCHEMENTS » devient « Branchements » en `ui-section`). Pas d'interlettrage positif. Pas de graisse au-delà de 500 en Plex ni de 400 en Spectral dans l'app. Pas de monospace pour un label d'interface : le mono est réservé à ce qui est effectivement de la machine.
+Pas de capitales en label (« BRANCHEMENTS » devient « Connexions » en `ui-section`). Pas d'interlettrage positif. Pas de graisse au-delà de 500 en Plex ni de 400 en Spectral dans l'app. Pas de monospace côté client : Lait n'a pas de registre machine.
 
 ## 5. Formes, élévation, lumière, mouvement
 
-**Rayons.** `sm` 6 px pour badges et tooltips, `md` 10 px pour contrôles et champs, `lg` 14 px pour cartes et toasts, `pane` 22 px pour la paroi. `full` uniquement pour les avatars et les points de statut.
+**Rayons.** `sm` 6 px pour badges et tooltips, `md` 8 px pour contrôles et champs, `lg` 10 px pour cartes et toasts, `pane` 16 px pour la paroi. `full` uniquement pour les avatars et les points de statut.
 
 **Élévation.** Par paliers de surface (ground → 1 → 2 → 3) et par hairline, jamais par ombre dans Encre. Une carte cliquable au survol : `surface-2` et `hairline-strong`, rien d'autre. Dans Lait, l'ombre existe une seule fois, sous la paroi (`lait-pane-shadow`).
 
-**La paroi.** `encre-pane` + `encre-pane-line` + reflet `inset 0 1px 0 encre-pane-highlight` + `backdrop-filter: blur(22px) saturate(1.1)` (préfixe `-webkit-` inclus) + rayon `pane`. Autorisée sur : dialogue, panneau latéral, palette de commandes, et le hero de la landing. Une par écran. Interdite sur cartes, nav, champs, toasts.
+**La paroi.** `encre-pane` + `encre-pane-line` + reflet `inset 0 1px 0 encre-pane-highlight` + `backdrop-filter: blur(22px) saturate(1.1)` (préfixe `-webkit-` inclus) + rayon `pane` (16 px). Autorisée sur : dialogue, panneau latéral, palette de commandes, et le hero de la landing. Une par écran. Interdite sur cartes, nav, champs, toasts.
 
 **La lumière.** Au plus une source par écran, toujours *derrière* un objet et jamais globale : derrière le hero de la landing ; dans l'app, derrière la porte (la carte du document client) ou derrière un état vide. Un dégradé radial en `encre-light`, statique. Aucune animation de lumière, aucune dépendance (`SideRays` / `ogl` sont retirés). Le seul glow est `encre-bloom` au survol du bouton primaire, jamais permanent.
 
@@ -405,7 +423,7 @@ Urbanist, Geist Mono, les tokens optiques et la trio iris, `SideRays` / `hero-ra
 
 | Faire | Ne pas faire |
 |---|---|
-| Une seule action primaire par vue, en blanc chaud | Un accent de teinte, sur quoi que ce soit |
+| Une seule action primaire par vue, en blanc bleuté | Un accent de teinte, sur quoi que ce soit |
 | Le verre sur les couches flottantes, une fois par écran | Du verre sur une carte, une nav, un champ, un toast |
 | Spectral pour les titres de page et les documents | Spectral dans un bouton, un label, un tableau |
 | Le mono pour la provenance, dans l'espace de travail | Du mono côté client, ou comme label d'interface |

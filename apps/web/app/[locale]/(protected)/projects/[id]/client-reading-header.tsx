@@ -25,7 +25,7 @@ export function ClientReadingHeader({
     <div className="flex flex-col gap-3">
       <Link
         href="/home"
-        className="inline-flex w-fit items-center gap-1.5 text-[0.8125rem] text-fg-3 transition-colors duration-fast hover:text-fg"
+        className="inline-flex w-fit items-center gap-1.5 ui-meta text-fg-3 transition-colors duration-fast hover:text-fg"
       >
         <ArrowLeft className="size-3.5" aria-hidden="true" />
         {backLabel}
@@ -34,12 +34,12 @@ export function ClientReadingHeader({
         <div className="min-w-0">
           <h1 className="truncate text-base font-medium">{project.title}</h1>
           {developer && (
-            <p className="text-[0.8125rem] text-fg-3">
+            <p className="ui-meta text-fg-3">
               {t("publishedBy", { name: developer.firstName })}
             </p>
           )}
         </div>
-        <p className="text-[0.8125rem] text-fg-3">
+        <p className="ui-meta text-fg-3">
           {t("updatedOn", {
             date: format.dateTime(new Date(project.updatedAt), { dateStyle: "long" }),
           })}

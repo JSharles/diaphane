@@ -21,7 +21,7 @@ export function PageHeader({
       {backHref && (
         <Link
           href={backHref}
-          className="inline-flex w-fit items-center gap-1.5 text-[0.8125rem] text-fg-3 transition-colors duration-fast hover:text-fg"
+          className="inline-flex w-fit items-center gap-1.5 ui-meta text-fg-3 transition-colors duration-fast hover:text-fg"
         >
           <ArrowLeft className="size-3.5" aria-hidden="true" />
           {backLabel}

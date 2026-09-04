@@ -47,7 +47,7 @@ export function ClientViewPreview() {
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="w-fit text-[0.8125rem] font-medium text-fg-3">
+      <span className="ui-eyebrow w-fit">
         {t("label")}
       </span>
       <div data-theme="lait" className="rounded-lg bg-background p-5 text-foreground sm:p-6">

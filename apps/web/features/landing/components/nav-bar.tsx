@@ -26,7 +26,7 @@ export function NavBar() {
           <span className="text-base font-medium">Diaphane</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 text-[0.8125rem] font-medium text-fg-2 md:flex">
+        <nav className="ui-control hidden items-center gap-6 text-fg-2 md:flex">
           <a
             href="#product"
             className="transition-colors hover:text-foreground"
@@ -53,13 +53,13 @@ export function NavBar() {
         <div className="flex items-center gap-4 md:pl-4 md:before:mr-4 md:before:h-4 md:before:w-px md:before:bg-border md:before:content-['']">
           <Link
             href="/login"
-            className="hidden text-sm font-semibold text-foreground transition-colors hover:text-foreground/70 md:inline"
+            className="ui-control hidden text-fg-2 transition-colors hover:text-foreground md:inline"
           >
             {t("logIn")}
           </Link>
           <Link
             href="/signup"
-            className="hidden rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom md:inline-flex"
+            className="hidden rounded-md bg-primary ui-control px-5 py-2.5 text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom md:inline-flex"
           >
             {t("signUp")}
           </Link>
@@ -75,7 +75,7 @@ export function NavBar() {
               <SheetHeader>
                 <SheetTitle>Diaphane</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-1 px-4 text-[0.9375rem] font-medium text-fg-2">
+              <nav className="ui-control flex flex-col gap-1 px-4 text-fg-2">
                 <SheetClose asChild>
                   <a
                     href="#product"
@@ -113,7 +113,7 @@ export function NavBar() {
                 <SheetClose asChild>
                   <Link
                     href="/login"
-                    className="text-center text-sm font-semibold text-foreground transition-colors hover:text-foreground/70"
+                    className="ui-control text-center text-fg-2 transition-colors hover:text-foreground"
                   >
                     {t("logIn")}
                   </Link>
@@ -121,7 +121,7 @@ export function NavBar() {
                 <SheetClose asChild>
                   <Link
                     href="/signup"
-                    className="rounded-md bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom"
+                    className="rounded-md bg-primary ui-control px-5 py-2.5 text-center text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom"
                   >
                     {t("signUp")}
                   </Link>

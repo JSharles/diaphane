@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 
-const LABEL = "text-[0.8125rem] font-medium text-fg-3";
+const LABEL = "ui-meta text-fg-3";
 
 // One worked example: a board ticket, then what the client reads. Two panels
 // on the page's own ground, no frame around them; the frosted right panel is
@@ -12,7 +12,7 @@ export function AiPreview() {
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="w-fit text-[0.8125rem] font-medium text-fg-3">
+      <span className="ui-eyebrow w-fit">
         {t("badge")}
       </span>
 

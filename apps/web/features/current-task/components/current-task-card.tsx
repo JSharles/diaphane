@@ -228,7 +228,7 @@ function TaskCardBody({
           neighbors' — auto margin absorbs whatever space the middle
           content didn't use, every card's timeline/estimate ends up flush
           against the bottom regardless of how little sits above it. */}
-      <p className="mt-auto border-t border-hairline pt-3 text-[0.8125rem] text-fg-3">
+      <p className="mt-auto border-t border-hairline pt-3 ui-meta text-fg-3">
         {t("timeline", {
           started: formatRelativeTime(item.startedAt, locale),
           updated: formatRelativeTime(item.updatedAt, locale),

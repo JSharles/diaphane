@@ -9,7 +9,7 @@ export function ClosingBand() {
   return (
     <section className="border-t px-6 py-20 text-center">
       <div className="mx-auto flex max-w-2xl flex-col items-center">
-        <p className="mb-4 text-[0.8125rem] font-medium text-fg-3">
+        <p className="ui-eyebrow mb-4">
           {t("eyebrow")}
         </p>
         <h2 className="text-balance font-serif text-3xl leading-tight font-normal sm:text-[2.5rem]">
@@ -21,7 +21,7 @@ export function ClosingBand() {
         </p>
         <Link
           href="/signup"
-          className="hover:bloom hover:bg-action-hover mt-8 rounded-md bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-white focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+          className="hover:bloom hover:bg-action-hover mt-8 rounded-md bg-primary ui-control px-8 py-3 text-primary-foreground transition-all duration-200 hover:bg-white focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
         >
           {t("cta")}
         </Link>

@@ -13,13 +13,13 @@ export function DocumentPreview() {
 
   return (
     <div className="mt-12 flex flex-col gap-6">
-      <span className="w-fit text-[0.8125rem] font-medium text-fg-3">
+      <span className="ui-eyebrow w-fit">
         {t("documentBadge")}
       </span>
 
       <div className="grid items-stretch gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(11rem,0.55fr)_minmax(0,1.2fr)]">
         <div className="rounded-lg border border-hairline bg-surface-1 p-5 sm:p-6">
-          <p className="text-[0.8125rem] font-medium text-fg-3">
+          <p className="ui-meta text-fg-3">
             {t("sourceLabel")}
           </p>
           <div className="mt-5 flex items-start gap-3">
@@ -52,20 +52,20 @@ export function DocumentPreview() {
 
         <div data-theme="lait" className="rounded-lg bg-background p-5 text-foreground sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.8125rem] font-medium text-fg-3">
+            <p className="ui-meta text-fg-3">
               {t("clientLabel")}
             </p>
             <Badge tone="warning">{t("reviewStatus")}</Badge>
           </div>
-          <p className="mt-5 text-[0.8125rem] font-medium text-fg-3">{t("rubriquesLabel")}</p>
+          <p className="ui-meta mt-5 text-fg-3">{t("rubriquesLabel")}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {CATEGORIES.map((category, index) => (
               <span
                 key={category}
                 className={
                   index === 0
-                    ? "rounded-sm bg-action px-2.5 py-1 text-[0.8125rem] font-medium text-on-action"
-                    : "rounded-sm bg-surface-2 px-2.5 py-1 text-[0.8125rem] font-medium text-fg-3"
+                    ? "ui-badge rounded-sm bg-action px-2.5 py-1 text-on-action"
+                    : "ui-badge rounded-sm bg-surface-2 px-2.5 py-1 text-fg-3"
                 }
               >
                 {t(`${category}Category`)}
