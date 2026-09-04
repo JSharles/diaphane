@@ -633,7 +633,8 @@
       "nextTask": "Tâche suivante",
       "selectTask": "Voir « {title} »",
       "readMore": "Voir plus",
-      "notProvided": "Non renseigné pour cette tâche."
+      "notProvided": "Non renseigné pour cette tâche.",
+      "emptyBadge": "Rien en cours"
     },
     "TeamPanel": {
       "developer": "Développeur",

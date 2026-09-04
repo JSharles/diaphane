@@ -23,6 +23,8 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
+        {/* The dialog is the pane: its ground, blur and radius come from the
+            primitive, so this only carries the form. */}
         <CreateProjectForm onCreated={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>

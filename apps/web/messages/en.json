@@ -633,7 +633,8 @@
       "nextTask": "Next task",
       "selectTask": "View \"{title}\"",
       "readMore": "Read more",
-      "notProvided": "Not provided for this task."
+      "notProvided": "Not provided for this task.",
+      "emptyBadge": "Nothing under way"
     },
     "TeamPanel": {
       "developer": "Developer",

@@ -359,7 +359,7 @@ describe("CurrentTaskCard", () => {
     expect(bar).toHaveAttribute("aria-valuemax", "100");
   });
 
-  it("marks a low-confidence estimate and a running-over task with the same semantic severity color", () => {
+  it("marks a low-confidence estimate and a running-over task with the same warning tone: an estimate slipping is not an error", () => {
     mockedUseCurrentTask.mockReturnValue({
       data: [
         {
@@ -375,8 +375,8 @@ describe("CurrentTaskCard", () => {
 
     render(<CurrentTaskCard projectId="project-1" />);
 
-    expect(screen.getByText(/runningOver/)).toHaveClass("text-destructive");
-    expect(screen.getByText(/confidence\.low/)).toHaveClass("text-destructive");
+    expect(screen.getByText(/runningOver/)).toHaveClass("text-warning");
+    expect(screen.getByText(/confidence\.low/)).toHaveClass("text-warning");
   });
 
   it("keeps a high-confidence, on-track estimate in the neutral (non-alarming) color", () => {
@@ -395,7 +395,7 @@ describe("CurrentTaskCard", () => {
 
     render(<CurrentTaskCard projectId="project-1" />);
 
-    expect(screen.getByText(/estimatedCompletion/)).toHaveClass("text-muted-foreground");
-    expect(screen.getByText(/confidence\.high/)).toHaveClass("text-muted-foreground");
+    expect(screen.getByText(/estimatedCompletion/)).toHaveClass("text-fg-3");
+    expect(screen.getByText(/confidence\.high/)).toHaveClass("text-fg-3");
   });
 });
