@@ -1,89 +1,158 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Encre / Lait (2026-09-04, apps/web/DESIGN.md). Two materials, one set of
+   names: the material tokens below are the Encre values on :root and the
+   Lait values under [data-theme="lait"], and the shadcn variables read
+   them, so a component written once renders in either material. No hue
+   accent anywhere: the only warmth is the light behind the pane. */
 :root {
   --radius: 0.625rem;
-  /* 2026-08-31 "Optical memory" revision of the phosphor direction —
-     BRAND DESIGN FIRST, CRT second. The CRT reference is a *texture*, not
-     a theme: what survives of it is a slightly cold white, real depth in
-     the blacks, and a faint optical diffusion around the few elements that
-     are allowed to emit. Everything identifiable — scanlines, screen
-     frames, outline type, glowing borders — is out.
 
-     The brand language is BLACK + WHITE + LIGHT, not black + blue: blue
-     is (almost) never a text color or a fill; it exists inside the light
-     around white, i.e. only within the glow tokens below.
+  /* ── Encre: the developer's workspace ─────────────────────────────── */
+  --ground: #0e1a2f;
+  --surface-1: #182337;
+  --surface-2: #212c40;
+  --surface-3: #2b3548;
+  --hairline: rgba(255, 255, 255, 0.1);
+  --hairline-strong: rgba(255, 255, 255, 0.16);
+  --text: #f4efe4;
+  --text-2: #b9c1d0;
+  --text-3: #8c97ab;
+  --text-disabled: rgba(244, 239, 228, 0.38);
+  --machine: #7c8aa3;
+  --machine-dim: #2b3d5b;
+  /* The pane: floating layers only (dialog, side panel, command palette,
+     the landing hero). One per screen. */
+  --pane: rgba(255, 255, 255, 0.055);
+  --pane-line: rgba(255, 255, 255, 0.16);
+  --pane-highlight: rgba(255, 255, 255, 0.18);
+  --pane-shadow: inset 0 1px 0 var(--pane-highlight);
+  --overlay: rgba(14, 26, 47, 0.62);
+  /* The light: one static radial source per screen, always behind an
+     object. The bloom is the only glow, on the primary button's hover. */
+  --light: rgba(255, 226, 196, 0.17);
+  --bloom: 0 0 24px rgba(255, 226, 196, 0.12);
+  --ring-color: rgba(244, 239, 228, 0.6);
+  --action: #f4efe4;
+  --action-hover: #ffffff;
+  --action-active: #e8e2d5;
+  --on-action: #0e1a2f;
+  --success: #8bd4a5;
+  --success-bg: rgba(139, 212, 165, 0.12);
+  --warning: #f0b35a;
+  --warning-bg: rgba(240, 179, 90, 0.12);
+  --danger: #f07a6b;
+  --danger-bg: rgba(240, 122, 107, 0.12);
 
-     Matte by default. 5–10% of elements may seem to emit — that rarity is
-     the sophistication. Test for every effect: remove it, and the design
-     must still stand.
+  /* ── shadcn variables, read from the material ─────────────────────── */
+  --background: var(--ground);
+  --foreground: var(--text);
+  --card: var(--surface-1);
+  --card-foreground: var(--text);
+  --popover: var(--surface-2);
+  --popover-foreground: var(--text);
+  --primary: var(--action);
+  --primary-foreground: var(--on-action);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface-1);
+  --muted-foreground: var(--text-3);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--text);
+  --destructive: var(--danger);
+  --success-foreground: var(--ground);
+  --border: var(--hairline);
+  --input: var(--hairline-strong);
+  --ring: var(--ring-color);
+  --chart-1: var(--text);
+  --chart-2: var(--text-2);
+  --chart-3: var(--text-3);
+  --chart-4: var(--machine);
+  --chart-5: var(--machine-dim);
+  --sidebar: var(--surface-1);
+  --sidebar-foreground: var(--text);
+  --sidebar-primary: var(--action);
+  --sidebar-primary-foreground: var(--on-action);
+  --sidebar-accent: var(--surface-2);
+  --sidebar-accent-foreground: var(--text);
+  --sidebar-border: var(--hairline);
+  --sidebar-ring: var(--ring-color);
+}
 
-     Contrast: Primary text on Background ≈ 17:1; Secondary ≈ 7:1. */
-  --gradient-from: #080a0b;
-  --gradient-via: #090c0d;
-  --gradient-to: #080b0c;
-  --gradient-glow: #8fb0dd;
-  --background: #080a0b;
-  --foreground: #f1f5f6;
-  --card: #0e1113;
-  --card-foreground: #f1f5f6;
-  --popover: #0e1113;
-  --popover-foreground: #f1f5f6;
-  --primary: #f1f5f6;
-  --primary-foreground: #080a0b;
-  --secondary: #14181a;
-  --secondary-foreground: #f1f5f6;
-  --muted: #0b0d0f;
-  --muted-foreground: #949da1;
-  --accent: #14181a;
-  --accent-foreground: #f1f5f6;
-  --destructive: oklch(0.65 0.22 27.325);
-  /* Semantic status color, not a second brand accent (see DESIGN.md "No
-     Second Accent Rule") — reserved for a small "this is live/active right
-     now" indicator, never a button, link, or emphasis. */
-  --success: #16a34a;
-  --success-foreground: #ffffff;
-  /* Iridescent glass wash — Signature Card only (see DESIGN.md). Purely
-     decorative texture behind a frosted panel; a cold near-monochrome trio
-     so the one multi-tone moment reads as shimmer on glass, not color. */
-  --iris-pink: oklch(0.68 0.04 240);
-  --iris-yellow: oklch(0.74 0.03 220);
-  --iris-blue: oklch(0.62 0.05 232);
-  --border: rgba(220, 240, 248, 0.1);
-  --input: rgba(220, 240, 248, 0.16);
-  --ring: #c8ebfd;
-  /* The two lights. Optical Light may tint a luminous detail; Cold Halo
-     exists ONLY inside the glow tokens — never as text, never as a fill. */
-  --optical-light: #c8ebfd;
-  --cold-halo: rgba(135, 175, 235, 0.2);
-  /* The glow scale — deliberately small. `subtle` is the house order of
-     magnitude (a 1px warm core + a barely-there cold field); `medium` is a
-     hover bloom, never permanent; `strong` is the single sanctioned
-     highlight moment of a page. If an effect is identifiable at a glance,
-     it is too strong. */
-  --glow-subtle: 0 0 1px rgba(255, 255, 255, 0.35), 0 0 12px rgba(150, 185, 235, 0.09);
-  --glow-medium: 0 0 1px rgba(255, 255, 255, 0.4), 0 0 14px rgba(135, 175, 235, 0.2);
-  --glow-strong: 0 0 1px rgba(255, 255, 255, 0.45), 0 0 18px rgba(135, 175, 235, 0.26);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: #0e1113;
-  --sidebar-foreground: #f1f5f6;
-  --sidebar-primary: #f1f5f6;
-  --sidebar-primary-foreground: #080a0b;
-  --sidebar-accent: #14181a;
-  --sidebar-accent-foreground: #f1f5f6;
-  --sidebar-border: rgba(220, 240, 248, 0.1);
-  --sidebar-ring: #c8ebfd;
+/* ── Lait: the client's reading surface ──────────────────────────────── */
+[data-theme="lait"] {
+  --ground: #edf0f3;
+  --surface-1: #f5f7f9;
+  --surface-2: #ffffff;
+  --surface-3: #ffffff;
+  --hairline: rgba(18, 32, 47, 0.08);
+  --hairline-strong: rgba(18, 32, 47, 0.14);
+  --text: #12202f;
+  --text-2: #45526a;
+  --text-3: #5f6d7c;
+  --text-disabled: rgba(18, 32, 47, 0.38);
+  /* No machine in Lait: the client never sees the source. Kept readable
+     so a stray monospace fails visibly rather than vanishing. */
+  --machine: #45526a;
+  --machine-dim: #b9c1d0;
+  --pane: rgba(255, 255, 255, 0.64);
+  --pane-line: rgba(255, 255, 255, 0.95);
+  --pane-highlight: rgba(255, 255, 255, 0.95);
+  --pane-shadow: 0 0 0 1px rgba(18, 32, 47, 0.07), 0 28px 70px rgba(18, 32, 47, 0.1);
+  --overlay: rgba(237, 240, 243, 0.7);
+  --light: rgba(255, 255, 255, 0.85);
+  --bloom: none;
+  --ring-color: rgba(18, 32, 47, 0.45);
+  --action: #12202f;
+  --action-hover: #1b2c40;
+  --action-active: #0b1520;
+  --on-action: #edf0f3;
+  --success: #1f7a4d;
+  --success-bg: rgba(31, 122, 77, 0.1);
+  --warning: #8a5e0e;
+  --warning-bg: rgba(138, 94, 14, 0.1);
+  --danger: #b4443a;
+  --danger-bg: rgba(180, 68, 58, 0.1);
+  --success-foreground: #edf0f3;
+  color-scheme: light;
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 0.875rem;
+  --radius-pane: 1.375rem;
+  /* Material tokens, usable directly: bg-surface-2, text-fg-3, border-hairline… */
+  --color-ground: var(--ground);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-fg: var(--text);
+  --color-fg-2: var(--text-2);
+  --color-fg-3: var(--text-3);
+  --color-fg-disabled: var(--text-disabled);
+  --color-machine: var(--machine);
+  --color-machine-dim: var(--machine-dim);
+  --color-pane: var(--pane);
+  --color-pane-line: var(--pane-line);
+  --color-overlay: var(--overlay);
+  --color-light: var(--light);
+  --color-action: var(--action);
+  --color-action-hover: var(--action-hover);
+  --color-action-active: var(--action-active);
+  --color-on-action: var(--on-action);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  /* shadcn names */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -99,16 +168,9 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-glow: var(--gradient-glow);
-  --color-iris-pink: var(--iris-pink);
-  --color-iris-yellow: var(--iris-yellow);
-  --color-iris-blue: var(--iris-blue);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-optical-light: var(--optical-light);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -122,62 +184,44 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: var(--font-urbanist);
-  --font-mono: var(--font-geist-mono);
+  /* Three voices: what is read (serif), what is operated (sans), the
+     machine (mono). font-sans stays the default so every existing
+     component moves to Plex Sans without an edit. */
+  --font-sans: var(--font-ui);
+  --font-serif: var(--font-voice);
+  --font-mono: var(--font-machine);
+  --ease-out-quiet: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 160ms;
+  --duration-enter: 220ms;
 }
 
-/* The only sanctioned ways to emit light. Localized, rare, mostly on
-   hover — never a permanent halo on a container, never on body text. */
-@utility glow-subtle {
-  box-shadow: var(--glow-subtle);
+/* The only glow: the primary button's hover. Never permanent. */
+@utility bloom {
+  box-shadow: var(--bloom);
 }
-@utility glow-medium {
-  box-shadow: var(--glow-medium);
+
+/* The pane: the frosted wall between the source and what is readable.
+   Floating layers and the landing hero only, one per screen. */
+@utility pane {
+  background-color: var(--pane);
+  border: 1px solid var(--pane-line);
+  box-shadow: var(--pane-shadow);
+  border-radius: var(--radius-pane);
+  -webkit-backdrop-filter: blur(22px) saturate(1.1);
+  backdrop-filter: blur(22px) saturate(1.1);
 }
-@utility text-glow-subtle {
-  text-shadow: var(--glow-subtle);
+
+/* The light: one static radial source, placed behind an object. */
+@utility light-behind {
+  background: radial-gradient(ellipse 60% 50% at 50% 40%, var(--light) 0%, transparent 70%);
 }
-@utility text-glow-medium {
-  text-shadow: var(--glow-medium);
-}
-@utility text-glow-strong {
-  text-shadow: var(--glow-strong);
-}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    /* bg-background propagates to the canvas and sits behind the fixed
-       ::before wash — without it, overscroll shows the UA's white canvas. */
     @apply bg-background text-foreground;
-    position: relative;
-  }
-  /* Depth in the blacks: a cold diffusion so faint it cannot be named a
-     gradient, plus barely-stepped wash stops. Felt, not seen. */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background:
-      radial-gradient(ellipse 90% 55% at 50% 8%, color-mix(in oklab, var(--gradient-glow) 3%, transparent) 0%, transparent 60%),
-      radial-gradient(at 100% 100%, color-mix(in oklab, var(--gradient-glow) 2%, transparent) 0%, transparent 55%),
-      linear-gradient(160deg, var(--gradient-from) 0%, var(--gradient-via) 50%, var(--gradient-to) 100%);
-  }
-  /* Analog memory, almost invisible: static grain at ~1.5% and a soft edge
-     vignette. No scanlines — the 2026-08-31 revision removed every
-     screen-identifiable device. The viewer should sense a texture, never
-     name a filter. */
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse 130% 110% at 50% 45%, transparent 68%, rgba(0, 0, 0, 0.18) 100%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
   }
   html {
     scroll-behavior: smooth;

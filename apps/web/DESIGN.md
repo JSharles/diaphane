@@ -1,233 +1,415 @@
 ---
 name: Diaphane
-description: Track your project's progress with total transparency.
+description: La tech, rendue lisible. Deux matières — Encre pour l'espace de travail du dev, Lait pour la lecture client — et une paroi entre les deux.
+version: 2026-09-04 — Encre / Lait (remplace « Optical memory » du 2026-08-31 et la passe palette du 2026-09-04)
 colors:
-  background-black: "#080A0B"
-  elevated-surface: "#0E1113"
-  soft-surface: "#14181A"
-  recessed-black: "#0B0D0F"
-  primary-text: "#F1F5F6"
-  secondary-text: "#949DA1"
-  pure-white: "#FFFFFF"
-  optical-light: "#C8EBFD"
-  halo-blue: "#577DB8"
-  cold-halo: "rgba(135, 175, 235, 0.20)"
-  subtle-border: "rgba(220, 240, 248, 0.10)"
-  input-border: "rgba(220, 240, 248, 0.16)"
-  gradient-from: "#080A0B"
-  gradient-via: "#090C0D"
-  gradient-to: "#080B0C"
-  destructive: "oklch(0.65 0.22 27.325)"
-  success: "#16a34a"
-  iris-pink: "oklch(0.68 0.04 240)"
-  iris-yellow: "oklch(0.74 0.03 220)"
-  iris-blue: "oklch(0.62 0.05 232)"
+  # ---------- ENCRE (espace de travail, mode par défaut de l'app) ----------
+  encre-ground: "#0E1A2F"
+  encre-surface-1: "#182337"
+  encre-surface-2: "#212C40"
+  encre-surface-3: "#2B3548"
+  encre-hairline: "rgba(255, 255, 255, 0.10)"
+  encre-hairline-strong: "rgba(255, 255, 255, 0.16)"
+  encre-text: "#F4EFE4"
+  encre-text-2: "#B9C1D0"
+  encre-text-3: "#8C97AB"
+  encre-text-disabled: "rgba(244, 239, 228, 0.38)"
+  encre-machine: "#7C8AA3"
+  encre-machine-dim: "#2B3D5B"
+  encre-pane: "rgba(255, 255, 255, 0.055)"
+  encre-pane-line: "rgba(255, 255, 255, 0.16)"
+  encre-pane-highlight: "rgba(255, 255, 255, 0.18)"
+  encre-overlay: "rgba(14, 26, 47, 0.62)"
+  encre-light: "rgba(255, 226, 196, 0.17)"
+  encre-bloom: "0 0 24px rgba(255, 226, 196, 0.12)"
+  encre-ring: "rgba(244, 239, 228, 0.60)"
+  encre-action: "#F4EFE4"
+  encre-action-hover: "#FFFFFF"
+  encre-action-active: "#E8E2D5"
+  encre-on-action: "#0E1A2F"
+  encre-success: "#8BD4A5"
+  encre-success-bg: "rgba(139, 212, 165, 0.12)"
+  encre-warning: "#F0B35A"
+  encre-warning-bg: "rgba(240, 179, 90, 0.12)"
+  encre-danger: "#F07A6B"
+  encre-danger-bg: "rgba(240, 122, 107, 0.12)"
+  # ---------- LAIT (lecture client, documents publiés) ----------
+  lait-ground: "#EDF0F3"
+  lait-surface-1: "#F5F7F9"
+  lait-surface-2: "#FFFFFF"
+  lait-hairline: "rgba(18, 32, 47, 0.08)"
+  lait-hairline-strong: "rgba(18, 32, 47, 0.14)"
+  lait-text: "#12202F"
+  lait-text-2: "#45526A"
+  lait-text-3: "#5F6D7C"
+  lait-text-disabled: "rgba(18, 32, 47, 0.38)"
+  lait-pane: "rgba(255, 255, 255, 0.64)"
+  lait-pane-line: "rgba(255, 255, 255, 0.95)"
+  lait-pane-shadow: "0 0 0 1px rgba(18, 32, 47, 0.07), 0 28px 70px rgba(18, 32, 47, 0.10)"
+  lait-overlay: "rgba(237, 240, 243, 0.70)"
+  lait-light: "rgba(255, 255, 255, 0.85)"
+  lait-ring: "rgba(18, 32, 47, 0.45)"
+  lait-action: "#12202F"
+  lait-action-hover: "#1B2C40"
+  lait-action-active: "#0B1520"
+  lait-on-action: "#EDF0F3"
+  lait-success: "#1F7A4D"
+  lait-success-bg: "rgba(31, 122, 77, 0.10)"
+  lait-warning: "#8A5E0E"
+  lait-warning-bg: "rgba(138, 94, 14, 0.10)"
+  lait-danger: "#B4443A"
+  lait-danger-bg: "rgba(180, 68, 58, 0.10)"
 typography:
-  display:
-    fontFamily: "Urbanist, system-ui, sans-serif"
-    fontSize: "clamp(2.25rem, 5vw, 3.75rem)"
-    fontWeight: 900
-    lineHeight: 1.05
-    letterSpacing: "normal"
-  headline:
-    fontFamily: "Urbanist, system-ui, sans-serif"
-    fontSize: "1.5rem"
-    fontWeight: 600
+  voice-display:
+    fontFamily: "Spectral, Georgia, serif"
+    fontSize: "clamp(2.4rem, 4.5vw, 3.625rem)"
+    fontWeight: 300
+    lineHeight: 1.04
+    letterSpacing: "-0.01em"
+  voice-page:
+    fontFamily: "Spectral, Georgia, serif"
+    fontSize: "1.875rem"
+    fontWeight: 400
+    lineHeight: 1.15
+  voice-doc-title:
+    fontFamily: "Spectral, Georgia, serif"
+    fontSize: "1.625rem"
+    fontWeight: 400
     lineHeight: 1.2
-  title:
-    fontFamily: "Urbanist, system-ui, sans-serif"
-    fontSize: "1.125rem"
-    fontWeight: 600
-    lineHeight: 1.2
-  body:
-    fontFamily: "Urbanist, system-ui, sans-serif"
-    fontSize: "0.875rem"
+  voice-doc-body:
+    fontFamily: "Spectral, Georgia, serif"
+    fontSize: "1.0625rem"
+    fontWeight: 400
+    lineHeight: 1.6
+    maxWidth: "68ch"
+  ui-section:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 500
+    lineHeight: 1.3
+  ui-title:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 500
+    lineHeight: 1.3
+  ui-body:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "0.9375rem"
     fontWeight: 400
     lineHeight: 1.5
-  label:
-    fontFamily: "Geist Mono, monospace"
-    fontSize: "0.75rem"
+  ui-control:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "0.875rem"
     fontWeight: 500
-    letterSpacing: "0.08em"
-  caption:
-    fontFamily: "Urbanist, system-ui, sans-serif"
+    lineHeight: 1
+  ui-meta:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 400
+    lineHeight: 1.45
+  ui-caption:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
     fontSize: "0.75rem"
-    fontWeight: 600
-    letterSpacing: "0.025em"
+    fontWeight: 400
+    lineHeight: 1.4
+  machine:
+    fontFamily: "IBM Plex Mono, ui-monospace, monospace"
+    fontSize: "0.8125rem"
+    fontWeight: 400
+    lineHeight: 1.6
 rounded:
   sm: "0.375rem"
-  md: "0.5rem"
-  lg: "0.625rem"
-  xl: "0.875rem"
+  md: "0.625rem"
+  lg: "0.875rem"
+  pane: "1.375rem"
   full: "9999px"
+motion:
+  fast: "160ms cubic-bezier(0.2, 0, 0, 1)"
+  enter: "220ms cubic-bezier(0.2, 0, 0, 1)"
 components:
   button-primary:
-    backgroundColor: "{colors.primary-text}"
-    textColor: "{colors.background-black}"
+    backgroundColor: "{colors.encre-action}"
+    textColor: "{colors.encre-on-action}"
     rounded: "{rounded.md}"
     height: "2.25rem"
     padding: "0 1rem"
-  button-primary-hover:
-    backgroundColor: "{colors.pure-white}"
-    textColor: "{colors.background-black}"
+    hover: "{colors.encre-action-hover} + {colors.encre-bloom}"
   button-secondary:
-    backgroundColor: "{colors.soft-surface}"
-    textColor: "{colors.primary-text}"
+    backgroundColor: "{colors.encre-surface-2}"
+    textColor: "{colors.encre-text}"
+    border: "1px {colors.encre-hairline}"
     rounded: "{rounded.md}"
     height: "2.25rem"
     padding: "0 1rem"
+  button-ghost:
+    backgroundColor: "transparent"
+    textColor: "{colors.encre-text-2}"
+    hover: "{colors.encre-surface-1} + {colors.encre-text}"
   card:
-    backgroundColor: "{colors.elevated-surface}"
-    textColor: "{colors.primary-text}"
-    rounded: "{rounded.xl}"
-    padding: "1.5rem"
+    backgroundColor: "{colors.encre-surface-1}"
+    border: "1px {colors.encre-hairline}"
+    rounded: "{rounded.lg}"
+    padding: "1.25rem 1.5rem"
+    shadow: "none"
   input:
-    backgroundColor: "{colors.elevated-surface}"
-    textColor: "{colors.primary-text}"
+    backgroundColor: "{colors.encre-surface-1}"
+    textColor: "{colors.encre-text}"
+    border: "1px {colors.encre-hairline-strong}"
     rounded: "{rounded.md}"
     height: "2.25rem"
-    padding: "0.25rem 0.75rem"
+    padding: "0 0.75rem"
+  pane:
+    backgroundColor: "{colors.encre-pane}"
+    border: "1px {colors.encre-pane-line}"
+    shadow: "inset 0 1px 0 {colors.encre-pane-highlight}"
+    rounded: "{rounded.pane}"
+    backdropFilter: "blur(22px) saturate(1.1)"
 ---
 
-# Design System: Diaphane
+# Diaphane — système visuel
 
-## Overview
+## 1. L'idée
 
-**Creative North Star: "Optical memory"**
+Diaphane se place entre la tech et le client. Le système visuel est cette phrase, littéralement.
 
-A contemporary, premium, editorial brand — with the faint memory of a very good screen. The CRT reference is a **texture, not a theme**: what it contributes is a slightly cold white, real depth in the blacks, and a barely-there optical diffusion around the few elements allowed to emit. Nothing on the page should be identifiable as "a CRT effect"; the viewer should *sense* a particular texture, never name a filter.
+- **Encre** — le côté dev. L'espace de travail, là où l'on branche les sources, rédige et décide ce qui est publié. Sombre, bleu-nuit, avec la tech visible derrière en faible contraste.
+- **Lait** — le côté client. Les documents publiés, en lecture seule. Clair, blanc froid, dépoli, lisible par quelqu'un qui n'a jamais ouvert un terminal.
+- **La paroi** — le passage de l'un à l'autre. Une surface de verre dépoli : derrière, la source ; devant, ce qui est lisible. Elle apparaît sur la landing, dans les couches flottantes de l'app (dialogues, panneaux), et dans le pattern « source derrière, traduction devant » de l'éditeur.
 
-**The fundamental rule: BRAND DESIGN FIRST, optical effects second.** Roughly 90% contemporary editorial design, 10% optical memory. Every composition must be strong with all effects disabled — if removing an effect weakens the design, the design leaned on the effect.
+Le client ne voit jamais l'encre. Le dev voit les deux : son espace est sombre, et le document du client y apparaît comme une carte claire, la seule surface Lait dans l'Encre. C'est la porte.
 
-Register: contemporary, editorial, precise, quiet, optical, luminous, technical, institutional, sophisticated, minimal. Explicitly **not**: retro, cyber, terminal, arcade, sci-fi UI, neon, glitch.
+**Ce que ce système remplace.** Le fond noir neutre (#0A0A0B) devient une encre bleue. Le blanc froid devient un blanc chaud (#F4EFE4). Il n'y a plus d'accent de teinte : la seule chaleur est la lumière derrière le verre. Urbanist et Geist Mono sont remplacés par Spectral, IBM Plex Sans et IBM Plex Mono. Les effets « optical memory » (rayons, iris, grain, halo, glow-medium/strong) disparaissent ; ce qui en survit est la discipline : mat par défaut, lumière localisée, et le test de suppression (retire l'effet, la composition doit tenir).
 
-**Key Characteristics:**
-- Single dark theme. The ground is `#080A0B` with felt-not-seen depth (an unnameable cold diffusion, a soft vignette, grain at ~1.5%). No scanlines, no screen frame, no device that makes the viewport read as a physical screen.
-- The brand language is **BLACK + WHITE + LIGHT**, not black + blue. Blue is (almost) never a text color or a fill; it lives inside the light around white — the glow tokens — and nowhere else.
-- **Matte by default.** 5–10% of elements may seem to emit slightly; that rarity is the sophistication.
-- Hierarchy comes from size, weight, rhythm, composition, and contrast — never from effects. No outline type, no tracked-out titles.
-- Urbanist for everything read; Geist Mono, sparingly, for small editorial-scientific labels.
+## 2. Les quatre règles
 
-## Colors
+1. **Pas d'accent de teinte.** Aucune couleur de marque en texte ou en fond. L'action primaire est le blanc chaud sur encre, l'encre sur lait. Les couleurs de statut (succès, attention, erreur) sont fonctionnelles, jamais décoratives, jamais sur un élément actionnable. L'information est neutre : le bleu est déjà le sol, il ne peut pas être un signal.
+2. **Le verre est rare.** Un seul `backdrop-filter` par écran, réservé aux couches flottantes (dialogue, panneau latéral, palette de commandes). Les cartes, listes et champs sont des surfaces plates.
+3. **Spectral n'est que la voix.** Le titre d'une page, le titre et le corps d'un document : ce qu'on lit, jamais ce qu'on manipule. Boutons, champs, labels, tableaux, badges : Plex Sans. Le poids 300 n'existe qu'au-dessus de 40 px.
+4. **Le client ne voit jamais la machine.** Aucun monospace, aucun hash, aucun chemin de fichier, aucun pourcentage de commits dans Lait. La provenance y est une phrase en Plex Sans (« Mis à jour à partir de 14 changements cette semaine »).
 
-### The Palette (2026-08-31 — Optical memory)
+## 3. Couleurs
 
-Confirmed binding at the product-truth level (`docs/PRODUCT.md` § Brand Commitments).
+### Encre
 
-| Name | Value | Role |
+| Token | Valeur | Rôle | Contraste sur ground |
+|---|---|---|---|
+| `encre-ground` | #0E1A2F | Le sol de l'espace de travail | — |
+| `encre-surface-1` | #182337 | Cartes, lignes de liste au survol, champs | — |
+| `encre-surface-2` | #212C40 | Popovers, toasts, boutons secondaires, survol des cartes | — |
+| `encre-surface-3` | #2B3548 | Sélection active, tooltips | — |
+| `encre-hairline` | white 10 % | Séparateurs, bordures de cartes | — |
+| `encre-hairline-strong` | white 16 % | Bordures de champs, cartes au survol | — |
+| `encre-text` | #F4EFE4 | Titres, corps, texte des contrôles | ≈15:1 |
+| `encre-text-2` | #B9C1D0 | Texte secondaire, descriptions, liens de nav | ≈9.6:1 |
+| `encre-text-3` | #8C97AB | Métadonnées, dates, pourcentages, placeholders | ≈5.9:1 |
+| `encre-machine` | #7C8AA3 | Monospace lisible : provenance, refs de commits, chemins | ≈5:1 |
+| `encre-machine-dim` | #2B3D5B | Monospace décoratif (la couche code de la landing), `aria-hidden` uniquement | ≈1.6:1, jamais pour de l'information |
+| `encre-pane` / `-line` / `-highlight` | white 5.5 % / 16 % / 18 % | La paroi : couches flottantes uniquement | — |
+| `encre-overlay` | ground 62 % | Voile sous un dialogue | — |
+| `encre-light` | rgba(255,226,196,.17) | La source de lumière : un dégradé radial, au plus un par écran | — |
+| `encre-bloom` | 0 0 24px rgba(255,226,196,.12) | Le seul glow : survol du bouton primaire | — |
+| `encre-ring` | text 60 % | Anneau de focus, 2 px, offset 2 px | — |
+
+Surfaces : les valeurs hexa sont l'encre mélangée à 4 / 8 / 12 % de blanc. Les utiliser en solide (pas en alpha) pour les cartes et champs, afin que le texte dessus reste prévisible.
+
+### Lait
+
+| Token | Valeur | Rôle | Contraste sur ground |
+|---|---|---|---|
+| `lait-ground` | #EDF0F3 | Le sol de la lecture client. Blanc **froid** : du verre, pas du papier | — |
+| `lait-surface-1` | #F5F7F9 | Encarts, blocs cités | — |
+| `lait-surface-2` | #FFFFFF | Cartes, champs (rares côté client) | — |
+| `lait-hairline` / `-strong` | ink 8 % / 14 % | Séparateurs / bordures | — |
+| `lait-text` | #12202F | Titres et corps de document | ≈14:1 |
+| `lait-text-2` | #45526A | Texte secondaire | ≈6.9:1 |
+| `lait-text-3` | #5F6D7C | Métadonnées uniquement, jamais en corps | ≈4.6:1 |
+| `lait-pane` / `-line` / `-shadow` | white 64 % / 95 % / ombre froide diffuse | La paroi côté clair (en-tête flottant, aperçu) | — |
+| `lait-action` / `-on-action` | #12202F / #EDF0F3 | Le rare bouton côté client (télécharger, imprimer) | — |
+| `lait-ring` | ink 45 % | Focus | — |
+
+### Statuts
+
+Même sémantique dans les deux matières, valeurs différentes pour tenir le contraste. Texte + fond alpha, jamais de bordure colorée, jamais sur un bouton.
+
+| Statut | Encre | Lait | Usage |
+|---|---|---|---|
+| Succès | #8BD4A5 sur 12 % | #1F7A4D sur 10 % | Publié, connecté, terminé |
+| Attention | #F0B35A sur 12 % | #8A5E0E sur 10 % | Source désynchronisée, brouillon non publié depuis longtemps |
+| Erreur | #F07A6B sur 12 % | #B4443A sur 10 % | Échec de connexion, action destructive |
+| En attente / neutre | `text-3` sur `surface-2` | `text-3` sur `surface-1` | Branchement non configuré, « à commencer » |
+
+Le pill « En cours » actuel devient un statut neutre. La barre de progression n'a pas de couleur : piste `hairline`, remplissage `text`.
+
+### Ce qui n'existe plus
+
+`optical-light`, `optical-mid`, `cold-halo`, la trio iris, `gradient-from/via/to`, le grain, la vignette, `glow-medium`, `glow-strong`, `surface-client` (devenu `lait-ground`). Le focus doré des champs disparaît avec eux.
+
+## 4. Typographie
+
+Trois voix, trois familles, chargées via `next/font/google` et exposées en `--font-voice`, `--font-ui`, `--font-machine`.
+
+| Rôle | Famille | Où |
 |---|---|---|
-| **Background Black** | `#080A0B` | The page ground |
-| **Elevated Surface** | `#0E1113` | Cards, popovers |
-| **Soft Surface** | `#14181A` | Secondary controls, hover surfaces |
-| **Recessed Black** | `#0B0D0F` | Recessed strips, quiet badge grounds |
-| **Primary Text** | `#F1F5F6` | Text and the interactive voice — a slightly cold white |
-| **Secondary Text** | `#949DA1` | Metadata, supporting copy (≈7:1 on the ground) |
-| **Pure White** | `#FFFFFF` | The brightest step: one emphasized run in a headline, primary-button hover |
-| **Optical Light** | `#C8EBFD` | **The signature light** — sampled from the brand moodboard's film-credit frame (letter core `#C8EBFD`, halo falloff toward `#577DB8`): emphasized words in headlines, focus rings, the light family. Never long runs of copy, never a fill |
-| **Cold Halo** | `rgba(150,215,245,0.18)` | Exists only inside the glow tokens |
-| **Subtle Border** | `rgba(220,240,248,0.10)` | Hairlines; hover may raise them *slightly* |
-| **Input Border** | `rgba(220,240,248,0.16)` | Form-field strokes |
+| **Voix** | Spectral 300 / 400 / 400 italique | Ce qu'on lit : display de la landing, titres de page, titres et corps de documents |
+| **Interface** | IBM Plex Sans 400 / 500 | Tout ce qu'on manipule : nav, boutons, champs, labels, cartes, badges, tableaux |
+| **Machine** | IBM Plex Mono 400 | La source : commits, chemins, identifiants. Espace de travail uniquement |
 
-### The Glow Scale
+### Échelle
 
-Deliberately small, defined once (`--glow-subtle/medium/strong`), consumed via `glow-*` / `text-glow-*` utilities:
+| Style | Famille / poids | Taille / interligne | Usage |
+|---|---|---|---|
+| `voice-display` | Spectral 300 | clamp 38–58 px / 1.04 | Landing uniquement |
+| `voice-page` | Spectral 400 | 30 / 1.15 | Titre de page dans l'app (« Vos projets », nom du projet) |
+| `voice-doc-title` | Spectral 400 | 26 / 1.2 | Titre d'un document, éditeur et vue client |
+| `voice-doc-body` | Spectral 400 | 17 / 1.6, mesure 68ch | Corps d'un document, éditeur et vue client |
+| `ui-section` | Plex Sans 500 | 17 / 1.3 | Titres de section (« Branchements », « Équipe ») |
+| `ui-title` | Plex Sans 500 | 16 / 1.3 | Titres de carte et de ligne |
+| `ui-body` | Plex Sans 400 | 15 / 1.5 | Texte courant de l'interface |
+| `ui-control` | Plex Sans 500 | 14 / 1 | Boutons, onglets ; champs en 400 |
+| `ui-meta` | Plex Sans 400 | 13 / 1.45 | Dates, compteurs, aide de champ |
+| `ui-caption` | Plex Sans 400 | 12 / 1.4 | Taille minimale, rare |
+| `machine` | Plex Mono 400 | 13 / 1.6 | Provenance, refs |
 
-- **`glow-subtle`** — the house order of magnitude: `0 0 1px rgba(255,255,255,.35), 0 0 12px rgba(170,220,245,.08)`. The hero headline, the wordmark's diffusion, a hover bloom.
-- **`glow-medium`** — a slightly fuller hover bloom. Never permanent.
-- **`glow-strong`** — the single sanctioned highlight moment of a page.
+### Interdits typographiques
 
-### Named Rules
+Pas de capitales en label (« BRANCHEMENTS » devient « Branchements » en `ui-section`). Pas d'interlettrage positif. Pas de graisse au-delà de 500 en Plex ni de 400 en Spectral dans l'app. Pas de monospace pour un label d'interface : le mono est réservé à ce qui est effectivement de la machine.
 
-**The Localized-Light Rule.** Optical effects are never global. Sanctioned placements: a slight diffusion around the logo; a faint halo on a *selected* element; a hover bloom; a diffuse light behind one section; an optical texture inside an illustration or media panel. Never: page-wide overlays that read as a device, permanent halos on containers, glow on body text.
+## 5. Formes, élévation, lumière, mouvement
 
-**The Effect-Removal Test.** For every effect: remove it — the design must still be strong. If not, redesign the composition, don't strengthen the effect.
+**Rayons.** `sm` 6 px pour badges et tooltips, `md` 10 px pour contrôles et champs, `lg` 14 px pour cartes et toasts, `pane` 22 px pour la paroi. `full` uniquement pour les avatars et les points de statut.
 
-**The No Second Accent Rule.** No hue accent at all — neither warm nor blue. Status colors (Success `#16a34a`, Destructive) are functional semantics only.
+**Élévation.** Par paliers de surface (ground → 1 → 2 → 3) et par hairline, jamais par ombre dans Encre. Une carte cliquable au survol : `surface-2` et `hairline-strong`, rien d'autre. Dans Lait, l'ombre existe une seule fois, sous la paroi (`lait-pane-shadow`).
 
-### Background
+**La paroi.** `encre-pane` + `encre-pane-line` + reflet `inset 0 1px 0 encre-pane-highlight` + `backdrop-filter: blur(22px) saturate(1.1)` (préfixe `-webkit-` inclus) + rayon `pane`. Autorisée sur : dialogue, panneau latéral, palette de commandes, et le hero de la landing. Une par écran. Interdite sur cartes, nav, champs, toasts.
 
-Never flat `#000`, never a nameable gradient: barely-stepped wash stops, a cold diffusion ≤3% mix, a soft vignette, static grain at ~1.5%. Depth you feel, not see.
+**La lumière.** Au plus une source par écran, toujours *derrière* un objet et jamais globale : derrière le hero de la landing ; dans l'app, derrière la porte (la carte du document client) ou derrière un état vide. Un dégradé radial en `encre-light`, statique. Aucune animation de lumière, aucune dépendance (`SideRays` / `ogl` sont retirés). Le seul glow est `encre-bloom` au survol du bouton primaire, jamais permanent.
 
-### Iridescent Glass (Signature Card only)
+**Le test de suppression.** Pour chaque effet : retire-le, la composition doit tenir. Sinon, on refait la composition, pas l'effet.
 
-The cold near-monochrome iris trio (chroma ≤0.05, 220–240°), blurred behind the Signature Card's frosted panel only. Not a general pattern.
+**Mouvement.** `fast` 160 ms pour survol, focus, changement d'état. `enter` 220 ms pour l'apparition d'un dialogue (opacité + translation 8 px). `prefers-reduced-motion` respecté partout. Pas de respiration, pas de pulsation, pas de rotation continue : le point de statut est fixe.
 
-*Revision note (2026-08-31):* supersedes the literal "phosphor/CRT" pass of 2026-08-30, which read as a theme — screen frame around the viewport, visible scanlines, outline hero type, framed sci-fi CTAs, tracked-out labels. All of it removed. What survives: the dark ground with optical depth, the cold-white voice, the glow vocabulary (an order of magnitude smaller), the mono label register (tracking cut to 0.08em), and the matte-by-default discipline. **Known remnant:** the logo assets still carry the old periwinkle mark baked into the image.
+## 6. Composants
 
-## Typography
+Le stack est shadcn sur Tailwind ; les composants ci-dessous sont des surcharges des primitives shadcn, pas de nouveaux composants. Mapping des variables en § 9.
 
-**Display/Body Font:** Urbanist — contemporary, full letterforms, hierarchy by size and weight (900 display / 600 titles / 400 body). No outline treatment, no futurist styling, no exaggerated tracking on titles.
-**Label Font:** Geist Mono — small editorial-scientific labels (eyebrows), `0.08em` tracking at most, muted color, used sparingly. It should evoke a nomenclature, not a terminal.
+### Bouton
 
-### Hierarchy
+| Variante | Repos | Survol | Actif | Focus | Désactivé |
+|---|---|---|---|---|---|
+| Primaire | `action` / `on-action` | `action-hover` + `bloom` | `action-active` | `ring` 2 px offset 2 px | opacité 38 %, pas de bloom |
+| Secondaire | `surface-2`, bordure `hairline`, `text` | `surface-3`, `hairline-strong` | `surface-3` | idem | idem |
+| Fantôme | transparent, `text-2` | `surface-1`, `text` | `surface-2` | idem | idem |
+| Destructif | transparent, bordure `hairline`, `danger` | `danger-bg` | `danger-bg` | idem | idem |
 
-- **Display** (900, `clamp`, 1.05): the landing hero only. Sharp letters, no text-shadow: the hero's light is the scene light behind the title (Hero Rays), never a glow on the glyphs (halo removed 2026-09-04).
-- **Headline** (600, 1.5rem) / **Title** (600, 1.125rem) / **Body** (400, 0.875–1rem, 1.5).
-- **Label** (Geist Mono 500, 0.75rem, 0.08em, uppercase): eyebrows — labels, never headings.
+Tailles : `sm` 32 px, `md` 36 px, `lg` 44 px (landing). Rayon `md`. Police `ui-control`. Chargement : spinner dans la couleur du texte, libellé conservé. Une seule action primaire par vue.
 
-### Named Rules
+### Champ
 
-**The Emphasis-By-Light Rule (2026-08-31).** An emphasized run inside a headline is **Optical Light `#C8EBFD`** against `#F1F5F6` — the signature light appearing as text, the one place the hue is allowed to carry words. Full letterforms, no outline, no added halo; reserved for the few words where the sentence turns.
+`surface-1`, bordure `hairline-strong`, rayon `md`, hauteur 36 px, texte `ui-body` 15 px en `text`, placeholder `text-3`. Focus : bordure → `text-2`, `ring` 2 px. Erreur : bordure `danger`, message `ui-meta` en `danger` sous le champ. Aide : `ui-meta` en `text-3`. Label : `ui-meta` 500 en `text-2`, jamais en capitales.
 
-**The Eyebrow Rule.** Any uppercase label is a *label*, never a heading — and its tracking stays ≤0.08em.
+### Carte
 
-## Layout
+`surface-1`, bordure `hairline`, rayon `lg`, padding 20 / 24 px, aucune ombre, jamais de verre. Cliquable : `surface-2` + `hairline-strong` au survol, `ring` au focus, l'ensemble de la carte est le lien. Titre `ui-title`, métadonnées `ui-meta` en `text-3`. L'icône dans un carré `surface-2` de 40 px disparaît : une carte de projet n'a pas besoin d'un pictogramme de dossier pour dire qu'elle est un projet.
 
-Generous negative space — the hero especially: a very strong headline in a controlled measure, a discreet subhead, one simple CTA, and nothing gratuitous. Tailwind default spacing; responsive card grids (1 → 2 → 3); marketing copy at `max-w-3xl` / `max-w-xl`; container padding `px-4` → `px-6`.
+### Dialogue et panneau latéral (la paroi)
 
-## Elevation & Depth
+Voile `encre-overlay`. Contenu en `pane` (voir § 5), largeur 480 px (dialogue) ou 420 px (panneau), padding 28 / 32 px. Titre `ui-section`, corps `ui-body`, actions à droite, secondaire à gauche de la primaire. Entrée `enter`, sortie `fast`. Focus piégé, `Esc` ferme, le focus revient à l'élément déclencheur.
 
-Flat by default. Elevation is the Background → Elevated → Soft surface steps plus the Subtle Border hairline; `shadow-sm` at rest on cards and inputs. Hover on clickable cards: the border rises slightly — no halos around containers.
+### Badge de statut
 
-## Shapes
+`ui-meta` 500, padding 2 / 8 px, rayon `sm`, texte + fond alpha selon § 3, pas de bordure. Un point de 6 px devant le libellé, fixe.
 
-Base radius `0.625rem`, stepped `0.375/0.5rem` for controls, `0.875rem` for large containers — moderate everywhere. `rounded-full` only for genuinely circular elements.
+### Barre de progression
 
-## Components
+Hauteur 2 px, piste `hairline`, remplissage `text`, rayon `full`. Pourcentage en `ui-meta` `text-3` aligné à droite, sur la même ligne que le libellé, pas en dessous.
 
-### Buttons
+### Ligne de liste
 
-- **Primary:** Primary Text fill (`#F1F5F6`), Background Black text (≈17:1), `rounded-md`. Hover: Pure White + a *tiny* bloom (`glow-subtle`) — the bloom is never permanent. No gradients, no heavy shadows.
-- **Secondary:** Soft Surface fill, Primary Text. **Outline variant:** transparent, `1px` border at `rgba(241,245,246,.35)`, Primary Text.
-- **Focus:** 3px `ring/50` in Optical Light.
-
-### Cards
-
-`rounded-xl`, Elevated Surface, Subtle Border, `shadow-sm`. Hover on clickable cards: border slightly more visible. No colored cards, no glowing borders.
-
-#### Signature Card (scoped exception)
-
-The one or two surfaces carrying the product's core differentiation (today: the Current Task card): iris trio behind the frosted panel, rotating progress ring, pulsing Success dot.
-
-### Inputs / Fields
-
-Elevated Surface fill, Input Border stroke, `rounded-md`. Focus: border toward Optical Light + ring.
+Padding 16 px vertical, séparateur `hairline` plein (les pointillés disparaissent). Titre `ui-title`, description `ui-body` en `text-2` avec une icône 16 px en `text-3` devant, action ou statut aligné à droite et centré verticalement. Survol si cliquable : `surface-1` débordant de 12 px.
 
 ### Navigation
 
-Transparent top nav. The wordmark is plain readable text in Primary Text with the *slightest* diffusion (`text-glow-subtle`) — one of the page's few permanent optical details. **Known mismatch:** the emblem PNG still carries the old periwinkle mark.
+Transparente sur `ground`, hairline en bas, hauteur 56 px. Emblème 22 px en `text` (SVG inline ou masque CSS, pour éliminer le pervenche résiduel du PNG) + « Diaphane » `ui-title`. À droite : avatar 28 px `full` + nom `ui-body` en `text-2`. Aucune diffusion sur le wordmark.
 
-### Hero Rays (scoped, landing only)
+### Toast, tooltip, onglets
 
-The diffuse light behind the hero: `SideRays` (vendored from the React Bits registry, dep `ogl`; wrapped by `features/landing/components/hero-rays.tsx`), cold-white tones, slow, low opacity, masked out by mid-page — an atmosphere, not a beam show. Hidden under `prefers-reduced-motion` and below `sm`. No second animated background.
+Toast : `surface-2`, bordure `hairline-strong`, rayon `lg`, jamais de verre. Tooltip : `surface-3`, `text`, rayon `sm`, `ui-caption`. Onglets : texte `ui-control`, actif `text` avec soulignement 1 px `text`, inactif `text-2`.
 
-## Animation
+### État vide
 
-Slow and near-imperceptible: progressive reveals, hover transitions ≥200ms, at most one slow luminous breathing per page. Honors `prefers-reduced-motion`; the page is complete without any of it.
+Titre `ui-title`, phrase `ui-body` en `text-2`, action primaire. C'est l'un des deux endroits où une source de lumière est permise derrière.
 
-## Do's and Don'ts
+## 7. Les deux patterns signature
 
-### Do:
-- **Do** design matte-first: compositions that stand with every effect off, then at most 2–3 subtle optical details per viewport.
-- **Do** keep hierarchy in size, weight, rhythm and composition; emphasis by a luminosity or weight step in full letterforms.
-- **Do** keep blue inside the light — halos and focus — never as text or fills.
-- **Do** keep borders as quiet hairlines that rise only slightly on hover.
-- **Do** keep mono labels sparse, lightly tracked (≤0.08em), editorial.
+### La porte
 
-### Don't:
-- **Don't** reintroduce any screen-identifiable device: no scanlines, no viewport frame, no terminal grids, no glitch, no neon.
-- **Don't** use outline type, tracked-out titles, or framed glowing CTAs.
-- **Don't** make any glow permanent on a container, or put one on body text.
-- **Don't** use nameable gradients — depth, not decor.
-- **Don't** apply the Signature Card treatment to ordinary cards, or use Success for anything actionable.
-- **Don't** reach for `brand-logo.png` (full lockup) — emblem plus CSS text label.
+La carte du document client, dans l'espace de travail. Elle est la seule surface Lait dans l'Encre : fond `lait-ground`, texte `lait-text`, rayon `lg`, aucune bordure, aucune ombre ; le contraste avec le sol suffit. Contenu : titre du document en `voice-doc-title`, deux lignes d'extrait en `voice-doc-body` 15 px, une ligne de métadonnées en `ui-meta` `lait-text-3` (« Publié le 2 septembre » ou « Aucun document, à commencer »), et l'action « Voir comme le client » en `lait-action`. La lumière de l'écran, s'il y en a une, est derrière cette carte. Elle remplace la carte « Documentation client » actuelle et la « Signature Card » à iris.
+
+### Source derrière, traduction devant
+
+Le bloc de l'éditeur. À gauche, le contenu rédigé en `voice-doc-body`. À droite, une colonne de provenance de 240 px en `machine` `encre-machine` : les commits, pages Notion ou cartes de board dont ce bloc est issu, chacun sur une ligne, hash ou identifiant en tête. Au repos, la colonne est présente mais discrète ; au survol ou au focus du bloc, ses textes passent en `text-2` et une hairline relie le bloc à ses sources. En dessous de 900 px, la colonne passe sous le bloc, repliée, avec un compteur (« 3 sources »). À la publication, la colonne disparaît : dans Lait, elle devient une phrase en Plex Sans.
+
+C'est la landing devenue fonctionnalité : la tech derrière, en faible contraste ; ce qui se lit, devant.
+
+## 8. Les deux coquilles
+
+### Espace de travail (Encre)
+
+Nav § 6. Contenu en 1120 px max, padding 24 px (48 px ≥ 1024 px). En-tête de page : fil d'Ariane en `ui-meta` `text-3` (« ← Vos projets »), titre `voice-page`, action primaire alignée à droite sur la ligne du titre. Sections séparées par une hairline et 40 px, titre `ui-section`. Grille de cartes 1 → 2 → 3 colonnes, gap 20 px.
+
+### Lecture client (Lait)
+
+Pas de nav applicative. En-tête : nom du projet `ui-title`, « Documents publiés par {prénom} » `ui-meta` `lait-text-3`, à droite « Mis à jour le … ». Sommaire optionnel à gauche en `ui-meta`, colonne de lecture 68ch centrée, titres `voice-doc-title`, corps `voice-doc-body`, encarts en `surface-1`. Pied de page « Publié avec Diaphane » en `ui-caption`. Aucun monospace, aucun bouton hormis télécharger / imprimer.
+
+## 9. Migration
+
+### Correspondance des tokens
+
+| Ancien | Nouveau |
+|---|---|
+| `background-black` | `encre-ground` |
+| `elevated-surface` | `encre-surface-1` |
+| `soft-surface` | `encre-surface-2` |
+| `recessed-black` | `encre-surface-1` (le palier « recessed » disparaît) |
+| `primary-text` / `secondary-text` / `faint-text` | `encre-text` / `encre-text-2` / `encre-text-3` |
+| `pure-white` | `encre-action-hover` |
+| `optical-light`, `optical-mid`, `cold-halo` | supprimés ; lumière → `encre-light`, focus → `encre-ring` |
+| `glass`, `glass-border` | `encre-pane`, `encre-pane-line` (couches flottantes uniquement) |
+| `surface-client` | `lait-ground` |
+| `subtle-border` / `input-border` | `encre-hairline` / `encre-hairline-strong` |
+| `destructive` / `success` | `encre-danger` / `encre-success` |
+| `iris-*`, `gradient-*` | supprimés |
+
+### Variables shadcn (mode Encre)
+
+`--background` encre-ground · `--foreground` encre-text · `--card` encre-surface-1 · `--card-foreground` encre-text · `--popover` encre-surface-2 · `--muted` encre-surface-1 · `--muted-foreground` encre-text-3 · `--border` encre-hairline · `--input` encre-hairline-strong · `--ring` encre-ring · `--primary` encre-action · `--primary-foreground` encre-on-action · `--secondary` encre-surface-2 · `--secondary-foreground` encre-text · `--accent` encre-surface-2 · `--accent-foreground` encre-text · `--destructive` encre-danger · `--radius` 0.625rem.
+
+Le mode Lait est un `data-theme="lait"` posé sur la route client, avec les mêmes variables remappées sur les tokens `lait-*`.
+
+### Polices
+
+`next/font/google` : Spectral (300, 400, italique 400) → `--font-voice` ; IBM Plex Sans (400, 500) → `--font-ui` ; IBM Plex Mono (400) → `--font-machine`. Urbanist et Geist Mono sont retirés, ainsi que leurs références Tailwind.
+
+### À supprimer
+
+Urbanist, Geist Mono, les tokens optiques et la trio iris, `SideRays` / `hero-rays.tsx` et la dépendance `ogl`, le grain et la vignette, les utilitaires `glow-*` sauf `bloom`, la barre de nav en verre, les eyebrows mono en capitales, les séparateurs pointillés, les icônes en carré dans les cartes, le focus doré, `brand-logo.png` (remplacé par l'emblème SVG).
+
+### Ordre
+
+1. Tokens, variables shadcn, polices, mode `lait`. Rien d'autre ne change encore.
+2. Surcharges des primitives : bouton, champ, carte, dialogue, badge, progression, ligne de liste, nav.
+3. Coquilles : espace de travail, lecture client.
+4. Écrans, dans cet ordre : liste des projets, projet, dialogue nouveau projet, éditeur (avec le pattern source / traduction), vue client, puis les sections de la landing sous le hero.
+
+## 10. Faire / Ne pas faire
+
+| Faire | Ne pas faire |
+|---|---|
+| Une seule action primaire par vue, en blanc chaud | Un accent de teinte, sur quoi que ce soit |
+| Le verre sur les couches flottantes, une fois par écran | Du verre sur une carte, une nav, un champ, un toast |
+| Spectral pour les titres de page et les documents | Spectral dans un bouton, un label, un tableau |
+| Le mono pour la provenance, dans l'espace de travail | Du mono côté client, ou comme label d'interface |
+| Une lumière derrière un objet, statique | Une lumière globale, animée, ou sur du texte |
+| Des surfaces solides par paliers | Des ombres dans Encre, des dégradés nommables |
+| Des statuts en texte + fond alpha | Des statuts sur un bouton, ou en bordure colorée |
+| Le test de suppression avant tout effet | Renforcer un effet pour sauver une composition |

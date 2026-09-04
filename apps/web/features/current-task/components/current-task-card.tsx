@@ -40,7 +40,6 @@ import { useCurrentTask } from "../hooks";
 function LiveIndicator({ active }: { active: boolean }) {
   return (
     <div className="relative flex size-9 shrink-0 items-center justify-center" aria-hidden>
-      <span className="bg-glow/30 absolute inset-0 rounded-full blur-lg" />
       <span
         className={cn(
           "absolute inset-0 rounded-full",
@@ -193,9 +192,8 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
 function IridescentGlow() {
   return (
     <div className="pointer-events-none absolute inset-0" aria-hidden>
-      <span className="bg-iris-pink absolute -top-16 -left-16 size-72 rounded-full opacity-50 blur-3xl" />
-      <span className="bg-iris-blue absolute top-1/4 -right-16 size-72 rounded-full opacity-50 blur-3xl" />
-      <span className="bg-iris-yellow absolute -bottom-20 left-1/3 size-80 rounded-full opacity-40 blur-3xl" />
+      {/* Encre / Lait: the iris trio is gone. The container stays until the
+          card becomes "la porte" (DESIGN.md § 7, stage 4 of the migration). */}
     </div>
   );
 }

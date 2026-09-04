@@ -28,7 +28,7 @@ export function HowItWorksSection() {
               key={key}
               className="grid gap-2 border-b border-border py-7 last:border-b-0 sm:grid-cols-[6rem_1fr] sm:gap-6"
             >
-              <p className="font-mono text-xs font-semibold tracking-[0.08em] text-optical-light uppercase">
+              <p className="font-mono text-xs font-semibold tracking-[0.08em] text-fg-3 uppercase">
                 {t("stepLabel", { number: index + 1 })}
               </p>
               <div>

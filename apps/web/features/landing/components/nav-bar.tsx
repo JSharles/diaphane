@@ -34,7 +34,7 @@ export function NavBar() {
           />
           {/* Slightly phosphorescent: plain readable text first, the halo is
              decoration on top (DESIGN.md Navigation). */}
-          <span className="text-glow-subtle text-xl font-black tracking-tight text-primary">
+          <span className="text-xl font-black tracking-tight text-primary">
             Diaphane
           </span>
         </Link>
@@ -72,7 +72,7 @@ export function NavBar() {
           </Link>
           <Link
             href="/signup"
-            className="hidden rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-white hover:glow-subtle md:inline-flex"
+            className="hidden rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom md:inline-flex"
           >
             {t("signUp")}
           </Link>
@@ -134,7 +134,7 @@ export function NavBar() {
                 <SheetClose asChild>
                   <Link
                     href="/signup"
-                    className="rounded-md bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-white hover:glow-subtle"
+                    className="rounded-md bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom"
                   >
                     {t("signUp")}
                   </Link>

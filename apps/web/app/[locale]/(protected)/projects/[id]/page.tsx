@@ -137,7 +137,13 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         // the Meetings placeholder stay in a narrow sidebar (self-start:
         // it must not stretch to match whatever height the tabs column
         // ends up at).
-        <div className="grid min-h-0 grid-cols-1 gap-4 lg:grid-cols-3">
+        // Lait: the client reads on the light material (DESIGN.md § 1). The
+        // theme is scoped here for now; the client shell moves whole in
+        // stage 3 of the migration.
+        <div
+          data-theme="lait"
+          className="grid min-h-0 grid-cols-1 gap-4 rounded-lg bg-background p-4 text-foreground sm:p-6 lg:grid-cols-3"
+        >
           <div className="flex flex-col gap-4 lg:self-start">
             <TeamPanel projectId={id} isAdmin={project.isAdmin} />
             <MeetingCard projectId={id} />

@@ -63,7 +63,7 @@ export function ClientViewPreview() {
                 aria-current={open ? "true" : undefined}
                 className={
                   open
-                    ? "-mb-px border-b-2 border-optical-light pb-2 font-semibold text-foreground"
+                    ? "-mb-px border-b-2 border-foreground pb-2 font-semibold text-foreground"
                     : "pb-2 text-muted-foreground"
                 }
               >

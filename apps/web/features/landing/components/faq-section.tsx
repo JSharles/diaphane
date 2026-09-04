@@ -31,7 +31,7 @@ export function FaqSection() {
                 <details key={questionKey} className="group py-5">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold marker:content-none">
                     {t(questionKey)}
-                    <ChevronDown className="size-5 shrink-0 text-optical-light transition-transform group-open:rotate-180" />
+                    <ChevronDown className="size-5 shrink-0 text-fg-3 transition-transform group-open:rotate-180" />
                   </summary>
                   <p className="pt-3 text-sm leading-relaxed text-muted-foreground">
                     {t(answerKey)}

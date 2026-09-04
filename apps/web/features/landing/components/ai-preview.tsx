@@ -49,7 +49,7 @@ export function AiPreview() {
           <dl className="mt-5 grid gap-4 sm:grid-cols-2">
             {(["why", "impact", "state"] as const).map((key) => (
               <div key={key} className={key === "state" ? "sm:col-span-2" : undefined}>
-                <dt className={cn(LABEL, "text-optical-light")}>{t(`${key}Label`)}</dt>
+                <dt className={cn(LABEL, "text-fg-2")}>{t(`${key}Label`)}</dt>
                 <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(key)}</dd>
               </div>
             ))}

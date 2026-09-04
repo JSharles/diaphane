@@ -19,7 +19,7 @@ export function Hero() {
         {tHero("titleBefore")}
         {/* The signature light as emphasis: Optical Light on the words where
             the sentence turns — the one place the hue is allowed as text. */}
-        <span className="text-optical-light">{tHero("titleHighlight")}</span>
+        <span>{tHero("titleHighlight")}</span>
         {tHero("titleAfter")}
       </h1>
       <p className="mt-7 max-w-2xl text-lg leading-relaxed text-balance text-muted-foreground sm:text-xl">
@@ -28,7 +28,7 @@ export function Hero() {
 
       <Link
         href="/signup"
-        className="mt-9 rounded-md bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-white hover:glow-subtle focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="mt-9 rounded-md bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
       >
         {tHero("primaryCta")}
       </Link>
@@ -37,7 +37,7 @@ export function Hero() {
         {(["trustSources", "trustReadOnly", "trustPublishing"] as const).map(
           (key) => (
             <li key={key} className="flex items-center gap-2">
-              <Check className="size-4 text-optical-light" aria-hidden="true" />
+              <Check className="size-4 text-fg-3" aria-hidden="true" />
               {tHero(key)}
             </li>
           ),
