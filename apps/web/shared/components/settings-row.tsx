@@ -17,10 +17,10 @@ export function SettingsRow({
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-3 border-b border-border py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+    <div className="flex flex-col gap-3 border-b border-hairline py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div className="flex min-w-0 flex-col gap-0.5 text-sm">
-        <span className="font-medium text-foreground">{title}</span>
-        {description && <div className="text-muted-foreground">{description}</div>}
+        <span className="text-base font-medium text-foreground">{title}</span>
+        {description && <div className="text-[0.9375rem] text-fg-2">{description}</div>}
       </div>
       <div className="flex shrink-0 items-center gap-2">{children}</div>
     </div>

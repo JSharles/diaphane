@@ -46,11 +46,11 @@ export function SetupBlock({
   const Icon = feeds ? TONE_ICON[feeds.tone] : null;
 
   return (
-    <section className="flex flex-col gap-4 border-b border-border py-6 last:border-b-0">
+    <section className="flex flex-col gap-4 border-b border-hairline py-6 last:border-b-0">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="flex min-w-0 flex-col gap-0.5 text-sm">
-          <span className="font-medium text-foreground">{title}</span>
-          {description && <div className="text-muted-foreground">{description}</div>}
+          <span className="text-base font-medium text-foreground">{title}</span>
+          {description && <div className="text-[0.9375rem] text-fg-2">{description}</div>}
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">{children}</div>
       </div>
@@ -60,20 +60,21 @@ export function SetupBlock({
           className={cn(
             // Wraps under the control rather than pushing the block sideways,
             // which is what keeps this readable at 390px.
-            "flex flex-wrap items-center gap-2 border-t border-dashed border-border pt-3 text-xs",
-            feeds.tone === "live" ? "text-primary" : "text-muted-foreground",
+            // A solid hairline: the dotted separators are gone (DESIGN.md § 9).
+            "flex flex-wrap items-center gap-2 border-t border-hairline pt-3 text-[0.8125rem]",
+            feeds.tone === "live" ? "text-fg" : "text-fg-3",
           )}
         >
           <Icon className="size-3.5 shrink-0" aria-hidden />
           <span>{feeds.label}</span>
           <span
             className={cn(
-              // No font-size of its own: it inherits the paragraph's text-xs,
-              // which is the smallest step DESIGN.md documents (Caption).
-              "rounded-full border px-2 py-0.5 font-medium",
+              // The status badge register: text plus an alpha ground, no
+              // border. Live is a success, the rest is neutral.
+              "rounded-sm px-2 py-0.5 font-medium",
               feeds.tone === "live"
-                ? "border-primary/25 bg-primary/10 text-primary"
-                : "border-border bg-muted text-muted-foreground",
+                ? "bg-success-bg text-success"
+                : "bg-surface-2 text-fg-3",
             )}
           >
             {feeds.state}

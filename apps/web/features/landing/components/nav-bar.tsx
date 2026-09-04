@@ -1,7 +1,6 @@
 import { useTranslations } from "next-intl";
-import { GlassBar } from "@/features/landing/components/glass-bar";
+import { Emblem } from "@/shared/components/emblem";
 import { Menu } from "lucide-react";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import {
   Sheet,
@@ -17,26 +16,14 @@ export function NavBar() {
   const t = useTranslations("Landing");
 
   return (
-    // The bar is a glass surface (React Bits GlassSurface behind GlassBar,
-    // which owns the hydration-safe mount): a floating glass strip instead
-    // of plain transparency. The radius matches the xl token (14px).
-    <header className="sticky top-0 z-40 w-full px-3 pt-3">
-      <GlassBar>
-        <div className="flex w-full items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-3">
-          <Image
-            src="/images/logo-square.png"
-            alt=""
-            width={332}
-            height={332}
-            priority
-            className="size-10"
-          />
-          {/* Slightly phosphorescent: plain readable text first, the halo is
-             decoration on top (DESIGN.md Navigation). */}
-          <span className="text-xl font-black tracking-tight text-primary">
-            Diaphane
-          </span>
+    // DESIGN.md § 6 Navigation: the bar sits on the ground with a hairline
+    // below it, 56px, the emblem painted in the text colour. No glass: the
+    // pane is for floating layers, and the mobile menu is one.
+    <header className="sticky top-0 z-40 w-full border-b border-hairline bg-background">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <Link href="/" className="flex items-center gap-2 text-foreground">
+          <Emblem />
+          <span className="text-base font-medium">Diaphane</span>
         </Link>
 
         <nav className="hidden items-center gap-6 text-xs font-medium text-muted-foreground md:flex">
@@ -143,8 +130,7 @@ export function NavBar() {
             </SheetContent>
           </Sheet>
         </div>
-        </div>
-      </GlassBar>
+      </div>
     </header>
   );
 }

@@ -46,7 +46,7 @@ describe("SetupBlock", () => {
     );
 
     const line = screen.getByText("Alimente l'avancement").closest("p");
-    expect(line).toHaveClass("text-primary");
+    expect(line).toHaveClass("text-fg");
   });
 
   it("keeps a waiting line quiet", () => {
@@ -60,8 +60,8 @@ describe("SetupBlock", () => {
     );
 
     const line = screen.getByText("Alimente l'avancement").closest("p");
-    expect(line).not.toHaveClass("text-primary");
-    expect(line).toHaveClass("text-muted-foreground");
+    expect(line).not.toHaveClass("text-fg");
+    expect(line).toHaveClass("text-fg-3");
   });
 
   // FR-009: a source whose state cannot be read must render as unknown, never
@@ -82,7 +82,7 @@ describe("SetupBlock", () => {
 
     expect(screen.getByText("État inconnu")).toBeInTheDocument();
     const line = screen.getByText("Alimente ce que lit votre client").closest("p");
-    expect(line).not.toHaveClass("text-primary");
+    expect(line).not.toHaveClass("text-fg");
   });
 
   // The meeting link and the preferences block nothing, so they get no line at
