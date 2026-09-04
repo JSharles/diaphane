@@ -300,7 +300,7 @@ Pas de capitales en label (« BRANCHEMENTS » devient « Connexions » en `ui-se
 
 **La paroi.** `encre-pane` + `encre-pane-line` + reflet `inset 0 1px 0 encre-pane-highlight` + `backdrop-filter: blur(22px) saturate(1.1)` (préfixe `-webkit-` inclus) + rayon `pane` (16 px). Autorisée sur : dialogue, panneau latéral, palette de commandes, et le hero de la landing. Une par écran. Interdite sur cartes, nav, champs, toasts.
 
-**La lumière.** Au plus une source par écran, toujours *derrière* un objet et jamais globale : derrière le hero de la landing ; dans l'app, derrière la porte (la carte du document client) ou derrière un état vide. Un dégradé radial en `encre-light`, statique. Aucune animation de lumière, aucune dépendance (`SideRays` / `ogl` sont retirés). Le seul glow est `encre-bloom` au survol du bouton primaire, jamais permanent.
+**La lumière.** Au plus une source par écran, toujours *derrière* un objet et jamais globale. Sur la landing, c'est l'illustration du hero (`public/images/illustration.png`) : une onde de lignes pâles sur fond transparent, statique, débordant des deux côtés, percée en son centre pour qu'aucun mot ne se lise à travers une ligne ; dans l'app, derrière la porte (la carte du document client) ou derrière un état vide. Un dégradé radial en `encre-light`, statique. Aucune animation de lumière, aucune dépendance (`SideRays` / `ogl` sont retirés). Le seul glow est `encre-bloom` au survol du bouton primaire, jamais permanent.
 
 **Le test de suppression.** Pour chaque effet : retire-le, la composition doit tenir. Sinon, on refait la composition, pas l'effet.
 
