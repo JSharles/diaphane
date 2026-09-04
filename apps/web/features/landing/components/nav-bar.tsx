@@ -134,7 +134,7 @@ export function NavBar() {
                 <SheetClose asChild>
                   <Link
                     href="/signup"
-                    className="rounded-lg border bg-card/70 px-5 py-2.5 text-center text-sm font-semibold text-foreground transition-colors hover:bg-accent"
+                    className="rounded-md bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-white hover:glow-subtle"
                   >
                     {t("signUp")}
                   </Link>

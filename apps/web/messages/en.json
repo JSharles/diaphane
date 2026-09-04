@@ -1,10 +1,10 @@
 {
   "Metadata": {
-    "title": "Diaphane — Technology, made understandable",
+    "title": "Diaphane: technology, made understandable",
     "description": "Diaphane translates technical complexity into a clear, reassuring client experience without distorting the reality of the project."
   },
   "Landing": {
-    "signUp": "Create a workspace",
+    "signUp": "Create my first project",
     "logIn": "Log in",
     "openMenu": "Open menu",
     "nav": {
@@ -17,18 +17,18 @@
       "titleBefore": "Let clients understand ",
       "titleHighlight": "what you're building",
       "titleAfter": ".",
-      "subhead": "Diaphane sits between technology and your clients, making it clear, accessible, and less intimidating — without distorting the reality of the project.",
-      "primaryCta": "Create a workspace for my client",
+      "subhead": "Diaphane sits between technology and your clients, making it clear, accessible, and less intimidating, without distorting the reality of the project.",
+      "primaryCta": "Create my first project",
       "trustSources": "The real work stays the source",
       "trustReadOnly": "Read-only client access",
       "trustPublishing": "You control published documents"
     },
     "features": {
       "eyebrow": "Complexity, translated",
-      "title": "The technology stays precise. ",
+      "title": "The technology stays precise. It becomes accessible.",
       "subhead": "Diaphane removes jargon and opacity, not substance. Every piece of information stays true to the real work and becomes understandable to your client.",
       "preview": {
-        "badge": "Transformation example",
+        "badge": "Rewritten by the AI from the source ticket",
         "sourceLabel": "In your board",
         "sourceStatus": "In progress",
         "sourceTitle": "Refactor auth middleware and session invalidation",
@@ -41,38 +41,36 @@
         "impactLabel": "Impact for you",
         "impact": "No visible change to day-to-day use. The work mainly improves security.",
         "stateLabel": "Current state",
-        "state": "A first version has been built and is now being reviewed.",
-        "clientNote": "Example of the client view rewritten from the source issue."
+        "state": "A first version has been built and is now being reviewed."
       },
       "sourceTitle": "Your board stays the source",
       "sourceDescription": "The current task and its progress come directly from the connected board.",
-      "controlTitle": "Your documents go through you",
-      "controlDescription": "Approve, reject, or refile every section before publishing it.",
+      "controlTitle": "Your rubriques go through you",
+      "controlDescription": "You review and approve every rubrique before it reaches your client.",
       "accessTitle": "Clients view; they do not edit",
       "accessDescription": "Their workspace is read-only, while your working process stays in your tools.",
       "documentPreview": {
-        "documentBadge": "Document transformation",
+        "documentBadge": "One document, sorted and explained by the AI",
         "sourceLabel": "Source document",
-        "sourceTitle": "Project brief — version 3.docx",
+        "sourceTitle": "Project brief v3.docx",
         "sourceExcerpt": "Goals, business rules, user journeys, and next steps are mixed together in one working document.",
         "classifyTitle": "1. Classify",
         "classifyDescription": "Every passage goes to the right topic.",
         "structureTitle": "2. Structure",
-        "structureDescription": "Information is split into useful sections.",
+        "structureDescription": "Information is split into useful parts.",
         "simplifyTitle": "3. Explain",
         "simplifyDescription": "Content becomes clear without losing meaning.",
         "clientLabel": "In Diaphane",
         "reviewStatus": "Needs review",
-        "projectCategory": "The project",
-        "howCategory": "How it works",
+        "projectCategory": "The site",
+        "howCategory": "What changes for you",
         "roadmapCategory": "Roadmap",
-        "otherCategory": "Other information",
         "sectionTitle": "One place to follow the project",
         "sectionText": "Clients find progress, decisions, and useful context in an organized view without digging through working documents.",
         "controlLabel": "Before publishing:",
-        "controlText": "approve, reject, or refile every proposed section."
-      },
-      "titleAccent": "It becomes accessible."
+        "controlText": "you review and approve every proposed rubrique.",
+        "rubriquesLabel": "Your rubriques"
+      }
     },
     "howItWorks": {
       "eyebrow": "Set up",
@@ -81,65 +79,86 @@
       "stepLabel": "Step {number}",
       "connectTitle": "Connect your sources",
       "connectDescription": "Link your board and add PDFs, documents, images, or Notion pages. GitHub Projects is the first available board integration.",
-      "contextTitle": "Diaphane translates and organizes",
-      "contextDescription": "Tasks are rewritten in plain language. Documents are classified, structured, then explained in sections you can review.",
+      "contextTitle": "The AI translates and organizes, you review",
+      "contextDescription": "Tasks are rewritten in plain language. Documents are sorted, structured, then explained in rubriques you review.",
       "inviteTitle": "Review, then share",
-      "inviteDescription": "Approve the content to publish, then share a secure invitation. Your client can only access the relevant project."
+      "inviteDescription": "Approve the rubriques to publish, then share a secure invitation. Your client can only access the relevant project."
     },
     "developers": {
       "eyebrow": "For developers",
-      "title": "Less reporting. ",
+      "title": "Less reporting. More reliable context.",
       "subhead": "Make the project understandable without building and maintaining a parallel status report.",
       "card1Title": "Reduce status requests",
       "card1Description": "Clients can check the current task, why it matters, and its state without waiting for your next message.",
       "card2Title": "Keep working in your project tracker",
       "card2Description": "Your board remains your workspace. Diaphane creates a client-friendly view from it.",
       "card3Title": "Transform existing documentation",
-      "card3Description": "Diaphane classifies, structures, and explains the content; you approve every section before publishing.",
-      "titleAccent": "More reliable context."
+      "card3Description": "Diaphane sorts, structures and explains the content; you approve every rubrique before publishing."
     },
     "clients": {
       "eyebrow": "For clients",
-      "title": "A clear view, ",
+      "title": "A clear view, without learning your tools.",
       "subhead": "Clients get the context they need to understand and participate, without the complexity of your technical environment.",
       "card1Title": "Understand what is happening now",
       "card1Description": "The current task is presented with its purpose, impact, and state in plain language.",
       "card2Title": "Explore structured documentation",
-      "card2Description": "Approved information is organized by topic and clearly rewritten, with the original document still accessible.",
+      "card2Description": "Approved information is organized by topic and clearly rewritten, in their language.",
       "card3Title": "Know who to contact",
-      "card3Description": "The team, useful contact details, and meeting link live in the same workspace.",
-      "titleAccent": "without learning your tools."
+      "card3Description": "The team and the meeting link stay in the same place.",
+      "preview": {
+        "label": "What your client reads",
+        "projectTitle": "Website redesign",
+        "tabProject": "The project",
+        "tabRoadmap": "Roadmap",
+        "tabTask": "Current task",
+        "m1Title": "Scoping and mockups",
+        "m1When": "March",
+        "m1S1": "Site map approved",
+        "m1S2": "Key page mockups",
+        "m2Title": "Building the site",
+        "m2When": "April to May",
+        "m2S1": "Pages and content",
+        "m2S2": "Contact form",
+        "m2S3": "News section",
+        "m3Title": "Going live",
+        "m3When": "June",
+        "m3S1": "Acceptance with you",
+        "m3S2": "Public launch",
+        "note": "Example roadmap. The developer moves “where we are” by hand, with no re-approval, and the client sees it at once."
+      }
     },
     "faq": {
-      "eyebrow": "Frequently asked questions",
       "navLabel": "FAQ",
       "groupHowItWorks": "How it works",
-      "groupTrustPricing": "Trust & pricing",
+      "groupTrustPricing": "Trust and pricing",
       "q1": "Does Diaphane replace my project tracker?",
-      "a1": "No. Your board remains where you manage the project. Diaphane is designed to connect to different project trackers; GitHub Projects is the first integration available.",
+      "a1": "No. Your board remains where you manage the project. Diaphane reads a GitHub Projects board; it is the only tracker integration for now.",
       "q2": "What does Diaphane do with my documents?",
-      "a2": "Diaphane analyzes their content, sorts it into the project's topics, structures it into useful sections, then explains it in plain language. You can approve, reject, or refile every section before publishing.",
+      "a2": "Diaphane analyzes their content, sorts it into the project's rubriques, structures it, then explains it in plain language. You review and approve every rubrique before publishing.",
       "q3": "What exactly can my client see?",
       "a3": "A read-only view of their project: current task, progress, team, approved documentation, and meeting information when provided.",
       "q4": "How do I invite my client?",
       "a4": "Create an invitation inside the project, then share the secure link generated by Diaphane. The client uses it to create or join their account.",
       "q5": "Can the AI invent information?",
-      "a5": "Diaphane instructs the AI to work only from the available sources. You stay in control: document sections are never published without your approval.",
+      "a5": "Diaphane instructs the AI to work only from the available sources. You stay in control: a rubrique is never published without your approval.",
       "q6": "How is access protected?",
       "a6": "Every session is authenticated and tied to one user. Clients can only access projects they have been invited to.",
       "q7": "How much does Diaphane cost?",
-      "a7": "Diaphane is in launch phase. Pricing will be announced soon; you can already create an account and a first project."
+      "a7": "Diaphane is in launch phase. Pricing will be announced soon; you can already create an account and a first project.",
+      "title": "Frequently asked questions"
     },
     "closing": {
       "eyebrow": "Ready to lift the veil?",
       "title": "Show what is really happening. ",
       "subhead": "Make your work understandable without changing the way you work.",
-      "cta": "Create a workspace for my client",
+      "cta": "Create my first project",
       "titleAccent": "Earn their trust."
     },
     "footer": {
       "statement": "Technical complexity, made understandable for your clients.",
-      "status": "Product in launch phase"
+      "status": "Product in launch phase",
+      "invitedHint": "Received an invitation? Follow the link in the email, or",
+      "invitedLogin": "log in"
     }
   },
   "Auth": {

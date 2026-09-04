@@ -31,11 +31,11 @@ export function HeroRays() {
         rayColor1="#C8EBFD"
         rayColor2="#8FB4E3"
         speed={1.2}
-        intensity={2.6}
-        spread={1.2}
+        intensity={1.9}
+        spread={1.7}
         saturation={1}
         blend={0.6}
-        falloff={1.05}
+        falloff={1.3}
         opacity={1}
       />
       {/* The grain follows the light, and only the light.

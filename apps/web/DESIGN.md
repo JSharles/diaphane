@@ -161,7 +161,7 @@ The cold near-monochrome iris trio (chroma ≤0.05, 220–240°), blurred behind
 
 ### Hierarchy
 
-- **Display** (900, `clamp`, 1.05): the landing hero only. Carries `text-halo-title` — the film-credit halo (AAFAA reference): an intense text-shadow stack hugging each glyph, bright core and fast falloff. The one place light is allowed at this strength; nothing else on the page competes with it.
+- **Display** (900, `clamp`, 1.05): the landing hero only. Sharp letters, no text-shadow: the hero's light is the scene light behind the title (Hero Rays), never a glow on the glyphs (halo removed 2026-09-04).
 - **Headline** (600, 1.5rem) / **Title** (600, 1.125rem) / **Body** (400, 0.875–1rem, 1.5).
 - **Label** (Geist Mono 500, 0.75rem, 0.08em, uppercase): eyebrows — labels, never headings.
 

@@ -143,18 +143,6 @@
 @utility text-glow-strong {
   text-shadow: var(--glow-strong);
 }
-/* The film-title halo (AAFAA reference): text-shadow follows the glyph
-   contours, so the light HUGS each letter — a bright core bleed, then a
-   fast falloff. Strong near, gone far: the opposite of a soft cloud.
-   Reserved for the hero display title. */
-@utility text-halo-title {
-  text-shadow:
-    0 0 3px rgba(230, 243, 254, 0.95),
-    0 0 10px rgba(200, 230, 253, 0.6),
-    0 0 26px rgba(140, 175, 225, 0.38),
-    0 0 60px rgba(87, 125, 184, 0.2);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
