@@ -14,26 +14,26 @@ export function HowItWorksSection() {
     >
       <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <div>
-          <h2 className="text-balance text-3xl font-black tracking-[-0.025em] sm:text-4xl">
+          <h2 className="text-balance font-serif text-3xl leading-tight font-normal sm:text-[2.5rem]">
             {t("title")}
           </h2>
-          <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-5 max-w-md text-lg leading-relaxed text-fg-2">
             {t("subhead")}
           </p>
         </div>
 
-        <ol className="border-y border-border">
+        <ol className="border-y border-hairline">
           {STEPS.map((key, index) => (
             <li
               key={key}
-              className="grid gap-2 border-b border-border py-7 last:border-b-0 sm:grid-cols-[6rem_1fr] sm:gap-6"
+              className="grid gap-2 border-b border-hairline py-7 last:border-b-0 sm:grid-cols-[6rem_1fr] sm:gap-6"
             >
-              <p className="font-mono text-xs font-semibold tracking-[0.08em] text-fg-3 uppercase">
+              <p className="text-[0.8125rem] font-medium text-fg-3">
                 {t("stepLabel", { number: index + 1 })}
               </p>
               <div>
-                <h3 className="text-xl font-bold">{t(`${key}Title`)}</h3>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                <h3 className="text-base font-medium">{t(`${key}Title`)}</h3>
+                <p className="mt-2 max-w-xl text-[0.9375rem] leading-relaxed text-fg-2">
                   {t(`${key}Description`)}
                 </p>
               </div>

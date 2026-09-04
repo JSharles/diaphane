@@ -10,19 +10,20 @@ export function Hero() {
   // the fold instead of peeking into the scene of the rays.
   return (
     <section className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-1000 mx-auto flex min-h-[calc(100svh-5.5rem)] max-w-5xl flex-col items-center justify-center px-6 py-16 text-center sm:py-24">
-      <p className="mb-6 font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
+      <p className="mb-6 text-[0.8125rem] font-medium text-fg-3">
         {tHero("eyebrow")}
       </p>
       {/* Sharp letters under the rays: the light of the hero is the scene
           light behind the title, never a glow on the glyphs themselves. */}
-      <h1 className="max-w-4xl text-balance text-4xl leading-[1.02] font-black tracking-[-0.035em] sm:text-6xl lg:text-7xl">
+      {/* voice-display (DESIGN.md § 4): Spectral 300, the landing only. */}
+      <h1 className="max-w-4xl text-balance font-serif text-[clamp(2.4rem,4.5vw,3.625rem)] leading-[1.04] font-light tracking-[-0.01em]">
         {tHero("titleBefore")}
         {/* The signature light as emphasis: Optical Light on the words where
             the sentence turns — the one place the hue is allowed as text. */}
         <span>{tHero("titleHighlight")}</span>
         {tHero("titleAfter")}
       </h1>
-      <p className="mt-7 max-w-2xl text-lg leading-relaxed text-balance text-muted-foreground sm:text-xl">
+      <p className="mt-7 max-w-2xl text-lg leading-relaxed text-balance text-fg-2">
         {tHero("subhead")}
       </p>
 
@@ -33,7 +34,7 @@ export function Hero() {
         {tHero("primaryCta")}
       </Link>
 
-      <ul className="mt-10 flex max-w-3xl flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
+      <ul className="mt-10 flex max-w-3xl flex-wrap justify-center gap-x-6 gap-y-3 text-[0.9375rem] text-fg-2">
         {(["trustSources", "trustReadOnly", "trustPublishing"] as const).map(
           (key) => (
             <li key={key} className="flex items-center gap-2">

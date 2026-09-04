@@ -26,7 +26,7 @@ export function NavBar() {
           <span className="text-base font-medium">Diaphane</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 text-xs font-medium text-muted-foreground md:flex">
+        <nav className="hidden items-center gap-6 text-[0.8125rem] font-medium text-fg-2 md:flex">
           <a
             href="#product"
             className="transition-colors hover:text-foreground"
@@ -75,7 +75,7 @@ export function NavBar() {
               <SheetHeader>
                 <SheetTitle>Diaphane</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-1 px-4 text-sm font-medium text-muted-foreground">
+              <nav className="flex flex-col gap-1 px-4 text-[0.9375rem] font-medium text-fg-2">
                 <SheetClose asChild>
                   <a
                     href="#product"

@@ -1,8 +1,8 @@
 import { useTranslations } from "next-intl";
-import { ArrowRight, CircleDot } from "lucide-react";
-import { cn } from "@/shared/lib/utils";
+import { ArrowRight } from "lucide-react";
+import { Badge } from "@/shared/components/ui/badge";
 
-const LABEL = "font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase";
+const LABEL = "text-[0.8125rem] font-medium text-fg-3";
 
 // One worked example: a board ticket, then what the client reads. Two panels
 // on the page's own ground, no frame around them; the frosted right panel is
@@ -12,22 +12,20 @@ export function AiPreview() {
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="w-fit font-mono text-xs font-semibold tracking-[0.08em] text-primary uppercase">
+      <span className="w-fit text-[0.8125rem] font-medium text-fg-3">
         {t("badge")}
       </span>
 
       <div
         className="grid grid-cols-1 items-center gap-4 lg:grid-cols-[minmax(0,0.8fr)_auto_minmax(0,1.2fr)] lg:gap-6"
       >
-        <div className="rounded-xl border border-border bg-muted p-5">
+        <div className="rounded-lg border border-hairline bg-surface-1 p-5">
           <div className="mb-4 flex items-center justify-between gap-4">
             <span className={LABEL}>{t("sourceLabel")}</span>
-            <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-foreground/70">
-              {t("sourceStatus")}
-            </span>
+            <Badge>{t("sourceStatus")}</Badge>
           </div>
-          <p className="font-mono text-sm leading-relaxed text-foreground">{t("sourceTitle")}</p>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          <p className="font-mono text-[0.8125rem] leading-relaxed text-machine">{t("sourceTitle")}</p>
+          <p className="mt-3 font-mono text-[0.8125rem] leading-relaxed text-machine">
             {t("sourceDescription")}
           </p>
         </div>
@@ -37,20 +35,19 @@ export function AiPreview() {
           aria-hidden="true"
         />
 
-        <div className="rounded-xl border border-white/15 bg-white/[0.06] p-5 backdrop-blur">
+        <div data-theme="lait" className="rounded-lg bg-background p-5 text-foreground">
           <div className="mb-4 flex items-center justify-between gap-4">
             <span className={LABEL}>{t("clientLabel")}</span>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground">
-              <CircleDot className="size-3.5 text-success" aria-hidden="true" />
-              {t("clientStatus")}
-            </span>
+            <Badge tone="success">{t("clientStatus")}</Badge>
           </div>
-          <h3 className="text-balance text-xl font-bold">{t("clientTitle")}</h3>
+          <h3 className="text-balance font-serif text-[1.625rem] leading-tight font-normal">
+            {t("clientTitle")}
+          </h3>
           <dl className="mt-5 grid gap-4 sm:grid-cols-2">
             {(["why", "impact", "state"] as const).map((key) => (
               <div key={key} className={key === "state" ? "sm:col-span-2" : undefined}>
-                <dt className={cn(LABEL, "text-fg-2")}>{t(`${key}Label`)}</dt>
-                <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(key)}</dd>
+                <dt className={LABEL}>{t(`${key}Label`)}</dt>
+                <dd className="mt-1 font-serif text-[1.0625rem] leading-relaxed text-fg-2">{t(key)}</dd>
               </div>
             ))}
           </dl>

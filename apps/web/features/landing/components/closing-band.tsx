@@ -9,14 +9,14 @@ export function ClosingBand() {
   return (
     <section className="border-t px-6 py-20 text-center">
       <div className="mx-auto flex max-w-2xl flex-col items-center">
-        <p className="mb-4 font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
+        <p className="mb-4 text-[0.8125rem] font-medium text-fg-3">
           {t("eyebrow")}
         </p>
-        <h2 className="text-balance text-3xl leading-tight font-black sm:text-4xl">
+        <h2 className="text-balance font-serif text-3xl leading-tight font-normal sm:text-[2.5rem]">
           {t("title")}
           <span>{t("titleAccent")}</span>
         </h2>
-        <p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">
+        <p className="mt-5 max-w-xl leading-relaxed text-fg-2">
           {t("subhead")}
         </p>
         <Link

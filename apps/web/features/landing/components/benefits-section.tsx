@@ -8,13 +8,13 @@ function TrackHeading({ namespace }: { namespace: "clients" | "developers" }) {
   const t = useTranslations(`Landing.${namespace}`);
   return (
     <div>
-      <p className="font-mono text-xs font-semibold tracking-[0.08em] text-primary uppercase">
+      <p className="text-[0.8125rem] font-medium text-fg-3">
         {t("eyebrow")}
       </p>
-      <h2 className="mt-4 max-w-md text-balance text-3xl font-black tracking-[-0.025em] sm:text-4xl">
+      <h2 className="mt-4 max-w-md text-balance font-serif text-3xl leading-tight font-normal sm:text-[2.5rem]">
         {t("title")}
       </h2>
-      <p className="mt-5 max-w-md leading-relaxed text-muted-foreground">
+      <p className="mt-5 max-w-md leading-relaxed text-fg-2">
         {t("subhead")}
       </p>
     </div>
@@ -30,13 +30,13 @@ function BenefitList({
 }) {
   const t = useTranslations(`Landing.${namespace}`);
   return (
-    <div className={compact ? "grid gap-6 sm:grid-cols-3" : "divide-y divide-border"}>
+    <div className={compact ? "grid gap-6 sm:grid-cols-3" : "divide-y divide-hairline"}>
       {([1, 2, 3] as const).map((n) => (
         <div key={n} className={compact ? undefined : "py-6 first:pt-0 last:pb-0"}>
-          <h3 className={compact ? "font-bold" : "text-lg font-bold"}>
+          <h3 className="text-base font-medium">
             {t(`card${n}Title`)}
           </h3>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-2 max-w-xl text-[0.9375rem] leading-relaxed text-fg-2">
             {t(`card${n}Description`)}
           </p>
         </div>
@@ -53,7 +53,7 @@ export function BenefitsSection() {
     >
       <div
         id="developers"
-        className="grid scroll-mt-24 gap-10 border-t border-border py-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:py-20"
+        className="grid scroll-mt-24 gap-10 border-t border-hairline py-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:py-20"
       >
         <TrackHeading namespace="developers" />
         <BenefitList namespace="developers" />
@@ -61,7 +61,7 @@ export function BenefitsSection() {
 
       <div
         id="clients"
-        className="flex scroll-mt-24 flex-col gap-10 border-t border-border py-14 lg:py-20"
+        className="flex scroll-mt-24 flex-col gap-10 border-t border-hairline py-14 lg:py-20"
       >
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <TrackHeading namespace="clients" />
