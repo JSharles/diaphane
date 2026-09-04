@@ -10,10 +10,9 @@ export function Hero() {
       <p className="mb-6 font-mono text-xs font-medium tracking-[0.08em] text-muted-foreground uppercase">
         {tHero("eyebrow")}
       </p>
-      {/* The AAFAA halo: an intense, tight text-shadow stack that hugs each
-          glyph — bright core bleed, fast falloff (text-halo-title). The
-          light lives ON the letters, film-credit style. */}
-      <h1 className="text-halo-title max-w-4xl text-balance text-4xl leading-[1.02] font-black tracking-[-0.035em] sm:text-6xl lg:text-7xl">
+      {/* Sharp letters under the rays: the light of the hero is the scene
+          light behind the title, never a glow on the glyphs themselves. */}
+      <h1 className="max-w-4xl text-balance text-4xl leading-[1.02] font-black tracking-[-0.035em] sm:text-6xl lg:text-7xl">
         {tHero("titleBefore")}
         {/* The signature light as emphasis: Optical Light on the words where
             the sentence turns — the one place the hue is allowed as text. */}
