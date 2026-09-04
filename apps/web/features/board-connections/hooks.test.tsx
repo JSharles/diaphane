@@ -2,20 +2,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
-import {
-  connectBoard,
-  disconnectBoard,
-  getBoardConnection,
-  listAvailableBoards,
-  updateBoardConnection,
-} from "./api";
+import { connectBoard, disconnectBoard, getBoardConnection, listAvailableBoards } from "./api";
 import {
   boardConnectionKey,
   useAvailableBoards,
   useBoardConnection,
   useConnectBoard,
   useDisconnectBoard,
-  useUpdateBoardConnection,
 } from "./hooks";
 
 vi.mock("./api", () => ({
@@ -23,14 +16,12 @@ vi.mock("./api", () => ({
   listAvailableBoards: vi.fn(),
   connectBoard: vi.fn(),
   disconnectBoard: vi.fn(),
-  updateBoardConnection: vi.fn(),
 }));
 
 const mockedGetBoardConnection = vi.mocked(getBoardConnection);
 const mockedListAvailableBoards = vi.mocked(listAvailableBoards);
 const mockedConnectBoard = vi.mocked(connectBoard);
 const mockedDisconnectBoard = vi.mocked(disconnectBoard);
-const mockedUpdateBoardConnection = vi.mocked(updateBoardConnection);
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -59,7 +50,6 @@ const fakeConnection = {
   boardNumber: 3,
   boardTitle: "Roadmap",
   boardUrl: "https://github.com/orgs/acme/projects/3",
-  estimateUnit: "days" as const,
   needsReconnect: false,
 };
 
@@ -106,24 +96,6 @@ describe("board-connections hooks", () => {
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: boardConnectionKey("project-1") });
   });
 
-  it("useUpdateBoardConnection invalidates the board-connection query on success", async () => {
-    mockedUpdateBoardConnection.mockResolvedValue({ ...fakeConnection, estimateUnit: "hours" });
-    const { Wrapper, queryClient } = createWrapper();
-    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
-
-    const { result } = renderHook(() => useUpdateBoardConnection("project-1"), {
-      wrapper: Wrapper,
-    });
-    act(() => {
-      result.current.mutate({ estimateUnit: "hours" });
-    });
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockedUpdateBoardConnection).toHaveBeenCalledWith("project-1", {
-      estimateUnit: "hours",
-    });
-    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: boardConnectionKey("project-1") });
-  });
 
   it("useDisconnectBoard invalidates the board-connection query on success", async () => {
     mockedDisconnectBoard.mockResolvedValue(undefined);

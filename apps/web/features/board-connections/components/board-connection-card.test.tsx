@@ -2,13 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "@/shared/lib/api-client";
-import { useBoardConnection, useDisconnectBoard, useUpdateBoardConnection } from "../hooks";
+import { useBoardConnection, useDisconnectBoard } from "../hooks";
 import { BoardConnectionCard } from "./board-connection-card";
 
 vi.mock("../hooks", () => ({
   useBoardConnection: vi.fn(),
   useDisconnectBoard: vi.fn(),
-  useUpdateBoardConnection: vi.fn(),
 }));
 
 vi.mock("./connect-board-dialog", () => ({
@@ -31,7 +30,6 @@ vi.mock("@/i18n/navigation", () => ({
 
 const mockedUseBoardConnection = vi.mocked(useBoardConnection);
 const mockedUseDisconnectBoard = vi.mocked(useDisconnectBoard);
-const mockedUseUpdateBoardConnection = vi.mocked(useUpdateBoardConnection);
 
 const fakeConnection = {
   provider: "github" as const,
@@ -40,21 +38,8 @@ const fakeConnection = {
   boardNumber: 3,
   boardTitle: "Roadmap",
   boardUrl: "https://github.com/orgs/acme/projects/3",
-  estimateUnit: "days" as const,
   needsReconnect: false,
 };
-
-function stubUpdate(overrides: Record<string, unknown> = {}) {
-  const mutate = vi.fn();
-  mockedUseUpdateBoardConnection.mockReturnValue({
-    mutate,
-    isPending: false,
-    isError: false,
-    error: null,
-    ...overrides,
-  } as unknown as ReturnType<typeof useUpdateBoardConnection>);
-  return mutate;
-}
 
 function stubDisconnect(overrides: Record<string, unknown> = {}) {
   const mutate = vi.fn();
@@ -73,7 +58,6 @@ function stubDisconnect(overrides: Record<string, unknown> = {}) {
 describe("BoardConnectionCard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    stubUpdate();
   });
 
   it("shows a skeleton while pending", () => {
@@ -132,80 +116,10 @@ describe("BoardConnectionCard", () => {
     expect(screen.queryByRole("button", { name: "connect" })).not.toBeInTheDocument();
   });
 
-  it("shows the estimate unit beside the connected board, the current one checked", () => {
-    mockedUseBoardConnection.mockReturnValue({
-      data: { ...fakeConnection, estimateUnit: "hours" },
-      isPending: false,
-    } as unknown as ReturnType<typeof useBoardConnection>);
-    stubDisconnect();
 
-    render(<BoardConnectionCard projectId="project-1" />);
 
-    expect(screen.getByRole("radio", { name: "hours" })).toBeChecked();
-    expect(screen.getByRole("radio", { name: "days" })).not.toBeChecked();
-  });
 
-  it("changes the estimate unit in place, without reconnecting the board", async () => {
-    mockedUseBoardConnection.mockReturnValue({
-      data: fakeConnection,
-      isPending: false,
-    } as unknown as ReturnType<typeof useBoardConnection>);
-    stubDisconnect();
-    const mutate = stubUpdate();
-    const user = userEvent.setup();
 
-    render(<BoardConnectionCard projectId="project-1" />);
-    await user.click(screen.getByRole("radio", { name: "hours" }));
-
-    expect(mutate).toHaveBeenCalledWith({ estimateUnit: "hours" });
-    expect(screen.getByTestId("connect-board-dialog")).toHaveTextContent("closed");
-  });
-
-  it("does not send the unit already in place", async () => {
-    mockedUseBoardConnection.mockReturnValue({
-      data: fakeConnection,
-      isPending: false,
-    } as unknown as ReturnType<typeof useBoardConnection>);
-    stubDisconnect();
-    const mutate = stubUpdate();
-    const user = userEvent.setup();
-
-    render(<BoardConnectionCard projectId="project-1" />);
-    await user.click(screen.getByRole("radio", { name: "days" }));
-
-    expect(mutate).not.toHaveBeenCalled();
-  });
-
-  it("shows the error beside the unit when the change fails", () => {
-    mockedUseBoardConnection.mockReturnValue({
-      data: fakeConnection,
-      isPending: false,
-    } as unknown as ReturnType<typeof useBoardConnection>);
-    stubDisconnect();
-    stubUpdate({ isError: true, error: new ApiError("No board is connected to this project", 404) });
-
-    render(<BoardConnectionCard projectId="project-1" />);
-
-    expect(screen.getByText("No board is connected to this project")).toBeInTheDocument();
-  });
-
-  it("offers no estimate unit while no board is connected, nor while GitHub needs reconnecting", () => {
-    mockedUseBoardConnection.mockReturnValue({
-      data: null,
-      isPending: false,
-    } as unknown as ReturnType<typeof useBoardConnection>);
-    stubDisconnect();
-
-    const { rerender } = render(<BoardConnectionCard projectId="project-1" />);
-    expect(screen.queryByRole("radio", { name: "days" })).not.toBeInTheDocument();
-
-    mockedUseBoardConnection.mockReturnValue({
-      data: { ...fakeConnection, needsReconnect: true },
-      isPending: false,
-    } as unknown as ReturnType<typeof useBoardConnection>);
-    rerender(<BoardConnectionCard projectId="project-1" />);
-    expect(screen.queryByRole("radio", { name: "days" })).not.toBeInTheDocument();
-  });
 
   it("sends the developer to their profile instead of the dialog when the GitHub connection is cut or revoked", () => {
     mockedUseBoardConnection.mockReturnValue({

@@ -33,7 +33,6 @@ const fakeConnection = {
   boardNumber: 3,
   boardTitle: 'Roadmap',
   boardUrl: 'https://github.com/orgs/acme/projects/3',
-  estimateUnit: 'days' as const,
   needsReconnect: false,
 };
 
@@ -41,11 +40,7 @@ describe('BoardConnectionsController', () => {
   let service: jest.Mocked<
     Pick<
       BoardConnectionsService,
-      | 'findForProject'
-      | 'listBoards'
-      | 'connect'
-      | 'updateEstimateUnit'
-      | 'disconnect'
+      'findForProject' | 'listBoards' | 'connect' | 'disconnect'
     >
   >;
   let controller: BoardConnectionsController;
@@ -55,7 +50,6 @@ describe('BoardConnectionsController', () => {
       findForProject: jest.fn(),
       listBoards: jest.fn(),
       connect: jest.fn(),
-      updateEstimateUnit: jest.fn(),
       disconnect: jest.fn(),
     };
     controller = new BoardConnectionsController(
@@ -90,44 +84,21 @@ describe('BoardConnectionsController', () => {
     expect(service.listBoards).toHaveBeenCalledWith('user-1', 'project-1');
   });
 
-  it('connect passes the board selection through, estimate unit included', async () => {
-    service.connect.mockResolvedValue({
-      ...fakeConnection,
-      estimateUnit: 'hours',
-    });
+  it('connect passes the board selection through', async () => {
+    service.connect.mockResolvedValue(fakeConnection);
 
     const result = await controller.connect(fakeUser, 'project-1', {
       ownerLogin: 'acme',
       ownerType: 'Organization',
       number: 3,
-      estimateUnit: 'hours',
     });
 
-    expect(result.estimateUnit).toBe('hours');
+    expect(result.boardTitle).toBe('Roadmap');
     expect(service.connect).toHaveBeenCalledWith('user-1', 'project-1', {
       ownerLogin: 'acme',
       ownerType: 'Organization',
       number: 3,
-      estimateUnit: 'hours',
     });
-  });
-
-  it('update changes only the estimate unit of the connected board', async () => {
-    service.updateEstimateUnit.mockResolvedValue({
-      ...fakeConnection,
-      estimateUnit: 'hours',
-    });
-
-    const result = await controller.update(fakeUser, 'project-1', {
-      estimateUnit: 'hours',
-    });
-
-    expect(result.estimateUnit).toBe('hours');
-    expect(service.updateEstimateUnit).toHaveBeenCalledWith(
-      'user-1',
-      'project-1',
-      'hours',
-    );
   });
 
   it('disconnect delegates to the service', async () => {

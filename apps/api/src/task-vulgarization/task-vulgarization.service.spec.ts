@@ -32,7 +32,6 @@ const connection = {
   connectedBy: {
     githubConnection: { encryptedToken: encryptToken('a-real-token') },
   },
-  estimateUnit: 'days' as const,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -502,7 +501,7 @@ describe('TaskVulgarizationService', () => {
 
     it('falls back to Estimate + connection unit when Target date is absent', async () => {
       const itemWithEstimate = { ...item, boardEstimateValue: 4 };
-      prisma.boardConnection.findMany.mockResolvedValue([connection]); // estimateUnit: "days"
+      prisma.boardConnection.findMany.mockResolvedValue([connection]);
       githubClient.fetchInProgressItems.mockResolvedValue([itemWithEstimate]);
       prisma.vulgarizedTask.findUnique.mockResolvedValue(vulgarizedRow);
       prisma.taskProgress.findUnique.mockResolvedValue(null);
@@ -676,29 +675,6 @@ describe('TaskVulgarizationService', () => {
       expect(call.update.resolvedStartedAt).not.toEqual(
         taskProgressRow.detectedStartedAt,
       );
-    });
-
-    it('applies the connection estimateUnit: the same Estimate number produces a different date under "hours" than under "days"', async () => {
-      const itemWithEstimate = { ...item, boardEstimateValue: 24 };
-      const hourlyConnection = {
-        ...connection,
-        estimateUnit: 'hours' as const,
-      };
-      prisma.boardConnection.findMany.mockResolvedValue([hourlyConnection]);
-      githubClient.fetchInProgressItems.mockResolvedValue([itemWithEstimate]);
-      prisma.vulgarizedTask.findUnique.mockResolvedValue(vulgarizedRow);
-      prisma.taskProgress.findUnique.mockResolvedValue(null);
-
-      await service.sweep();
-
-      const [call] = prisma.taskProgress.upsert.mock.calls[0] as [
-        { create: { resolvedStartedAt: Date; estimatedCompletionAt: Date } },
-      ];
-      // 24 hours = 1 day, not 24 days.
-      const expected = new Date(
-        call.create.resolvedStartedAt.getTime() + 1 * 24 * 60 * 60 * 1000,
-      );
-      expect(call.create.estimatedCompletionAt).toEqual(expected);
     });
   });
 

@@ -1,14 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CreateBoardConnectionRequest, UpdateBoardConnectionRequest } from "schemas";
-import {
-  connectBoard,
-  disconnectBoard,
-  getBoardConnection,
-  listAvailableBoards,
-  updateBoardConnection,
-} from "./api";
+import type { CreateBoardConnectionRequest } from "schemas";
+import { connectBoard, disconnectBoard, getBoardConnection, listAvailableBoards } from "./api";
 
 export const boardConnectionKey = (projectId: string) =>
   ["projects", projectId, "board-connection"] as const;
@@ -43,20 +37,6 @@ export function useConnectBoard(projectId: string) {
 
   return useMutation({
     mutationFn: (data: CreateBoardConnectionRequest) => connectBoard(projectId, data),
-    meta: { skipGlobalErrorToast: true },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: boardConnectionKey(projectId) });
-    },
-  });
-}
-
-// Error is surfaced beside the unit control on the card (see
-// BoardConnectionCard), not as a generic toast.
-export function useUpdateBoardConnection(projectId: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: UpdateBoardConnectionRequest) => updateBoardConnection(projectId, data),
     meta: { skipGlobalErrorToast: true },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: boardConnectionKey(projectId) });

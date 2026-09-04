@@ -119,11 +119,10 @@ describe("ConnectBoardDialog", () => {
     expect(submit).toBeDisabled();
 
     await user.click(screen.getByRole("radio", { name: /acme \/ Roadmap/ }));
-    await user.click(screen.getByRole("radio", { name: "hours" }));
     await user.click(submit);
 
     expect(mutate).toHaveBeenCalledWith(
-      { ownerLogin: "acme", ownerType: "Organization", number: 3, estimateUnit: "hours" },
+      { ownerLogin: "acme", ownerType: "Organization", number: 3 },
       expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
     const options = mutate.mock.calls[0][1] as { onSuccess: () => void };

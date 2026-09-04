@@ -1,9 +1,4 @@
-import type {
-  AvailableBoard,
-  BoardConnection,
-  CreateBoardConnectionRequest,
-  UpdateBoardConnectionRequest,
-} from "schemas";
+import type { AvailableBoard, BoardConnection, CreateBoardConnectionRequest } from "schemas";
 import { apiFetch } from "@/shared/lib/api-client";
 
 // NestJS sends an empty body (no JSON at all) when the controller returns
@@ -26,14 +21,6 @@ export function listAvailableBoards(projectId: string) {
 export function connectBoard(projectId: string, data: CreateBoardConnectionRequest) {
   return apiFetch<BoardConnection>(`/projects/${projectId}/board-connection`, {
     method: "POST",
-    body: data,
-  });
-}
-
-// Changes how the board's "Estimate" is read; the board itself stays chosen.
-export function updateBoardConnection(projectId: string, data: UpdateBoardConnectionRequest) {
-  return apiFetch<BoardConnection>(`/projects/${projectId}/board-connection`, {
-    method: "PATCH",
     body: data,
   });
 }

@@ -3,7 +3,7 @@
 import { CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import type { AvailableBoard, EstimateUnit } from "schemas";
+import type { AvailableBoard } from "schemas";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -14,7 +14,6 @@ import {
 } from "@/shared/components/ui/dialog";
 import { ApiError } from "@/shared/lib/api-client";
 import { useAvailableBoards, useConnectBoard } from "../hooks";
-import { EstimateUnitField } from "./estimate-unit-field";
 
 interface ConnectBoardDialogProps {
   projectId: string;
@@ -33,8 +32,6 @@ export function ConnectBoardDialog({ projectId, open, onOpenChange }: ConnectBoa
   const t = useTranslations("Projects.ConnectBoardDialog");
   const tToasts = useTranslations("Toasts");
   const [selectedBoard, setSelectedBoard] = useState<AvailableBoard | null>(null);
-  // Defaults to "days"; changeable later on the card without reconnecting.
-  const [estimateUnit, setEstimateUnit] = useState<EstimateUnit>("days");
   const boards = useAvailableBoards(projectId, { enabled: open });
   const connect = useConnectBoard(projectId);
 
@@ -43,7 +40,6 @@ export function ConnectBoardDialog({ projectId, open, onOpenChange }: ConnectBoa
 
   function reset() {
     setSelectedBoard(null);
-    setEstimateUnit("days");
     connect.reset();
   }
 
@@ -59,7 +55,6 @@ export function ConnectBoardDialog({ projectId, open, onOpenChange }: ConnectBoa
         ownerLogin: selectedBoard.ownerLogin,
         ownerType: selectedBoard.ownerType,
         number: selectedBoard.number,
-        estimateUnit,
       },
       { onSuccess: () => handleOpenChange(false) },
     );
@@ -116,7 +111,6 @@ export function ConnectBoardDialog({ projectId, open, onOpenChange }: ConnectBoa
                 })}
               </ul>
             )}
-            <EstimateUnitField value={estimateUnit} onChange={setEstimateUnit} />
             <Button
               type="button"
               disabled={!selectedBoard || connect.isPending}

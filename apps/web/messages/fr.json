@@ -698,11 +698,6 @@
         "notionNothingNew": "Rien de nouveau dans vos pages Notion.",
         "notionRootsUpdatedRewriteOwed": "{count, plural, =1 {Une page a changé} other {# pages ont changé}} — une écriture du document de référence est déjà en cours, relancez-la ensuite."
       }
-    },
-    "EstimateUnitField": {
-      "label": "Quand une tâche a un nombre \"Estimate\" mais pas de \"Target date\", le lire en :",
-      "days": "Jours",
-      "hours": "Heures"
     }
   },
   "Invite": {
