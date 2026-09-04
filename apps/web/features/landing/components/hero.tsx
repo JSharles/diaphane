@@ -10,7 +10,7 @@ export function Hero() {
   // floating bar, content centered, so the next section's title starts below
   // the fold instead of peeking into the scene of the rays.
   return (
-    <section className="relative motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-1000 mx-auto flex min-h-[calc(100svh-5.5rem)] max-w-5xl flex-col items-center justify-center px-6 py-16 text-center sm:py-24">
+    <section className="relative motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-1000 mx-auto flex min-h-[calc(100svh-6.5rem)] max-w-5xl flex-col items-center justify-center px-6 py-16 text-center sm:py-24">
       <HeroIllustration />
 
       <p className="ui-eyebrow mb-6">

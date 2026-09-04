@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Emblem } from "@/shared/components/emblem";
+import { GlassBar } from "@/features/landing/components/glass-bar";
 import { Menu } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import {
@@ -16,17 +17,19 @@ export function NavBar() {
   const t = useTranslations("Landing");
 
   return (
-    // DESIGN.md § 6 Navigation: the bar sits on the ground with a hairline
-    // below it, 56px, the emblem painted in the text colour. No glass: the
-    // pane is for floating layers, and the mobile menu is one.
-    <header className="sticky top-0 z-40 w-full border-b border-hairline bg-background">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+    // The bar floats over the hero rather than sitting on it: inset from the
+    // three edges, the pane's glass and radius, the emblem left, the anchors
+    // centred, the two ways in on the right (DESIGN.md § 5, the pane is
+    // allowed here).
+    <header className="sticky top-0 z-40 w-full px-4 pt-4 sm:px-6">
+      <GlassBar>
+        <div className="flex w-full items-center justify-between gap-6 px-4">
         <Link href="/" className="flex items-center gap-2 text-foreground">
           <Emblem />
           <span className="text-base font-medium">Diaphane</span>
         </Link>
 
-        <nav className="ui-control hidden items-center gap-6 text-fg-2 md:flex">
+        <nav className="ui-control hidden items-center gap-7 text-fg-2 md:flex">
           <a
             href="#product"
             className="transition-colors hover:text-foreground"
@@ -50,7 +53,7 @@ export function NavBar() {
           </a>
         </nav>
 
-        <div className="flex items-center gap-4 md:pl-4 md:before:mr-4 md:before:h-4 md:before:w-px md:before:bg-border md:before:content-['']">
+        <div className="flex items-center gap-3">
           <Link
             href="/login"
             className="ui-control hidden text-fg-2 transition-colors hover:text-foreground md:inline"
@@ -130,7 +133,8 @@ export function NavBar() {
             </SheetContent>
           </Sheet>
         </div>
-      </div>
+        </div>
+      </GlassBar>
     </header>
   );
 }
