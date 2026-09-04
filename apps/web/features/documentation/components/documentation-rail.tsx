@@ -3,8 +3,8 @@
 import {
   CheckCircle2,
   CircleDashed,
+  Clock,
   HelpCircle,
-  LoaderCircle,
   TriangleAlert,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -17,19 +17,21 @@ import { STEP_KEYS, stepStates, type StepKey, type StepTone } from "../step-stat
 const TONE_ICON: Record<StepTone, typeof CircleDashed> = {
   waiting: CircleDashed,
   todo: CircleDashed,
-  working: LoaderCircle,
+  working: Clock,
   attention: TriangleAlert,
   ready: CheckCircle2,
   unknown: HelpCircle,
 };
 
+// Status tones, per DESIGN.md § 3: what is done is a success, what needs
+// the developer is a warning, everything else is neutral text.
 const TONE_CLASS: Record<StepTone, string> = {
-  waiting: "text-muted-foreground",
-  todo: "text-foreground",
-  working: "text-muted-foreground",
-  attention: "text-destructive",
-  ready: "text-primary",
-  unknown: "text-muted-foreground",
+  waiting: "text-fg-3",
+  todo: "text-fg-2",
+  working: "text-fg-3",
+  attention: "text-warning",
+  ready: "text-success",
+  unknown: "text-fg-3",
 };
 
 // The four steps, permanently on screen with their states — what turns a heap
@@ -69,18 +71,18 @@ export function DocumentationRail({ projectId }: { projectId: string }) {
               {index < STEP_KEYS.length - 1 && (
                 <span
                   aria-hidden
-                  className="absolute top-8 bottom-1 left-3.5 w-px bg-border"
+                  className="absolute top-8 bottom-1 left-3.5 w-px bg-hairline"
                 />
               )}
               <span
                 aria-hidden
                 className={cn(
-                  "relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
+                  "relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full text-[0.8125rem] font-medium",
                   active
-                    ? "border-primary bg-primary text-primary-foreground"
+                    ? "bg-action text-on-action"
                     : state.tone === "ready"
-                      ? "border-primary/40 bg-primary/10 text-primary"
-                      : "border-border bg-muted text-muted-foreground",
+                      ? "bg-success-bg text-success"
+                      : "bg-surface-2 text-fg-3",
                 )}
               >
                 {index + 1}
@@ -92,10 +94,10 @@ export function DocumentationRail({ projectId }: { projectId: string }) {
               >
                 <span
                   className={cn(
-                    "block text-sm font-medium group-hover:text-foreground",
+                    "block text-[0.9375rem] font-medium transition-colors duration-fast group-hover:text-foreground",
                     active || state.tone === "todo" || state.tone === "ready"
                       ? "text-foreground"
-                      : "text-muted-foreground",
+                      : "text-fg-2",
                   )}
                 >
                   {t(`name_${key}`)}
@@ -105,17 +107,11 @@ export function DocumentationRail({ projectId }: { projectId: string }) {
                 ) : (
                   <span
                     className={cn(
-                      "mt-0.5 flex items-center gap-1.5 text-xs",
+                      "mt-0.5 flex items-center gap-1.5 text-[0.8125rem]",
                       TONE_CLASS[state.tone],
                     )}
                   >
-                    <Icon
-                      className={cn(
-                        "size-3.5 shrink-0",
-                        state.tone === "working" &&
-                          "animate-spin motion-reduce:animate-none",
-                      )}
-                    />
+                    <Icon className="size-3.5 shrink-0" aria-hidden="true" />
                     {t(state.line.id, state.line.values)}
                   </span>
                 )}

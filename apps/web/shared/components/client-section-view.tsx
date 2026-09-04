@@ -17,8 +17,10 @@ export function ClientSectionView({ section }: { section: PublicClientSection })
     );
   }
 
+  // A document, so it speaks in the voice: Spectral 17px, 68ch
+  // (DESIGN.md § 4 voice-doc-body).
   return (
-    <div className="max-w-[68ch] space-y-4 text-base leading-[1.75]">
+    <div className="max-w-[68ch] space-y-4 font-serif text-[1.0625rem] leading-relaxed">
       {section.blocks.map((block, index) => {
         if (block.type === "bullet") {
           return (
@@ -35,18 +37,18 @@ export function ClientSectionView({ section }: { section: PublicClientSection })
           return (
             <div
               key={index}
-              className="rounded-lg border border-border bg-muted p-4"
+              className="rounded-lg bg-surface-1 p-5"
             >
-              <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted-foreground">
-                <CircleHelp className="size-3.5" />
+              <p className="flex items-center gap-1.5 font-sans text-[0.8125rem] text-fg-3">
+                <CircleHelp className="size-3.5" aria-hidden="true" />
                 {t("openPointLabel")}
               </p>
-              <p className="mt-2 leading-7">{block.text}</p>
+              <p className="mt-2 leading-relaxed">{block.text}</p>
             </div>
           );
         }
         return (
-          <p key={index} className="leading-7">
+          <p key={index} className="leading-relaxed">
             {block.text}
           </p>
         );

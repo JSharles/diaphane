@@ -190,10 +190,10 @@ function NoteList({ projectId, items }: { projectId: string; items: Note[] }) {
       aria-labelledby="notes-title"
       className="border-t border-border pt-7 print:hidden"
     >
-      <h2 id="notes-title" className="text-lg font-semibold tracking-tight">
+      <h2 id="notes-title" className="font-sans text-[1.0625rem] font-medium">
         {t("notesTitle")}
       </h2>
-      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+      <p className="mt-1.5 max-w-2xl font-sans text-[0.9375rem] leading-relaxed text-fg-2">
         {t("notesHint")}
       </p>
       <ul className="mt-4 space-y-3">
@@ -384,11 +384,11 @@ export function ReferenceDocumentView({ projectId }: { projectId: string }) {
       {/* Set to a reading measure, not to the container. Everything else on
           this page is a control; this is the one thing anyone reads end to
           end. */}
-      <article className="max-w-[68ch] space-y-12" aria-live="polite">
+      <article className="max-w-[68ch] space-y-12 font-serif text-[1.0625rem] leading-relaxed" aria-live="polite">
         {parts.map((part, index) => (
           <section key={index} className="space-y-5">
             <div>
-              <h3 className="text-lg font-semibold tracking-tight">
+              <h3 className="text-[1.625rem] leading-tight font-normal">
                 {part.title}
               </h3>
               {/* FR-004: which documents this part drew on. Coarser than the
