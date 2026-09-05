@@ -18,6 +18,20 @@ describe("HeroIllustration", () => {
     expect(layer).toHaveAttribute("aria-hidden", "true");
     expect(layer.className).toContain("pointer-events-none");
     expect(layer.className).toContain("-z-10");
-    expect(container.querySelector("img")).toHaveAttribute("alt", "");
+    expect(layer.className).toContain("lg:left-[42%]");
+    expect(layer.className).toContain("lg:right-0");
+    expect(layer.className).toContain(
+      "lg:[mask-image:linear-gradient(to_right,transparent_0%,black_12%,black_100%)]",
+    );
+
+    const artwork = layer.firstElementChild as HTMLElement;
+    expect(artwork.className).toContain("w-full");
+
+    const image = container.querySelector("img");
+    expect(image).toHaveAttribute("alt", "");
+    expect(image).toHaveAttribute("width", "1366");
+    expect(image).toHaveAttribute("height", "768");
+    expect(image?.className).toContain("opacity-100");
+    expect(image?.className).not.toContain("opacity-40");
   });
 });

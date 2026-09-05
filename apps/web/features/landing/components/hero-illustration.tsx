@@ -1,28 +1,25 @@
 import Image from "next/image";
 
 // The hero's one light source (DESIGN.md § 5): a static illustration behind
-// the title, not a global wash. The wave is drawn in pale lines on a
-// transparent ground, so the ink shows through it; it is scaled past the
-// viewport on both sides so the lines run off the edges rather than sitting
-// in a frame, and masked at the top, bottom and sides so it fades into the
-// ground instead of ending. Decorative: aria-hidden, inert, behind the
-// content, and gone under reduced motion is not needed since nothing moves.
+// the title, not a global wash. Its transparent ground lets the ink show
+// through. On large screens it occupies the right side of the hero, with a
+// short horizontal fade where it meets the copy; on smaller screens it sits
+// below the copy with the same transition turned vertically. The artwork
+// itself remains at full opacity. Decorative: aria-hidden and inert.
 export function HeroIllustration() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]"
+      className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[42%] overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0%,black_18%,black_100%)] lg:inset-y-0 lg:right-0 lg:left-[42%] lg:h-auto lg:[mask-image:linear-gradient(to_right,transparent_0%,black_12%,black_100%)]"
     >
-      {/* The centre is masked out: the wave runs at the edges of the hero and
-          leaves the words alone, so nothing is read through a line. */}
-      <div className="absolute top-1/2 left-1/2 w-[200%] max-w-none -translate-x-1/2 -translate-y-1/2 [mask-image:radial-gradient(ellipse_46%_54%_at_50%_50%,transparent_35%,black_88%)] sm:w-[165%] lg:w-[140%]">
+      <div className="absolute bottom-0 left-1/2 w-full -translate-x-1/2 lg:top-1/2 lg:bottom-auto lg:left-0 lg:translate-x-0 lg:-translate-y-1/2">
         <Image
           src="/images/illustration.png"
           alt=""
-          width={500}
-          height={500}
+          width={1366}
+          height={768}
           priority
-          className="h-auto w-full opacity-40"
+          className="h-auto w-full opacity-100"
         />
       </div>
     </div>
