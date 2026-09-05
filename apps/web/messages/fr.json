@@ -4,7 +4,7 @@
     "description": "Diaphane traduit la complexité technique en une expérience client claire et rassurante, sans déformer la réalité du projet."
   },
   "Landing": {
-    "signUp": "Créer mon premier projet",
+    "signUp": "Créer un projet",
     "logIn": "Se connecter",
     "openMenu": "Ouvrir le menu",
     "nav": {
@@ -18,7 +18,7 @@
       "titleHighlight": "ce que vous construisez",
       "titleAfter": ".",
       "subhead": "Diaphane se place entre la tech et vos clients pour la rendre claire, accessible et moins intimidante, sans déformer la réalité du projet.",
-      "primaryCta": "Créer mon premier projet",
+      "primaryCta": "Créer un projet",
       "trustSources": "Le travail réel reste la source",
       "trustReadOnly": "Accès client en lecture seule",
       "trustPublishing": "Documents publiés sous votre contrôle"
@@ -151,7 +151,7 @@
       "eyebrow": "Prêt à lever le voile ?",
       "title": "Montrez ce qui se passe vraiment. ",
       "subhead": "Rendez votre travail compréhensible sans changer votre façon de travailler.",
-      "cta": "Créer mon premier projet",
+      "cta": "Créer un projet",
       "titleAccent": "Gagnez leur confiance."
     },
     "footer": {

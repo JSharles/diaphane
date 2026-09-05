@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { Button } from "@/shared/components/ui/button";
 import { HeroIllustration } from "./hero-illustration";
 
 export function Hero() {
@@ -33,12 +34,14 @@ export function Hero() {
           {tHero("subhead")}
         </p>
 
-        <Link
-          href="/signup"
-          className="mt-9 rounded-md bg-primary ui-control px-7 py-3 text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+        <Button
+          asChild
+          size="lg"
+          typography="marketing"
+          className="mt-9"
         >
-          {tHero("primaryCta")}
-        </Link>
+          <Link href="/signup">{tHero("primaryCta")}</Link>
+        </Button>
 
         <ul className="mt-10 flex max-w-3xl flex-wrap justify-center gap-x-6 gap-y-3 text-[0.9375rem] text-fg-2 lg:justify-start">
           {(["trustSources", "trustReadOnly", "trustPublishing"] as const).map(

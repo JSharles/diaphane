@@ -25,9 +25,10 @@ describe("ClosingBand", () => {
     expect(screen.getByText("eyebrow")).toBeInTheDocument();
     expect(screen.getByText("title")).toBeInTheDocument();
     expect(screen.getByText("subhead")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "cta" })).toHaveAttribute(
-      "href",
-      "/signup",
-    );
+    const cta = screen.getByRole("link", { name: "cta" });
+    expect(cta).toHaveAttribute("href", "/signup");
+    expect(cta).toHaveAttribute("data-variant", "default");
+    expect(cta).toHaveAttribute("data-size", "lg");
+    expect(cta).toHaveAttribute("data-typography", "marketing");
   });
 });

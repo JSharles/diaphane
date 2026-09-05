@@ -5,11 +5,17 @@ import { Slot } from "radix-ui"
 import { cn } from "@/shared/lib/utils"
 
 const buttonVariants = cva(
-  // DESIGN.md § 6 Bouton: ui-control type, rounded md, a 2px ring offset on
-  // focus, 38% opacity when disabled, one motion duration for every state.
-  "ui-control inline-flex shrink-0 items-center justify-center gap-2 rounded-md whitespace-nowrap transition-[color,background-color,border-color,box-shadow] duration-fast ease-out-quiet outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-[0.38] disabled:shadow-none aria-invalid:border-danger [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  // DESIGN.md § 6 Bouton: rounded md, a 2px ring offset on focus, 38%
+  // opacity when disabled, and one motion duration for every state. Product
+  // controls use the machine register by default; marketing actions can opt
+  // into the clearer interface register.
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md whitespace-nowrap transition-[color,background-color,border-color,box-shadow] duration-fast ease-out-quiet outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-[0.38] disabled:shadow-none aria-invalid:border-danger [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
+      typography: {
+        interface: "ui-control",
+        marketing: "marketing-action",
+      },
       variant: {
         // Primary: the warm white on ink; the bloom is the page's only glow
         // and lives on this hover alone, never at rest.
@@ -40,6 +46,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
+      typography: "interface",
       variant: "default",
       size: "default",
     },
@@ -48,6 +55,7 @@ const buttonVariants = cva(
 
 function Button({
   className,
+  typography = "interface",
   variant = "default",
   size = "default",
   asChild = false,
@@ -61,9 +69,10 @@ function Button({
   return (
     <Comp
       data-slot="button"
+      data-typography={typography}
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ typography, variant, size, className }))}
       {...props}
     />
   )
