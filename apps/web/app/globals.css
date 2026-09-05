@@ -37,6 +37,7 @@
   --bloom: 0 0 24px rgba(255, 226, 196, 0.12);
   --ring-color: rgba(232, 237, 244, 0.6);
   --action: #e8edf4;
+  --action-secondary: #8fb0d8;
   --action-hover: #ffffff;
   --action-active: #d6dde7;
   --on-action: #09101c;
@@ -74,6 +75,7 @@
   --bloom: none;
   --ring-color: rgba(18, 32, 47, 0.45);
   --action: #12202f;
+  --action-secondary: #45526a;
   --action-hover: #1b2c40;
   --action-active: #0b1520;
   --on-action: #edf0f3;
@@ -151,6 +153,7 @@
   --color-overlay: var(--overlay);
   --color-light: var(--light);
   --color-action: var(--action);
+  --color-action-secondary: var(--action-secondary);
   --color-action-hover: var(--action-hover);
   --color-action-active: var(--action-active);
   --color-on-action: var(--on-action);
@@ -210,6 +213,12 @@
 @utility ui-control {
   font-family: var(--font-machine);
   font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1;
+}
+@utility marketing-action {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
   font-weight: 500;
   line-height: 1;
 }

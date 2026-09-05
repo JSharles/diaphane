@@ -3,6 +3,7 @@ import { Emblem } from "@/shared/components/emblem";
 import { GlassBar } from "@/features/landing/components/glass-bar";
 import { Menu } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { Button } from "@/shared/components/ui/button";
 import {
   Sheet,
   SheetClose,
@@ -24,115 +25,125 @@ export function NavBar() {
     <header className="sticky top-0 z-40 w-full px-4 pt-4 sm:px-6">
       <GlassBar>
         <div className="flex w-full items-center justify-between gap-6 px-4">
-        <Link href="/" className="flex items-center gap-2 text-foreground">
-          <Emblem />
-          <span className="text-base font-medium">Diaphane</span>
-        </Link>
-
-        <nav className="ui-control hidden items-center gap-7 text-fg-2 md:flex">
-          <a
-            href="#product"
-            className="transition-colors hover:text-foreground"
-          >
-            {t("nav.product")}
-          </a>
-          <a
-            href="#how-it-works"
-            className="transition-colors hover:text-foreground"
-          >
-            {t("nav.howItWorks")}
-          </a>
-          <a
-            href="#benefits"
-            className="transition-colors hover:text-foreground"
-          >
-            {t("nav.benefits")}
-          </a>
-          <a href="#faq" className="transition-colors hover:text-foreground">
-            {t("faq.navLabel")}
-          </a>
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="ui-control hidden text-fg-2 transition-colors hover:text-foreground md:inline"
-          >
-            {t("logIn")}
-          </Link>
-          <Link
-            href="/signup"
-            className="hidden rounded-md bg-primary ui-control px-5 py-2.5 text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom md:inline-flex"
-          >
-            {t("signUp")}
+          <Link href="/" className="flex items-center gap-2 text-foreground">
+            <Emblem />
+            <span className="text-base font-medium">Diaphane</span>
           </Link>
 
-          <Sheet>
-            <SheetTrigger
-              aria-label={t("openMenu")}
-              className="rounded-md p-3 text-foreground transition-colors hover:bg-accent md:hidden"
+          <nav className="ui-control hidden items-center gap-7 text-fg-2 md:flex">
+            <a
+              href="#product"
+              className="transition-colors hover:text-foreground"
             >
-              <Menu className="size-5" />
-            </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle>Diaphane</SheetTitle>
-              </SheetHeader>
-              <nav className="ui-control flex flex-col gap-1 px-4 text-fg-2">
-                <SheetClose asChild>
-                  <a
-                    href="#product"
-                    className="rounded-md px-2 py-2 transition-colors hover:bg-accent hover:text-foreground"
-                  >
-                    {t("nav.product")}
-                  </a>
-                </SheetClose>
-                <SheetClose asChild>
-                  <a
-                    href="#how-it-works"
-                    className="rounded-md px-2 py-2 transition-colors hover:bg-accent hover:text-foreground"
-                  >
-                    {t("nav.howItWorks")}
-                  </a>
-                </SheetClose>
-                <SheetClose asChild>
-                  <a
-                    href="#benefits"
-                    className="rounded-md px-2 py-2 transition-colors hover:bg-accent hover:text-foreground"
-                  >
-                    {t("nav.benefits")}
-                  </a>
-                </SheetClose>
-                <SheetClose asChild>
-                  <a
-                    href="#faq"
-                    className="rounded-md px-2 py-2 transition-colors hover:bg-accent hover:text-foreground"
-                  >
-                    {t("faq.navLabel")}
-                  </a>
-                </SheetClose>
-              </nav>
-              <SheetFooter>
-                <SheetClose asChild>
-                  <Link
-                    href="/login"
-                    className="ui-control text-center text-fg-2 transition-colors hover:text-foreground"
-                  >
-                    {t("logIn")}
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link
-                    href="/signup"
-                    className="rounded-md bg-primary ui-control px-5 py-2.5 text-center text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom"
-                  >
-                    {t("signUp")}
-                  </Link>
-                </SheetClose>
-              </SheetFooter>
-            </SheetContent>
-          </Sheet>
-        </div>
+              {t("nav.product")}
+            </a>
+            <a
+              href="#how-it-works"
+              className="transition-colors hover:text-foreground"
+            >
+              {t("nav.howItWorks")}
+            </a>
+            <a
+              href="#benefits"
+              className="transition-colors hover:text-foreground"
+            >
+              {t("nav.benefits")}
+            </a>
+            <a href="#faq" className="transition-colors hover:text-foreground">
+              {t("faq.navLabel")}
+            </a>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              typography="marketing"
+              className="hidden border-hairline-strong bg-transparent text-action-secondary hover:text-foreground md:inline-flex"
+            >
+              <Link href="/login">{t("logIn")}</Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              typography="marketing"
+              className="hidden md:inline-flex"
+            >
+              <Link href="/signup">{t("signUp")}</Link>
+            </Button>
+
+            <Sheet>
+              <SheetTrigger
+                aria-label={t("openMenu")}
+                className="rounded-md p-3 text-foreground transition-colors hover:bg-accent md:hidden"
+              >
+                <Menu className="size-5" />
+              </SheetTrigger>
+              <SheetContent side="right">
+                <SheetHeader>
+                  <SheetTitle>Diaphane</SheetTitle>
+                </SheetHeader>
+                <nav className="ui-control flex flex-col gap-1 px-4 text-fg-2">
+                  <SheetClose asChild>
+                    <a
+                      href="#product"
+                      className="rounded-md px-2 py-2 transition-colors hover:bg-accent hover:text-foreground"
+                    >
+                      {t("nav.product")}
+                    </a>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <a
+                      href="#how-it-works"
+                      className="rounded-md px-2 py-2 transition-colors hover:bg-accent hover:text-foreground"
+                    >
+                      {t("nav.howItWorks")}
+                    </a>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <a
+                      href="#benefits"
+                      className="rounded-md px-2 py-2 transition-colors hover:bg-accent hover:text-foreground"
+                    >
+                      {t("nav.benefits")}
+                    </a>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <a
+                      href="#faq"
+                      className="rounded-md px-2 py-2 transition-colors hover:bg-accent hover:text-foreground"
+                    >
+                      {t("faq.navLabel")}
+                    </a>
+                  </SheetClose>
+                </nav>
+                <SheetFooter>
+                  <SheetClose asChild>
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="lg"
+                      typography="marketing"
+                      className="w-full border-hairline-strong bg-transparent text-action-secondary hover:text-foreground"
+                    >
+                      <Link href="/login">{t("logIn")}</Link>
+                    </Button>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Button
+                      asChild
+                      size="lg"
+                      typography="marketing"
+                      className="w-full"
+                    >
+                      <Link href="/signup">{t("signUp")}</Link>
+                    </Button>
+                  </SheetClose>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </GlassBar>
     </header>

@@ -24,6 +24,7 @@ colors:
   encre-bloom: "0 0 24px rgba(255, 226, 196, 0.12)"
   encre-ring: "rgba(232, 237, 244, 0.60)"
   encre-action: "#E8EDF4"
+  encre-action-secondary: "#8FB0D8"
   encre-action-hover: "#FFFFFF"
   encre-action-active: "#D6DDE7"
   encre-on-action: "#09101C"
@@ -50,6 +51,7 @@ colors:
   lait-light: "rgba(255, 255, 255, 0.85)"
   lait-ring: "rgba(18, 32, 47, 0.45)"
   lait-action: "#12202F"
+  lait-action-secondary: "#45526A"
   lait-action-hover: "#1B2C40"
   lait-action-active: "#0B1520"
   lait-on-action: "#EDF0F3"
@@ -221,6 +223,7 @@ Le client ne voit jamais l'encre. Le dev voit les deux : son espace est sombre, 
 | `encre-light` | rgba(255,226,196,.17) | La source de lumière : un dégradé radial, au plus un par écran | — |
 | `encre-bloom` | 0 0 24px rgba(255,226,196,.12) | Le seul glow : survol du bouton primaire | — |
 | `encre-ring` | text 60 % (#E8EDF4) | Anneau de focus, 2 px, offset 2 px | — |
+| `encre-action-secondary` | #8FB0D8 | Libellé du CTA secondaire de la landing | ≈7:1 |
 
 Surfaces : les valeurs hexa sont l'encre mélangée par paliers réguliers vers le bleu clair. Les utiliser en solide (pas en alpha) pour les cartes et champs, afin que le texte dessus reste prévisible.
 
@@ -237,6 +240,7 @@ Surfaces : les valeurs hexa sont l'encre mélangée par paliers réguliers vers 
 | `lait-text-3` | #5F6D7C | Métadonnées uniquement, jamais en corps | ≈4.6:1 |
 | `lait-pane` / `-line` / `-shadow` | white 64 % / 95 % / ombre froide diffuse | La paroi côté clair (en-tête flottant, aperçu) | — |
 | `lait-action` / `-on-action` | #12202F / #EDF0F3 | Le rare bouton côté client (télécharger, imprimer) | — |
+| `lait-action-secondary` | #45526A | Libellé d'un CTA secondaire sur la matière claire | ≈6.9:1 |
 | `lait-ring` | ink 45 % | Focus | — |
 
 ### Statuts
@@ -278,6 +282,7 @@ Trois voix, trois familles, chargées via `next/font/google` et exposées en `--
 | `ui-title` | Plex Sans 500 | 16 / 1.3 | Titres de carte et de ligne |
 | `ui-body` | Plex Sans 400 | 15 / 1.5 | Texte courant de l'interface |
 | `ui-control` | **Plex Mono 500** | 13 / 1 | Boutons, onglets, liens de nav |
+| `marketing-action` | **Plex Sans 500** | 14 / 1 | CTA de la landing |
 | `ui-meta` | **Plex Mono 400** | 12 / 1.45 | Dates, compteurs, pourcentages, aide de champ |
 | `ui-badge` | **Plex Mono 400** | 11.5 / 1.45 | Badges de statut |
 | `ui-eyebrow` | **Plex Mono 400** | 12.5 / 1.45 | L'étiquette au-dessus d'un titre, en `encre-machine` |
@@ -286,7 +291,7 @@ Trois voix, trois familles, chargées via `next/font/google` et exposées en `--
 
 ### Les trois registres
 
-La **mécanique** de l'interface est monospace, en casse normale et sans interlettrage : boutons, onglets, liens de nav (`ui-control`), dates, compteurs, pourcentages, aide de champ (`ui-meta`), badges (`ui-badge`), étiquettes au-dessus d'un titre (`ui-eyebrow`). La **prose** de l'interface reste Plex Sans : `ui-section`, `ui-title`, `ui-body`, `ui-caption`, et le texte saisi dans un champ. La **voix** reste Spectral : `voice-display`, `voice-page`, `voice-doc-title`, `voice-doc-body`.
+La **mécanique** de l'interface est monospace, en casse normale et sans interlettrage : boutons de l'espace de travail, onglets, liens de nav (`ui-control`), dates, compteurs, pourcentages, aide de champ (`ui-meta`), badges (`ui-badge`), étiquettes au-dessus d'un titre (`ui-eyebrow`). Les CTA de la landing utilisent `marketing-action` : la même Plex Sans que l'interface, en 14 px medium, afin de porter une voix plus directe et commerciale. La **prose** de l'interface reste Plex Sans : `ui-section`, `ui-title`, `ui-body`, `ui-caption`, et le texte saisi dans un champ. La **voix** reste Spectral : `voice-display`, `voice-page`, `voice-doc-title`, `voice-doc-body`.
 
 ### Interdits typographiques
 
@@ -316,10 +321,11 @@ Le stack est shadcn sur Tailwind ; les composants ci-dessous sont des surcharges
 |---|---|---|---|---|---|
 | Primaire | `action` / `on-action` | `action-hover` + `bloom` | `action-active` | `ring` 2 px offset 2 px | opacité 38 %, pas de bloom |
 | Secondaire | `surface-2`, bordure `hairline`, `text` | `surface-3`, `hairline-strong` | `surface-3` | idem | idem |
+| Outline marketing | transparent, bordure `hairline-strong`, `action-secondary` | `surface-3`, `text` | `surface-3` | idem | idem |
 | Fantôme | transparent, `text-2` | `surface-1`, `text` | `surface-2` | idem | idem |
 | Destructif | transparent, bordure `hairline`, `danger` | `danger-bg` | `danger-bg` | idem | idem |
 
-Tailles : `sm` 32 px, `md` 36 px, `lg` 44 px (landing). Rayon `md`. Police `ui-control`. Chargement : spinner dans la couleur du texte, libellé conservé. Une seule action primaire par vue.
+Tailles : `sm` 32 px, `md` 36 px, `lg` 44 px (landing). Rayon `md`. Police `ui-control` dans l'espace de travail et `marketing-action` pour les CTA de la landing. Chargement : spinner dans la couleur du texte, libellé conservé. Une seule action primaire par vue.
 
 ### Champ
 

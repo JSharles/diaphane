@@ -36,10 +36,11 @@ describe("Hero", () => {
     expect(within(heading).getByText("titleHighlight")).toBeInTheDocument();
     expect(screen.getByText("eyebrow")).toBeInTheDocument();
     expect(screen.getByText("subhead")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "primaryCta" })).toHaveAttribute(
-      "href",
-      "/signup",
-    );
+    const primaryCta = screen.getByRole("link", { name: "primaryCta" });
+    expect(primaryCta).toHaveAttribute("href", "/signup");
+    expect(primaryCta).toHaveAttribute("data-variant", "default");
+    expect(primaryCta).toHaveAttribute("data-size", "lg");
+    expect(primaryCta).toHaveAttribute("data-typography", "marketing");
     expect(
       screen.queryByRole("link", { name: "secondaryCta" }),
     ).not.toBeInTheDocument();
