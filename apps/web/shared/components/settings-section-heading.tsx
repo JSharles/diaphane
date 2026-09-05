@@ -1,14 +1,9 @@
 import type { ReactNode } from "react";
 
-// Small uppercase group label above a cluster of related SettingsRows (e.g.
-// "Tools" above Board + Notion, "Preferences" above Timezone/Date format/
-// Language) — only used above genuine multi-row groups; a single-row
-// section's own SettingsRow title already labels it, so it doesn't need
-// one of these too.
+// A section title in the workspace (DESIGN.md § 8): after a hairline and
+// 40px of air. The hairline is the one the last row above already draws, so
+// this adds none of its own: two lines with a gap between them read as a
+// mistake, not as a separation.
 export function SettingsSectionHeading({ children }: { children: ReactNode }) {
-  return (
-    <h2 className="pt-6 pb-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-      {children}
-    </h2>
-  );
+  return <h2 className="mt-10 pb-2 text-[1.0625rem] font-medium">{children}</h2>;
 }

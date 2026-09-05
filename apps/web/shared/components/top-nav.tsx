@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Image from "next/image";
+import { Emblem } from "@/shared/components/emblem";
 import type { User } from "schemas";
 import { useLogout } from "@/features/auth/hooks";
 import { Link } from "@/i18n/navigation";
@@ -22,19 +22,21 @@ export function TopNav({ user }: { user: User }) {
   const t = useTranslations("TopNav");
 
   return (
-    <header className="flex h-14 items-center justify-between px-4 sm:px-6">
-      <Link href="/home" className="flex items-center gap-2">
-        <Image src="/images/logo-square.png" alt="" width={332} height={332} className="size-6" />
-        <span className="text-sm font-semibold text-primary">Diaphane</span>
+    // DESIGN.md § 6 Navigation: transparent on the ground, a hairline
+    // below, the emblem in the text colour, no diffusion on the wordmark.
+    <header className="flex h-14 items-center justify-between border-b border-hairline px-4 sm:px-6">
+      <Link href="/home" className="flex items-center gap-2 text-foreground">
+        <Emblem />
+        <span className="text-base font-medium">Diaphane</span>
       </Link>
 
       <DropdownMenu>
-        <DropdownMenuTrigger className="hover:bg-accent flex items-center gap-2 rounded-md p-1.5">
-          <Avatar className="size-8">
+        <DropdownMenuTrigger className="flex items-center gap-2 rounded-md p-1.5 transition-colors duration-fast hover:bg-surface-1">
+          <Avatar className="size-7">
             {user.image ? <AvatarImage src={user.image} alt="" /> : null}
             <AvatarFallback>{initials(user)}</AvatarFallback>
           </Avatar>
-          <span className="hidden truncate text-sm sm:inline">
+          <span className="hidden truncate text-[0.9375rem] text-fg-2 sm:inline">
             {user.firstName} {user.lastName}
           </span>
         </DropdownMenuTrigger>

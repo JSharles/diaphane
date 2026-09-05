@@ -1,7 +1,7 @@
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
-import { Geist_Mono, Urbanist } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans, Spectral } from "next/font/google";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { routing } from "@/i18n/routing";
@@ -10,14 +10,25 @@ import { LocaleSync } from "@/shared/components/locale-sync";
 import { SITE_URL } from "@/shared/lib/site-url";
 import "../globals.css";
 
-const urbanist = Urbanist({
-  variable: "--font-urbanist",
+// Three voices (apps/web/DESIGN.md § 4): Spectral is what is read, Plex
+// Sans what is operated, Plex Mono the machine.
+const voice = Spectral({
+  variable: "--font-voice",
   subsets: ["latin"],
+  weight: ["300", "400"],
+  style: ["normal", "italic"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const ui = IBM_Plex_Sans({
+  variable: "--font-ui",
   subsets: ["latin"],
+  weight: ["400", "500"],
+});
+
+const machine = IBM_Plex_Mono({
+  variable: "--font-machine",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 export function generateStaticParams() {
@@ -55,7 +66,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${urbanist.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${voice.variable} ${ui.variable} ${machine.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>

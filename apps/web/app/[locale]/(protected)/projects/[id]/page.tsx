@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, TriangleAlert, Video } from "lucide-react";
+import { TriangleAlert, Video } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { use } from "react";
 import { BoardConnectionCard } from "@/features/board-connections/components/board-connection-card";
@@ -12,12 +12,13 @@ import { ProjectPreferences } from "@/features/projects/components/project-prefe
 import { TeamPanel } from "@/features/projects/components/team-panel";
 import { TeamSummaryCard } from "@/features/projects/components/team-summary-card";
 import { useProject } from "@/features/projects/hooks";
-import { Link } from "@/i18n/navigation";
 import { SettingsSectionHeading } from "@/shared/components/settings-section-heading";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useCurrentUser } from "@/shared/hooks/use-current-user";
 import { ClientMainTabs } from "./client-main-tabs";
+import { ClientReadingHeader } from "./client-reading-header";
+import { PageHeader } from "@/shared/components/page-header";
 
 export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -61,37 +62,29 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     // holding two lines of text stretched past 1800px and its own arrow ended
     // up a screen away from its icon — read as an empty shelf rather than as
     // calm. Three screens a developer moves between, one measure, no jump.
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        {/* The documentation and setup screens both offer a way back to the
-            project; the project offered none to the list it came from, so the
-            only orientation on arrival was the title itself. */}
-        <Link
-          href="/home"
-          className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-          {t("backToProjects")}
-        </Link>
-
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-4">
-          <h1 className="min-w-0 truncate text-2xl font-semibold">{project.title}</h1>
-          {/* Contributor-only: on their page the meeting link is just one
-              compact row on the setup screen, easy to miss, so this header
-              shortcut earns its place. On the client page MeetingCard is
-              already a full, prominent sidebar card with its own "Join
-              meeting" button — a second one up here would just be the same
-              action shown twice. */}
-          {isContributor && project.meetingUrl && (
-            <Button asChild size="sm">
-              <a href={project.meetingUrl} target="_blank" rel="noreferrer">
-                <Video className="size-4" />
-                {t("joinMeeting")}
-              </a>
-            </Button>
-          )}
-        </div>
-      </div>
+    <div className="flex w-full flex-col gap-8">
+      {isContributor ? (
+        // The workspace header: the way back, the title in the voice, and
+        // the meeting shortcut as the page's one action (the client's page
+        // has MeetingCard for that).
+        <PageHeader
+          backHref="/home"
+          backLabel={t("backToProjects")}
+          title={project.title}
+          action={
+            project.meetingUrl ? (
+              <Button asChild size="sm">
+                <a href={project.meetingUrl} target="_blank" rel="noreferrer">
+                  <Video className="size-4" />
+                  {t("joinMeeting")}
+                </a>
+              </Button>
+            ) : undefined
+          }
+        />
+      ) : (
+        <ClientReadingHeader project={project} backLabel={t("backToProjects")} />
+      )}
 
       {isContributor ? (
         // The order is the hierarchy (revised 2026-08-29 when
@@ -137,12 +130,17 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         // the Meetings placeholder stay in a narrow sidebar (self-start:
         // it must not stretch to match whatever height the tabs column
         // ends up at).
-        <div className="grid min-h-0 grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="flex flex-col gap-4 lg:self-start">
-            <TeamPanel projectId={id} isAdmin={project.isAdmin} />
-            <MeetingCard projectId={id} />
+        // The reading shell (DESIGN.md § 8): the summary column on the left,
+        // the reading column at 68ch, the page signed at the foot.
+        <div className="flex flex-col gap-10">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[15rem_minmax(0,68ch)] lg:justify-center lg:gap-12">
+            <div className="flex flex-col gap-4 lg:self-start">
+              <TeamPanel projectId={id} isAdmin={project.isAdmin} />
+              <MeetingCard projectId={id} />
+            </div>
+            <ClientMainTabs projectId={id} />
           </div>
-          <ClientMainTabs projectId={id} className="lg:col-span-2" />
+          <p className="border-t border-hairline pt-4 text-xs text-fg-3">{t("publishedWith")}</p>
         </div>
       )}
     </div>

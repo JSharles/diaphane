@@ -218,8 +218,11 @@
       "loadErrorTitle": "Impossible de charger ce projet",
       "loadErrorRetry": "Réessayer",
       "joinMeeting": "Rejoindre la réunion",
-      "connections": "Branchements",
-      "preferences": "Préférences"
+      "connections": "Connexions",
+      "preferences": "Préférences",
+      "publishedBy": "Documents publiés par {name}",
+      "updatedOn": "Mis à jour le {date}",
+      "publishedWith": "Publié avec Diaphane"
     },
     "Documentation": {
       "AddDocument": {
@@ -630,7 +633,8 @@
       "nextTask": "Tâche suivante",
       "selectTask": "Voir « {title} »",
       "readMore": "Voir plus",
-      "notProvided": "Non renseigné pour cette tâche."
+      "notProvided": "Non renseigné pour cette tâche.",
+      "emptyBadge": "Rien en cours"
     },
     "TeamPanel": {
       "developer": "Développeur",
@@ -694,11 +698,6 @@
         "notionNothingNew": "Rien de nouveau dans vos pages Notion.",
         "notionRootsUpdatedRewriteOwed": "{count, plural, =1 {Une page a changé} other {# pages ont changé}} — une écriture du document de référence est déjà en cours, relancez-la ensuite."
       }
-    },
-    "EstimateUnitField": {
-      "label": "Quand une tâche a un nombre \"Estimate\" mais pas de \"Target date\", le lire en :",
-      "days": "Jours",
-      "hours": "Heures"
     }
   },
   "Invite": {

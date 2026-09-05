@@ -13,20 +13,20 @@ export function FeaturesSection() {
       className="mx-auto flex max-w-5xl scroll-mt-24 flex-col px-6 py-16 sm:py-24"
     >
       <div className="mb-10 max-w-2xl">
-        <h2 className="text-balance text-3xl font-black tracking-[-0.025em] sm:text-4xl">
+        <h2 className="text-balance font-serif text-3xl leading-tight font-normal sm:text-[2.5rem]">
           {t("title")}
         </h2>
-        <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
+        <p className="mt-5 text-lg leading-relaxed text-fg-2">
           {t("subhead")}
         </p>
       </div>
       <AiPreview />
       <DocumentPreview />
-      <dl className="mt-12 grid divide-y divide-border border-y border-border lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+      <dl className="mt-12 grid divide-y divide-hairline border-y border-hairline lg:grid-cols-3 lg:divide-x lg:divide-y-0">
         {PRINCIPLES.map((key) => (
           <div key={key} className="py-6 lg:px-6 lg:first:pl-0 lg:last:pr-0">
-            <dt className="font-bold">{t(`${key}Title`)}</dt>
-            <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            <dt className="text-base font-medium">{t(`${key}Title`)}</dt>
+            <dd className="mt-2 text-[0.9375rem] leading-relaxed text-fg-2">
               {t(`${key}Description`)}
             </dd>
           </div>

@@ -41,9 +41,19 @@ export default async function ProtectedLayout({
     // overflow-hidden here — this layout wraps every protected page, and
     // pages with more content than fits (e.g. Home with many projects)
     // must still be able to scroll normally.
-    <div className="flex h-dvh flex-col">
+    // A client never sees the ink: their whole shell is Lait (DESIGN.md
+    // § 1), the developer's is Encre. Content sits in the 1120px measure
+    // with the workspace padding (24px, 48px from lg).
+    <div
+      data-theme={user.accountKind === "client" ? "lait" : undefined}
+      className="flex h-dvh flex-col bg-background text-foreground"
+    >
       <TopNav user={user} />
-      <div className="flex flex-1 flex-col overflow-y-auto p-6">{children}</div>
+      <div className="flex flex-1 flex-col overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-[1120px] flex-1 flex-col px-6 py-6 lg:px-12 lg:py-8">
+          {children}
+        </div>
+      </div>
     </div>
   );
 }

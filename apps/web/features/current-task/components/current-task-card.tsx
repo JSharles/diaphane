@@ -1,12 +1,14 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, CircleDot } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import type { CurrentTaskItem } from "schemas";
 import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { Progress } from "@/shared/components/ui/progress";
 import {
   Carousel,
   CarouselContent,
@@ -24,50 +26,9 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { useCurrentTask } from "../hooks";
 
-// Signature Card treatment (DESIGN.md "Signature Card" exception) — reserved
-// for this card because it's the core value proposition, not a pattern to
-// copy onto ordinary cartouches. Reinforced per critique feedback (P0): the
-// first pass measured as "basically white" in a real screenshot — this pass
-// pushes opacity/scale/border hard enough to read as unmistakable at a glance.
-//
-// `active` distinguishes "a task is live" from "nothing in progress right
-// now": a live-tested critique pass caught that the ring/pulse only ever
-// rendered on the has-data branch, so an idle project (a very plausible
-// first-session state for a real client) looked identical to every
-// placeholder tile around it. Idle keeps the same glow/ring/dot elements —
-// just dimmer and static — instead of vanishing, so the card still reads as
-// "this is the important one," not "this one is broken."
-function LiveIndicator({ active }: { active: boolean }) {
-  return (
-    <div className="relative flex size-9 shrink-0 items-center justify-center" aria-hidden>
-      <span className="bg-glow/30 absolute inset-0 rounded-full blur-lg" />
-      <span
-        className={cn(
-          "absolute inset-0 rounded-full",
-          active && "motion-safe:animate-[spin_3s_linear_infinite]",
-        )}
-        style={{
-          background: active
-            ? "conic-gradient(from 0deg, var(--foreground) 0deg 90deg, transparent 90deg 360deg)"
-            : "conic-gradient(from 0deg, var(--muted-foreground) 0deg 40deg, transparent 40deg 360deg)",
-          WebkitMaskImage:
-            "radial-gradient(farthest-side, transparent calc(100% - 2.5px), black calc(100% - 2.5px))",
-          maskImage:
-            "radial-gradient(farthest-side, transparent calc(100% - 2.5px), black calc(100% - 2.5px))",
-        }}
-      />
-      <span className="relative flex size-6 items-center justify-center rounded-full bg-accent">
-        <CircleDot className="size-4 text-accent-foreground" />
-      </span>
-      <span
-        className={cn(
-          "ring-card absolute -top-0.5 -right-0.5 size-3 rounded-full ring-2",
-          active ? "bg-success motion-safe:animate-pulse" : "bg-muted-foreground/50",
-        )}
-      />
-    </div>
-  );
-}
+// "In progress" is a status, and a status is a badge with a fixed dot: no
+// rotating ring, no pulse (DESIGN.md § 5 Mouvement, § 6 Badge). Being under
+// way is neutral, not a success and not a warning.
 
 // Frontend-only relative-time formatting from the item's own `updatedAt`
 // (backend already tracks this via VulgarizedTask.updatedAt) — no new
@@ -132,41 +93,19 @@ function ProgressIndicator({
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
 
   return (
-    <div className="flex flex-col gap-1.5 text-sm">
-      <p className={isOver ? "text-destructive" : "text-muted-foreground"}>
+    <div className="flex flex-col gap-2 text-[0.8125rem]">
+      <p className={isOver ? "text-warning" : "text-fg-3"}>
         {isOver ? t("runningOver") : t("estimatedCompletion", { time: rtf.format(diffDays, "day") })}
       </p>
       {confidence && (
-        <p className={confidence === "low" ? "text-destructive" : "text-muted-foreground"}>
+        <p className={confidence === "low" ? "text-warning" : "text-fg-3"}>
           {t(`confidence.${confidence}`)}
         </p>
       )}
-      <div
-        role="progressbar"
-        aria-label={t("progressLabel")}
-        aria-valuenow={Math.round(percent)}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
-      >
-        <div
-          className={cn("h-full rounded-full", isOver && "bg-destructive")}
-          style={
-            isOver
-              ? { width: `${percent}%` }
-              : {
-                  width: `${percent}%`,
-                  // Anchored to the real --success token (impeccable audit,
-                  // 2026-08-09) rather than two hand-typed oklch literals —
-                  // the previous values happened to match --success exactly
-                  // but weren't actually derived from it, so a future retune
-                  // of --success would have silently drifted out of sync.
-                  backgroundImage:
-                    "linear-gradient(to right, color-mix(in oklch, var(--success) 60%, white), var(--success))",
-                }
-          }
-        />
-      </div>
+      {/* No colour on the bar (DESIGN.md § 6): the track is a hairline, the
+          fill is the text colour, and the sentence above says whether the
+          estimate has been passed. */}
+      <Progress value={percent} aria-label={t("progressLabel")} />
     </div>
   );
 }
@@ -180,22 +119,9 @@ function ProgressIndicator({
 function Section({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-        {label}
-      </span>
+      {/* No capitals in a label (DESIGN.md § 4 Interdits typographiques). */}
+      <span className="text-[0.8125rem] font-medium text-fg-3">{label}</span>
       {children}
-    </div>
-  );
-}
-
-// Purely decorative texture behind the frosted panel — never anything text
-// sits directly on top of.
-function IridescentGlow() {
-  return (
-    <div className="pointer-events-none absolute inset-0" aria-hidden>
-      <span className="bg-iris-pink absolute -top-16 -left-16 size-72 rounded-full opacity-50 blur-3xl" />
-      <span className="bg-iris-blue absolute top-1/4 -right-16 size-72 rounded-full opacity-50 blur-3xl" />
-      <span className="bg-iris-yellow absolute -bottom-20 left-1/3 size-80 rounded-full opacity-40 blur-3xl" />
     </div>
   );
 }
@@ -226,22 +152,19 @@ function TaskCardBody({
 }) {
   return (
     <div className="flex min-h-0 flex-1 max-w-prose flex-col gap-5">
-      <Section label={t("inProgress")}>
-        <div className="flex items-center gap-3">
-          <LiveIndicator active />
-          {/* h2, not a bare span: the task's own title is genuinely the
-              most important string on the card and belongs in the heading
-              outline, not skipped by a screen reader navigating by
-              heading. h2, not h3 — nothing in the client view sits between
-              this card and the page's own h1, same level as
-              TeamPanel/MeetingCard's own section headings. */}
-          <h2 className="text-xl leading-snug font-bold text-balance">{item.title}</h2>
-        </div>
-      </Section>
+      <div className="flex flex-col gap-2">
+        <Badge>{t("inProgress")}</Badge>
+        {/* h2, not a bare span: the task's own title is genuinely the most
+            important string on the card and belongs in the heading outline.
+            It is a document title, so it speaks in the voice. */}
+        <h2 className="font-serif text-[1.625rem] leading-tight font-normal text-balance">
+          {item.title}
+        </h2>
+      </div>
 
       {item.why && (
         <Section label={t("why")}>
-          <p className="text-sm leading-relaxed text-foreground">{item.why}</p>
+          <p className="font-serif text-[1.0625rem] leading-relaxed">{item.why}</p>
         </Section>
       )}
 
@@ -249,7 +172,7 @@ function TaskCardBody({
         <SheetTrigger asChild>
           <button
             type="button"
-            className="focus-visible:ring-ring/50 w-fit text-sm font-medium text-primary hover:underline focus-visible:rounded-sm focus-visible:ring-[3px] focus-visible:outline-none"
+            className="w-fit text-sm font-medium underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             {t("readMore")}
           </button>
@@ -262,8 +185,8 @@ function TaskCardBody({
             <Section label={t("why")}>
               <p
                 className={cn(
-                  "text-sm leading-relaxed",
-                  item.why ? "text-foreground" : "text-muted-foreground italic",
+                  "font-serif text-[1.0625rem] leading-relaxed",
+                  item.why ? "text-foreground" : "text-fg-3 italic",
                 )}
               >
                 {item.why ?? t("notProvided")}
@@ -272,8 +195,8 @@ function TaskCardBody({
             <Section label={t("impact")}>
               <p
                 className={cn(
-                  "text-sm leading-relaxed",
-                  item.impact ? "text-foreground" : "text-muted-foreground italic",
+                  "font-serif text-[1.0625rem] leading-relaxed",
+                  item.impact ? "text-foreground" : "text-fg-3 italic",
                 )}
               >
                 {item.impact ?? t("notProvided")}
@@ -282,8 +205,8 @@ function TaskCardBody({
             <Section label={t("status")}>
               <p
                 className={cn(
-                  "text-sm leading-relaxed",
-                  item.status ? "text-foreground" : "text-muted-foreground italic",
+                  "font-serif text-[1.0625rem] leading-relaxed",
+                  item.status ? "text-foreground" : "text-fg-3 italic",
                 )}
               >
                 {item.status ?? t("notProvided")}
@@ -305,7 +228,7 @@ function TaskCardBody({
           neighbors' — auto margin absorbs whatever space the middle
           content didn't use, every card's timeline/estimate ends up flush
           against the bottom regardless of how little sits above it. */}
-      <p className="mt-auto border-t border-white/15 pt-3 text-sm text-muted-foreground">
+      <p className="mt-auto border-t border-hairline pt-3 ui-meta text-fg-3">
         {t("timeline", {
           started: formatRelativeTime(item.startedAt, locale),
           updated: formatRelativeTime(item.updatedAt, locale),
@@ -363,14 +286,18 @@ function TaskCard({
     // that box's own height was determined. Same reasoning repeats one
     // level down at Card/CardContent/TaskCardBody (flex-1 + min-h-0
     // instead of h-full) — this is the one spot the chain needs to start.
+    // La porte (DESIGN.md § 7): the one Lait surface inside the Encre. No
+    // border, no shadow, no glass; the contrast with the ground is enough.
     <div
       className={cn(
-        "relative flex h-full max-h-[30rem] flex-col overflow-hidden rounded-xl transition-all duration-300",
-        !active && "scale-[0.94] opacity-50",
+        "relative flex h-full max-h-[30rem] flex-col overflow-hidden rounded-lg transition-opacity duration-300",
+        !active && "opacity-50",
       )}
     >
-      <IridescentGlow />
-      <Card className="relative min-h-0 flex-1 border-2 border-white/15 bg-white/[0.06] shadow-xl backdrop-blur-2xl">
+      <Card
+        data-theme="lait"
+        className="relative min-h-0 flex-1 border-0 bg-background text-foreground"
+      >
         <CardContent className="flex min-h-0 flex-1 flex-col gap-3 py-6">
           <TaskCardBody item={item} locale={locale} t={t} />
         </CardContent>
@@ -385,9 +312,11 @@ function TaskCard({
 // the Signature Card only once real data exists.
 function CardShell({ children }: { children: ReactNode }) {
   return (
-    <div className="relative overflow-hidden rounded-xl">
-      <IridescentGlow />
-      <Card className="relative border-2 border-white/15 bg-white/[0.06] shadow-xl backdrop-blur-2xl">
+    <div className="relative overflow-hidden rounded-lg">
+      <Card
+        data-theme="lait"
+        className="relative border-0 bg-background text-foreground"
+      >
         <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
           {children}
         </CardContent>
@@ -505,8 +434,9 @@ export function CurrentTaskCard({ projectId }: { projectId: string }) {
   if (!items || items.length === 0) {
     return (
       <CardShell>
-        <LiveIndicator active={false} />
-        <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        {/* Nothing under way is a neutral status, not a broken card. */}
+        <Badge>{t("emptyBadge")}</Badge>
+        <p className="text-[0.9375rem] text-fg-2">{t("empty")}</p>
       </CardShell>
     );
   }

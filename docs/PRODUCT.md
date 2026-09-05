@@ -102,7 +102,7 @@ Le ou les tickets du board GitHub Projects connecté au projet qui sont dans une
 
 **Le geste du développeur** : déplacer la carte en « In progress » quand il commence, et écrire de vrais titres et descriptions, seule matière de la vulgarisation. Optionnel : une date cible ou une estimation sur la carte ; si elles sont là, elles priment, sinon l'estimation IA existante reste affichée avec sa confiance basse.
 
-**Ce que la chaîne lit sur le board** : les champs `Status`, `Start date`, `Target date`, `Estimate` par leur nom exact ; les colonnes reconnues par un nom contenant « in progress » et « done » ; l'unité de l'estimation (jours ou heures) choisie à la connexion, modifiable ensuite depuis la carte du board sans le reconnecter. Un ticket sans statut ne compte nulle part. Le pourcentage d'avancement du projet est « done » sur « total », recalculé au même sondage, toutes les cinq minutes ; nul tant que rien n'est trié.
+**Ce que la chaîne lit sur le board** : les champs `Status`, `Start date`, `Target date`, `Estimate` par leur nom exact ; les colonnes reconnues par un nom contenant « in progress » et « done » . L'`Estimate` du board se lit en jours ; il n'y a pas d'unité à choisir. Un ticket sans statut ne compte nulle part. Le pourcentage d'avancement du projet est « done » sur « total », recalculé au même sondage, toutes les cinq minutes ; nul tant que rien n'est trié.
 
 Décision : [La tâche en cours, côté développeur](https://github.com/JSharles/diaphane/issues/45).
 

@@ -237,11 +237,13 @@ export class TaskVulgarizationService {
       estimatedCompletionAt = new Date(item.boardTargetDate);
       estimateSource = 'board';
     } else if (item.boardEstimateValue != null) {
-      const durationDays =
-        connection.estimateUnit === 'hours'
-          ? item.boardEstimateValue / 24
-          : item.boardEstimateValue;
-      estimatedCompletionAt = addDays(resolvedStartedAt, durationDays);
+      // The board's Estimate is a number of days: GitHub Projects has no
+      // unit of its own, and asking the developer to pick one produced a
+      // control nobody moved (removed 2026-09-04).
+      estimatedCompletionAt = addDays(
+        resolvedStartedAt,
+        item.boardEstimateValue,
+      );
       estimateSource = 'board';
     } else if (aiEstimatedDurationDays != null) {
       estimatedCompletionAt = addDays(

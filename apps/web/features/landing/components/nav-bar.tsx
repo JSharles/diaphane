@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
+import { Emblem } from "@/shared/components/emblem";
 import { GlassBar } from "@/features/landing/components/glass-bar";
 import { Menu } from "lucide-react";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import {
   Sheet,
@@ -17,29 +17,19 @@ export function NavBar() {
   const t = useTranslations("Landing");
 
   return (
-    // The bar is a glass surface (React Bits GlassSurface behind GlassBar,
-    // which owns the hydration-safe mount): a floating glass strip instead
-    // of plain transparency. The radius matches the xl token (14px).
-    <header className="sticky top-0 z-40 w-full px-3 pt-3">
+    // The bar floats over the hero rather than sitting on it: inset from the
+    // three edges, the pane's glass and radius, the emblem left, the anchors
+    // centred, the two ways in on the right (DESIGN.md § 5, the pane is
+    // allowed here).
+    <header className="sticky top-0 z-40 w-full px-4 pt-4 sm:px-6">
       <GlassBar>
-        <div className="flex w-full items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-3">
-          <Image
-            src="/images/logo-square.png"
-            alt=""
-            width={332}
-            height={332}
-            priority
-            className="size-10"
-          />
-          {/* Slightly phosphorescent: plain readable text first, the halo is
-             decoration on top (DESIGN.md Navigation). */}
-          <span className="text-glow-subtle text-xl font-black tracking-tight text-primary">
-            Diaphane
-          </span>
+        <div className="flex w-full items-center justify-between gap-6 px-4">
+        <Link href="/" className="flex items-center gap-2 text-foreground">
+          <Emblem />
+          <span className="text-base font-medium">Diaphane</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 text-xs font-medium text-muted-foreground md:flex">
+        <nav className="ui-control hidden items-center gap-7 text-fg-2 md:flex">
           <a
             href="#product"
             className="transition-colors hover:text-foreground"
@@ -63,16 +53,16 @@ export function NavBar() {
           </a>
         </nav>
 
-        <div className="flex items-center gap-4 md:pl-4 md:before:mr-4 md:before:h-4 md:before:w-px md:before:bg-border md:before:content-['']">
+        <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="hidden text-sm font-semibold text-foreground transition-colors hover:text-foreground/70 md:inline"
+            className="ui-control hidden text-fg-2 transition-colors hover:text-foreground md:inline"
           >
             {t("logIn")}
           </Link>
           <Link
             href="/signup"
-            className="hidden rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-white hover:glow-subtle md:inline-flex"
+            className="hidden rounded-md bg-primary ui-control px-5 py-2.5 text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom md:inline-flex"
           >
             {t("signUp")}
           </Link>
@@ -88,7 +78,7 @@ export function NavBar() {
               <SheetHeader>
                 <SheetTitle>Diaphane</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-1 px-4 text-sm font-medium text-muted-foreground">
+              <nav className="ui-control flex flex-col gap-1 px-4 text-fg-2">
                 <SheetClose asChild>
                   <a
                     href="#product"
@@ -126,7 +116,7 @@ export function NavBar() {
                 <SheetClose asChild>
                   <Link
                     href="/login"
-                    className="text-center text-sm font-semibold text-foreground transition-colors hover:text-foreground/70"
+                    className="ui-control text-center text-fg-2 transition-colors hover:text-foreground"
                   >
                     {t("logIn")}
                   </Link>
@@ -134,7 +124,7 @@ export function NavBar() {
                 <SheetClose asChild>
                   <Link
                     href="/signup"
-                    className="rounded-md bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground transition-all duration-200 hover:bg-white hover:glow-subtle"
+                    className="rounded-md bg-primary ui-control px-5 py-2.5 text-center text-primary-foreground transition-all duration-200 hover:bg-action-hover hover:bloom"
                   >
                     {t("signUp")}
                   </Link>

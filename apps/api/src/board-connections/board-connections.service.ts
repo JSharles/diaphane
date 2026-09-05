@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { BoardProvider, EstimateUnit, ProjectMember } from '@prisma/client';
+import { BoardProvider, ProjectMember } from '@prisma/client';
 import { GithubConnectionService } from '../auth/github-connection.service';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -20,7 +20,6 @@ export interface BoardConnectionDetails {
   boardNumber: number;
   boardTitle: string;
   boardUrl: string;
-  estimateUnit: EstimateUnit;
   // The developer who chose this board has no usable GitHub connection any
   // more (cut, or revoked): the board is named but no longer read.
   needsReconnect: boolean;
@@ -30,7 +29,6 @@ export interface BoardSelection {
   ownerLogin: string;
   ownerType: GithubOwnerType;
   number: number;
-  estimateUnit?: EstimateUnit;
 }
 
 @Injectable()
@@ -85,7 +83,6 @@ export class BoardConnectionsService {
       boardNumber: board.number,
       boardTitle: board.title,
       boardUrl: board.url,
-      estimateUnit: selection.estimateUnit ?? EstimateUnit.days,
     };
 
     const connection = await this.prisma.boardConnection.upsert({
@@ -104,32 +101,6 @@ export class BoardConnectionsService {
     await this.assertIsDeveloper(userId, projectId);
 
     return this.readForProject(projectId);
-  }
-
-  // Changes how the board's numeric "Estimate" is read, and nothing else:
-  // the board stays chosen, GitHub is not asked again. The next sweep of the
-  // board recomputes the estimated completion dates with the new unit.
-  async updateEstimateUnit(
-    userId: string,
-    projectId: string,
-    estimateUnit: EstimateUnit,
-  ): Promise<BoardConnectionDetails> {
-    await this.assertIsDeveloper(userId, projectId);
-
-    const current = await this.readForProject(projectId);
-    if (!current) {
-      throw new NotFoundException('No board is connected to this project');
-    }
-
-    const connection = await this.prisma.boardConnection.update({
-      where: { projectId },
-      data: { estimateUnit },
-    });
-
-    return {
-      ...this.toDetails(connection),
-      needsReconnect: current.needsReconnect,
-    };
   }
 
   private async readForProject(
@@ -183,7 +154,6 @@ export class BoardConnectionsService {
       boardNumber: connection.boardNumber,
       boardTitle: connection.boardTitle,
       boardUrl: connection.boardUrl,
-      estimateUnit: connection.estimateUnit,
     };
   }
 

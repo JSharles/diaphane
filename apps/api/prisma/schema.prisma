@@ -14,13 +14,6 @@ enum BoardProvider {
   github
 }
 
-// How the board's own numeric "Estimate" field converts to a duration when
-// used as a fallback for the estimated completion date.
-enum EstimateUnit {
-  days
-  hours
-}
-
 // The AI's own judgment of a task's complexity, from its title/description —
 // one input to the confidence matrix.
 enum TaskComplexity {
@@ -357,12 +350,6 @@ model BoardConnection {
   boardNumber     Int    @map("board_number")
   boardTitle      String @map("board_title")
   boardUrl        String @map("board_url")
-
-  // How to interpret the board's numeric "Estimate" field as a duration
-  // when there's no "Target date" field to read directly. Set when the
-  // board is chosen; no edit endpoint yet — choose the board again to
-  // change it.
-  estimateUnit EstimateUnit @default(days) @map("estimate_unit")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

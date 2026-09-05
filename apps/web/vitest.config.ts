@@ -26,12 +26,12 @@ export default defineConfig({
       reporter: ["text", "html"],
       include: ["app/**", "features/**", "shared/**"],
       exclude: [
+        // Vendored from the React Bits registry, not hand-authored.
+        "shared/components/GlassSurface.tsx",
         "shared/components/ui/**",
         // Vendored from the React Bits registry (WebGL background) — same
         // status as the shadcn files above: not hand-authored, not testable
         // in jsdom (no WebGL), pinned by the registry.
-        "shared/components/SideRays.tsx",
-        "shared/components/GlassSurface.tsx",
         "**/*.d.ts",
         // Pure Next.js wiring (fonts, metadata) — no branching logic to test.
         "app/[locale]/layout.tsx",

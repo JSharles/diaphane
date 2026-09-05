@@ -219,7 +219,10 @@
       "loadErrorRetry": "Retry",
       "joinMeeting": "Join meeting",
       "connections": "Connections",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "publishedBy": "Documents published by {name}",
+      "updatedOn": "Updated on {date}",
+      "publishedWith": "Published with Diaphane"
     },
     "Documentation": {
       "AddDocument": {
@@ -630,7 +633,8 @@
       "nextTask": "Next task",
       "selectTask": "View \"{title}\"",
       "readMore": "Read more",
-      "notProvided": "Not provided for this task."
+      "notProvided": "Not provided for this task.",
+      "emptyBadge": "Nothing under way"
     },
     "TeamPanel": {
       "developer": "Developer",
@@ -694,11 +698,6 @@
         "notionNothingNew": "Nothing new in your Notion pages.",
         "notionRootsUpdatedRewriteOwed": "{count, plural, =1 {One page changed} other {# pages changed}} — a reference document write is already running, write it again afterwards."
       }
-    },
-    "EstimateUnitField": {
-      "label": "When a task has an \"Estimate\" number but no \"Target date\", read it in:",
-      "days": "Days",
-      "hours": "Hours"
     }
   },
   "Invite": {

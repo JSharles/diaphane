@@ -23,6 +23,15 @@ describe("Hero", () => {
     render(<Hero />);
 
     const heading = screen.getByRole("heading", { level: 1 });
+    const hero = heading.closest("section");
+
+    expect(hero?.className).toContain("w-full");
+    expect(hero?.className).toContain("overflow-hidden");
+    expect(hero?.className).toContain("lg:items-start");
+    expect(hero?.className).toContain("lg:text-left");
+    expect(hero?.className).not.toContain("max-w-5xl");
+    expect(heading.parentElement?.className).toContain("lg:max-w-[42vw]");
+    expect(heading.parentElement?.className).toContain("lg:items-start");
     expect(heading.textContent).toBe("titleBeforetitleHighlighttitleAfter");
     expect(within(heading).getByText("titleHighlight")).toBeInTheDocument();
     expect(screen.getByText("eyebrow")).toBeInTheDocument();

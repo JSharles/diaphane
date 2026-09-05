@@ -62,8 +62,10 @@ export default function ClientStepPage({
         )}
       </div>
 
+      {/* The mirror renders in Lait, the client's material: what the
+          developer sees here is what the client sees, ground included. */}
       {published ? (
-        <div className="rounded-xl border border-border p-4 sm:p-5">
+        <div data-theme="lait" className="rounded-lg bg-background p-4 text-foreground sm:p-5">
           <p className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
             <Eye className="size-3.5 shrink-0" />
             {t("throughTheirEyes")}

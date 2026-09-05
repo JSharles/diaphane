@@ -5,29 +5,34 @@ import { Slot } from "radix-ui"
 import { cn } from "@/shared/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  // DESIGN.md § 6 Bouton: ui-control type, rounded md, a 2px ring offset on
+  // focus, 38% opacity when disabled, one motion duration for every state.
+  "ui-control inline-flex shrink-0 items-center justify-center gap-2 rounded-md whitespace-nowrap transition-[color,background-color,border-color,box-shadow] duration-fast ease-out-quiet outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-[0.38] disabled:shadow-none aria-invalid:border-danger [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        // Hover raises luminosity (pure white + a tiny bloom) — the bloom is
-        // never permanent (DESIGN.md Buttons).
+        // Primary: the warm white on ink; the bloom is the page's only glow
+        // and lives on this hover alone, never at rest.
         default:
-          "bg-primary text-primary-foreground hover:bg-white hover:glow-subtle",
+          "bg-primary text-primary-foreground hover:bg-action-hover hover:bloom active:bg-action-active",
+        // Destructive: no red fill, ever. Red text on a hairline, the tinted
+        // ground only on hover.
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+          "border border-hairline bg-transparent text-danger hover:bg-danger-bg active:bg-danger-bg",
+        // Secondary and outline are the same button: a surface step with a
+        // hairline. Two names because shadcn callers use both.
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border border-hairline bg-surface-2 text-fg hover:border-hairline-strong hover:bg-surface-3 active:bg-surface-3",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          "border border-hairline bg-surface-2 text-fg hover:border-hairline-strong hover:bg-surface-3 active:bg-surface-3",
+        ghost: "text-fg-2 hover:bg-surface-1 hover:text-fg active:bg-surface-2",
+        link: "text-fg underline-offset-4 hover:underline",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        xs: "h-6 gap-1 rounded-md px-2 has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        lg: "h-11 rounded-md px-6 has-[>svg]:px-4",
         icon: "size-9",
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
         "icon-sm": "size-8",

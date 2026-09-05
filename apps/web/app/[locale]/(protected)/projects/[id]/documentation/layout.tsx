@@ -1,13 +1,14 @@
 "use client";
 
-import { ArrowLeft, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { use, useEffect, type ReactNode } from "react";
 import { DocumentationRail } from "@/features/documentation/components/documentation-rail";
 import { useProject } from "@/features/projects/hooks";
-import { Link, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { PageHeader } from "@/shared/components/page-header";
 import { useCurrentUser } from "@/shared/hooks/use-current-user";
 
 // The documentary feature in one place: every step renders inside
@@ -50,17 +51,8 @@ export default function DocumentationLayout({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-      <div className="space-y-5">
-        <Link
-          href={`/projects/${id}`}
-          className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-          {t("back")}
-        </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-      </div>
+    <div className="flex w-full flex-col gap-8">
+      <PageHeader backHref={`/projects/${id}`} backLabel={t("back")} title={t("title")} />
 
       {/* At 390px the rail stacks above the panel (FR-011); from md it sits
           beside, fixed width, the panel taking the rest. */}
